@@ -1,138 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#03050a">
-<title>KAELITH69 | Cosmic Journey</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#02040a">
+<title>KAELITH69</title>
 <style>
-:root{--bg:#03050a;--white:#e9f0f7;--muted:#718195;--line:rgba(180,205,230,.16);--accent:#b8d9f2}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--white);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}body{scrollbar-width:thin;scrollbar-color:#26394a #03050a}#space{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
-.loading{position:fixed;inset:0;z-index:20;background:#020307;display:grid;place-items:center;transition:opacity 1.1s ease,visibility 1.1s}.loading.hide{opacity:0;visibility:hidden}.load-inner{width:min(460px,86vw);text-align:center}.load-kicker,.mono{font-family:"DM Mono",monospace;letter-spacing:.13em;text-transform:uppercase;font-size:10px;color:#8495a7}.load-kicker{margin-bottom:22px}.load-title{font-size:clamp(16px,3vw,24px);letter-spacing:.14em;font-weight:500;margin:0 0 26px}.loader-system{height:180px;position:relative;margin:0 auto 22px}.loader-sun{position:absolute;left:50%;top:50%;width:25px;height:25px;border-radius:50%;background:#fff7d5;box-shadow:0 0 15px 7px #ffcf70,0 0 45px 20px #ff8b28;transform:translate(-50%,-50%)}.orbit{position:absolute;left:50%;top:50%;border:1px solid rgba(200,220,240,.15);border-radius:50%;transform:translate(-50%,-50%)}.orbit.o1{width:62px;height:62px}.orbit.o2{width:95px;height:95px}.orbit.o3{width:132px;height:132px}.orbit.o4{width:166px;height:166px}.orbit.o5{width:210px;height:210px}.orbit.o6{width:254px;height:254px}.orbit.o7{width:294px;height:294px}.orbit.o8{width:330px;height:330px}.orbit.o9{width:370px;height:370px}.loader-planet{position:absolute;width:6px;height:6px;border-radius:50%;background:#b7c6d6;box-shadow:0 0 6px #9bb5d3;top:50%;left:50%;transform:translate(-50%,-50%) rotate(var(--start,0deg)) translateX(var(--radius,31px));animation:orbit var(--speed,1.2s) linear infinite}
-@keyframes orbit{to{transform:translate(-50%,-50%) rotate(calc(var(--start,0deg) + 360deg)) translateX(var(--radius,31px))}}
-.loader-planet.p1{--radius:31px;--speed:.55s}.loader-planet.p2{--radius:47px;--speed:.8s}.loader-planet.p3{--radius:66px;--speed:1s}.loader-planet.p4{--radius:83px;--speed:1.2s}.loader-planet.p5{--radius:105px;--speed:1.45s}.loader-planet.p6{--radius:127px;--speed:1.7s}.loader-planet.p7{--radius:147px;--speed:1.95s}.loader-planet.p8{--radius:165px;--speed:2.2s}.loader-planet.p9{--radius:185px;--speed:2.5s}
-.loader-planet.p3{background:#2f8dce;box-shadow:0 0 9px #4fa9ff}.loader-planet.p5{background:#d6a77c}.loader-planet.p6{width:9px;height:9px;background:#d2bd88}.loader-planet.p9{width:3px;height:3px}.load-track{height:1px;background:#273442;position:relative;overflow:hidden}.load-fill{height:100%;width:0;background:#d5e8f7;box-shadow:0 0 10px #9fc8ed;transition:width .25s}.load-meta{display:flex;justify-content:space-between;margin-top:10px}.load-status{margin-top:18px;min-height:14px}
-.header{position:fixed;z-index:4;top:0;left:0;right:0;padding:25px 34px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}.brand{font-size:12px;letter-spacing:.18em;font-weight:600}.header-right{display:flex;gap:28px;align-items:center}.header .mono{font-size:9px}.header a{color:inherit;text-decoration:none;pointer-events:auto}.header a:hover{color:#fff}.hud{position:fixed;z-index:4;left:34px;top:50%;transform:translateY(-50%);width:170px;pointer-events:none}.hud-label{font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.15em;color:#8094a8;margin-bottom:10px}.hud-body{font-size:22px;font-weight:500;letter-spacing:-.04em}.hud-sub{font-family:"DM Mono",monospace;font-size:9px;color:#8094a8;margin-top:9px;line-height:1.8}.progress{position:fixed;z-index:5;right:34px;top:50%;transform:translateY(-50%);height:160px;width:1px;background:rgba(190,215,235,.18)}.progress-fill{height:0;width:2px;background:#d4e8f7;position:absolute;left:-.5px;top:0;box-shadow:0 0 9px #b8d9f2}.progress-dot{position:absolute;width:5px;height:5px;background:#fff;border-radius:50%;left:-2px;top:0;transform:translateY(-50%)}.progress-label{position:absolute;right:13px;top:0;white-space:nowrap;font:9px "DM Mono";letter-spacing:.12em;color:#75879a}
-.intro{position:relative;z-index:2;height:100vh;display:flex;align-items:flex-end;padding:0 8vw 12vh;pointer-events:none}.intro-copy{max-width:520px;opacity:0;transform:translateY(22px);transition:opacity 1s,transform 1s}.intro-copy.show{opacity:1;transform:none}.eyebrow{font:10px "DM Mono";letter-spacing:.18em;color:#a2b7c9;text-transform:uppercase;margin-bottom:18px}.intro h1{font-size:clamp(48px,8vw,112px);line-height:.9;letter-spacing:-.075em;font-weight:500;margin:0}.intro p{font-size:14px;line-height:1.7;color:#b0bdca;max-width:370px;margin:22px 0 0}.scroll-hint{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);font:9px "DM Mono";letter-spacing:.16em;color:#8394a7;display:flex;align-items:center;gap:12px}.scroll-hint:before{content:"";width:22px;height:1px;background:#8394a7}
-.chapters{position:relative;z-index:2}.chapter{height:100vh;display:flex;align-items:center;padding:0 10vw;pointer-events:none}.chapter-content{max-width:380px;opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}.chapter.active .chapter-content{opacity:1;transform:none}.chapter:nth-child(even) .chapter-content{margin-left:auto;text-align:right}.chapter .index{font:10px "DM Mono";letter-spacing:.16em;color:#9aafc2}.chapter h2{font-size:clamp(36px,5vw,70px);letter-spacing:-.06em;font-weight:500;margin:12px 0}.chapter p{font-size:14px;line-height:1.7;color:#a9b8c7;max-width:360px}.chapter:nth-child(even) p{margin-left:auto}.chapter .micro{font:9px "DM Mono";letter-spacing:.14em;color:#8195a8;margin-top:22px}
-.footer{height:100vh;position:relative;z-index:2;display:flex;align-items:flex-end;padding:0 8vw 12vh;pointer-events:none}.footer-copy{max-width:500px}.footer h2{font-size:clamp(44px,7vw,96px);letter-spacing:-.07em;font-weight:500;margin:12px 0}.footer p{color:#a8b7c6;font-size:14px;line-height:1.7}.contact-link{pointer-events:auto;display:inline-block;margin-top:20px;color:#e9f0f7;text-decoration:none;border-bottom:1px solid rgba(220,240,255,.5);padding-bottom:7px;font:10px "DM Mono";letter-spacing:.12em}
-#fallback{display:none;position:fixed;inset:0;z-index:1;background:radial-gradient(circle at 50% 50%,#15334a 0,#07111d 30%,#03050a 70%);align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px}
-@media(max-width:700px){.header{padding:20px}.header-right{gap:14px}.header-right .mono:nth-child(2){display:none}.hud{left:20px;top:auto;bottom:18%;transform:none;width:130px}.hud-body{font-size:18px}.progress{right:18px;height:120px}.intro{padding:0 24px 15vh}.intro h1{font-size:clamp(54px,17vw,90px)}.intro p{font-size:13px}.chapter{padding:0 24px}.chapter-content{max-width:280px}.chapter h2{font-size:45px}.chapter p{font-size:13px}.chapter:nth-child(even) .chapter-content{margin-left:0;text-align:left}.chapter:nth-child(even) p{margin-left:0}.footer{padding:0 24px 15vh}.loader-system{transform:scale(.7)}.load-title{font-size:15px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+*{box-sizing:border-box}html,body{margin:0;background:#02040a;color:#fff;overflow-x:hidden;font-family:system-ui,sans-serif}body{height:900vh}canvas{position:fixed;inset:0;width:100%;height:100%;display:block}#loader{position:fixed;inset:0;background:#02040a;z-index:4;display:grid;place-items:center;transition:opacity 1s}#loader.hide{opacity:0;pointer-events:none}.loader-sun{width:18px;height:18px;border-radius:50%;background:#fff2c5;box-shadow:0 0 18px 8px #ffbd5b,0 0 80px 35px #ff6b18;position:absolute}.loader-orbit{position:absolute;border:1px solid #263341;border-radius:50%;animation:spin linear infinite}.loader-orbit:after{content:"";position:absolute;top:0;left:50%;width:4px;height:4px;background:#cbdff5;border-radius:50%}.o1{width:45px;height:45px;animation-duration:.4s}.o2{width:75px;height:75px;animation-duration:.6s}.o3{width:110px;height:110px;animation-duration:.8s}.o4{width:150px;height:150px;animation-duration:1s}.o5{width:190px;height:190px;animation-duration:1.2s}.o6{width:235px;height:235px;animation-duration:1.4s}.o7{width:280px;height:280px;animation-duration:1.6s}.o8{width:325px;height:325px;animation-duration:1.8s}@keyframes spin{to{transform:rotate(360deg)}}#name{position:fixed;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(24px,6vw,78px);letter-spacing:.22em;font-weight:300;white-space:nowrap;opacity:0;pointer-events:none;text-shadow:0 0 30px #c7e4ff;transition:opacity .8s}#name.show{opacity:1}#hint{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);font:10px monospace;letter-spacing:.18em;color:#94a8bd;z-index:2;opacity:.7;transition:opacity .5s}#hint.hide{opacity:0}@media(prefers-reduced-motion:reduce){*{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
-<body>
-<canvas id="space"></canvas>
-<div id="fallback"><div><h2>3D navigation unavailable</h2><p>This experience requires WebGL. The portfolio content remains accessible by scrolling.</p></div></div>
-<div class="loading" id="loading">
-  <div class="load-inner">
-    
-    
-    <div class="loader-system" aria-hidden="true">
-      <div class="loader-sun"></div>
-      <div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="orbit o4"></div><div class="orbit o5"></div><div class="orbit o6"></div><div class="orbit o7"></div><div class="orbit o8"></div><div class="orbit o9"></div>
-      <div class="loader-planet p1"></div><div class="loader-planet p2"></div><div class="loader-planet p3"></div><div class="loader-planet p4"></div><div class="loader-planet p5"></div><div class="loader-planet p6"></div><div class="loader-planet p7"></div><div class="loader-planet p8"></div><div class="loader-planet p9"></div>
-    </div>
-    <div class="load-track"><div class="load-fill" id="loadFill"></div></div>
-    
-    
-  </div>
-</div>
-<header class="header"><div class="brand">KAELITH69</div><div class="header-right"><a class="mono" href="#contact">CONTACT</a></div></header>
-<aside class="hud"><div class="hud-body" id="hudBody"></div><div class="hud-sub" id="hudSub"></div></aside>
-<div class="progress"><div class="progress-fill" id="progressFill"></div><div class="progress-dot" id="progressDot"></div></div>
-<section class="intro">
-  <div class="intro-copy" id="introCopy"><h1>KAELITH69</h1></div>
-  
-</section>
-<div class="chapters">
-<section class="chapter" data-stage="1" data-name="INNER SYSTEM"><div class="chapter-content"><div class="index">01 / INNER SYSTEM</div><h2>Closer.</h2><div class="micro">SOL · MERCURY · VENUS</div></div></section>
-<section class="chapter" data-stage="2" data-name="EARTH"><div class="chapter-content"><div class="index">02 / BLUE PLANET</div><h2>Earth.</h2><div class="micro">TARGET ACQUIRED · EARTH</div></div></section>
-<section class="chapter" data-stage="3" data-name="INDIA"><div class="chapter-content"><div class="index">03 / CONTINENTAL APPROACH</div><h2>India.</h2><div class="micro">COORDINATES · SOUTH ASIA</div></div></section>
-<section class="chapter" data-stage="4" data-name="KERALA"><div class="chapter-content"><div class="index">04 / COASTAL APPROACH</div><h2>Kerala.</h2><div class="micro">ARABIAN SEA · MALABAR COAST</div></div></section>
-<section class="chapter" data-stage="5" data-name="KANNUR"><div class="chapter-content"><div class="index">05 / DESTINATION</div><h2>Kannur.</h2><div class="micro">KERALA · INDIA</div></div></section>
-<section class="chapter" data-stage="6" data-name="ABOUT"><div class="chapter-content"><div class="index">06 / OPERATOR PROFILE</div><h2>About.</h2><div class="micro">IDENTITY DATA</div></div></section>
-<section class="chapter" data-stage="7" data-name="PROJECTS"><div class="chapter-content"><div class="index">07 / MISSION LOG</div><h2>Projects.</h2><div class="micro">BUILD · EXPERIMENT · ITERATE</div></div></section>
-<section class="chapter" data-stage="8" data-name="INTERESTS"><div class="chapter-content"><div class="index">08 / DEEP SPACE ARCHIVE</div><h2>Interests.</h2><div class="micro">CURIOSITY HAS NO ORBIT</div></div></section>
-</div>
-<section class="footer" id="contact"><div class="footer-copy"><h2>Beyond<br>the horizon.</h2></div></section>
+<body><canvas id="space"></canvas><div id="loader"><div class="loader-sun"></div><div class="loader-orbit o1"></div><div class="loader-orbit o2"></div><div class="loader-orbit o3"></div><div class="loader-orbit o4"></div><div class="loader-orbit o5"></div><div class="loader-orbit o6"></div><div class="loader-orbit o7"></div><div class="loader-orbit o8"></div></div><div id="name">KAELITH69</div><div id="hint">SCROLL TO TRAVEL</div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
-import {FontLoader} from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/FontLoader.js';
-import {TextGeometry} from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/geometries/TextGeometry.js';
-
-const canvas=document.querySelector('#space'), loading=document.querySelector('#loading');
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let renderer,scene,camera,clock,earth,clouds,earthMarker,stars,planetGroup,sun,ring,letterGroup,transitionDone=false,scrollY=0;
-const floatingLetters=[];
-const texBase='https://www.solarsystemscope.com/textures/';
-const textureNames={Sun:'2k_sun.jpg',Mercury:'2k_mercury.jpg',Venus:'2k_venus_surface.jpg',Earth:'2k_earth_daymap.jpg',Moon:'2k_moon.jpg',Mars:'2k_mars.jpg',Jupiter:'2k_jupiter.jpg',Saturn:'2k_saturn.jpg',Uranus:'2k_uranus.jpg',Neptune:'2k_neptune.jpg',};
-const planets=[
-{name:'Mercury',r:.035,d:1.35,speed:1.8,color:0x8a8279},
-{name:'Venus',r:.06,d:1.8,speed:1.4,color:0xd4b28b},
-{name:'Earth',r:.065,d:2.35,speed:1.15,color:0x3d85bb},
-{name:'Mars',r:.045,d:2.95,speed:.95,color:0xc66c45},
-{name:'Jupiter',r:.22,d:4.05,speed:.6,color:0xc6a17d},
-{name:'Saturn',r:.18,d:5.2,speed:.48,color:0xc8b58b},
-{name:'Uranus',r:.12,d:6.4,speed:.36,color:0x7abac5},
-{name:'Neptune',r:.12,d:7.5,speed:.29,color:0x315dc1},
-{name:'Pluto',r:.025,d:8.4,speed:.22,color:0xb9a69a}
+const canvas=document.querySelector('#space'),loader=document.querySelector('#loader'),name=document.querySelector('#name'),hint=document.querySelector('#hint');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x02040a);scene.fog=new THREE.FogExp2(0x02040a,.0015);
+const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.01,5000);camera.position.set(0,24,100);
+const clock=new THREE.Clock();const system=new THREE.Group();scene.add(system);
+const starGeo=new THREE.BufferGeometry(),starPos=[];for(let i=0;i<16000;i++){starPos.push((Math.random()-.5)*2400,(Math.random()-.5)*2400,(Math.random()-.5)*2400)}starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xc8d8eb,size:.65,sizeAttenuation:true,transparent:true,opacity:.85})));
+const texLoader=new THREE.TextureLoader();const tex=(file)=>{const t=texLoader.load('https://www.solarsystemscope.com/textures/download/'+file);t.colorSpace=THREE.SRGBColorSpace;return t};
+const sun=new THREE.Mesh(new THREE.SphereGeometry(5,96,96),new THREE.MeshBasicMaterial({map:tex('2k_sun.jpg')}));system.add(sun);const light=new THREE.PointLight(0xffffff,2600,0,2);light.position.set(0,0,0);system.add(light);
+const glowCanvas=document.createElement('canvas');glowCanvas.width=glowCanvas.height=256;const ctx=glowCanvas.getContext('2d');const grad=ctx.createRadialGradient(128,128,4,128,128,128);grad.addColorStop(0,'rgba(255,240,180,.95)');grad.addColorStop(.2,'rgba(255,170,70,.3)');grad.addColorStop(1,'rgba(255,100,10,0)');ctx.fillStyle=grad;ctx.fillRect(0,0,256,256);const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(glowCanvas),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.set(38,38,1);sun.add(glow);
+const specs=[
+['Mercury',.19,9,.24,'2k_mercury.jpg',.03],['Venus',.47,14,.62,'2k_venus_surface.jpg',.03],['Earth',.5,20,1,'2k_earth_daymap.jpg',.0001],['Mars',.27,27,1.88,'2k_mars.jpg',.03],['Jupiter',3.8,38,11.86,'2k_jupiter.jpg',.03],['Saturn',3.2,52,29.46,'2k_saturn.jpg',.03],['Uranus',1.8,66,84.01,'2k_uranus.jpg',.03],['Neptune',1.75,80,164.8,'2k_neptune.jpg',.03],['Pluto',.1,92,248,'2k_pluto.jpg',.03]
 ];
-const assetUrls=Object.values(textureNames).map(n=>texBase+'download/'+n);
-let loaded=0;
-const manager=new THREE.LoadingManager();
-manager.onProgress=(url,n,total)=>{loaded=n;const p=Math.round(n/Math.max(1,total)*100);document.querySelector('#loadFill').style.width=p+'%';};
-const loader=new THREE.TextureLoader(manager);loader.setCrossOrigin('anonymous');
-const textures={};
-for(const [key,name] of Object.entries(textureNames)){textures[key]=loader.load(texBase+'download/'+name,undefined,undefined,()=>{});textures[key].colorSpace=THREE.SRGBColorSpace;}
-textures.EarthCloud=loader.load(texBase+'download/2k_earth_clouds.jpg',undefined,undefined,()=>{});textures.EarthCloud.colorSpace=THREE.SRGBColorSpace;
-textures.SaturnRing=loader.load(texBase+'download/2k_saturn_ring_alpha.png');
-
-function init(){
- try{
- renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
- scene=new THREE.Scene();scene.background=new THREE.Color(0x02040a);camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.01,2000);camera.position.set(0,4,16);clock=new THREE.Clock();
- const ambient=new THREE.AmbientLight(0x152233,1.15);scene.add(ambient);
- const starGeo=new THREE.BufferGeometry();const positions=[];for(let i=0;i<9000;i++){positions.push((Math.random()-.5)*1800,(Math.random()-.5)*1800,(Math.random()-.5)*1800)}starGeo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xc5d6e9,size:.45,sizeAttenuation:true,transparent:true,opacity:.82}));scene.add(stars);
- planetGroup=new THREE.Group();scene.add(planetGroup);
-letterGroup=new THREE.Group();letterGroup.position.set(0,1.35,0);scene.add(letterGroup);
-new FontLoader().load('https://cdn.jsdelivr.net/npm/three@0.164.1/examples/fonts/helvetiker_bold.typeface.json',font=>{const word='KAELITH69';[...word].forEach((ch,i)=>{const geo=new TextGeometry(ch,{font,size:.72,height:.16,curveSegments:8,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:3});geo.computeBoundingBox();const width=geo.boundingBox.max.x-geo.boundingBox.min.x;const mat=new THREE.MeshStandardMaterial({color:i%3===0?0xd7e9fa:i%3===1?0x8eb6d6:0xf2f5fa,metalness:.58,roughness:.28,emissive:0x102235,emissiveIntensity:.4});const mesh=new THREE.Mesh(geo,mat);mesh.position.set((i-(word.length-1)/2)*.82-width/2,(Math.random()-.5)*1.25,(Math.random()-.5)*1.1);mesh.rotation.set(Math.random()*.45,Math.random()*.45,Math.random()*.35);mesh.userData={base:mesh.position.clone(),phase:i*.7,spin:.15+Math.random()*.3};letterGroup.add(mesh);floatingLetters.push(mesh);});});
- const sunGeo=new THREE.SphereGeometry(.48,64,64);const sunMat=new THREE.MeshBasicMaterial({map:textures.Sun,color:0xffffff});sun=new THREE.Mesh(sunGeo,sunMat);planetGroup.add(sun);const sunGlow=new THREE.PointLight(0xffd08a,220,100,2);sun.add(sunGlow);
- const sunHalo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),color:0xffb34d,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));sunHalo.scale.set(4.4,4.4,1);sun.add(sunHalo);
- planets.forEach((p,i)=>{let mat=new THREE.MeshStandardMaterial({map:textures[p.name],color:p.color,roughness:.9,metalness:0});let mesh=new THREE.Mesh(new THREE.SphereGeometry(p.r,48,48),mat);mesh.position.x=p.d;mesh.userData={planet:p,angle:Math.random()*6.28};planetGroup.add(mesh);if(p.name==='Earth'){earth=mesh;const cloud=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.018,48,48),new THREE.MeshStandardMaterial({map:textures.EarthCloud,transparent:true,opacity:.55,depthWrite:false}));earth.add(cloud);clouds=cloud;const atmo=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.045,48,48),new THREE.MeshBasicMaterial({color:0x3a8ed0,transparent:true,opacity:.1,side:THREE.BackSide}));earth.add(atmo);earthMarker=new THREE.Mesh(new THREE.SphereGeometry(.008,12,12),new THREE.MeshBasicMaterial({color:0xffffff}));earth.add(earthMarker);placeKannurMarker();}if(p.name==='Saturn'){const ringMesh=new THREE.Mesh(new THREE.RingGeometry(p.r*1.3,p.r*2.3,96),new THREE.MeshBasicMaterial({map:textures.SaturnRing,side:THREE.DoubleSide,transparent:true,opacity:.82}));ringMesh.rotation.x=Math.PI/2.15;mesh.add(ringMesh);}});
- // orbit paths
- planets.forEach(p=>{const curve=new THREE.EllipseCurve(0,0,p.d,p.d,0,Math.PI*2,false,0);const pts=curve.getPoints(180).map(v=>new THREE.Vector3(v.x,0,v.y));const geo=new THREE.BufferGeometry().setFromPoints(pts);planetGroup.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x455569,transparent:true,opacity:.16})));});
- window.addEventListener('resize',resize);window.addEventListener('scroll',onScroll,{passive:true});animate();
- setTimeout(()=>{document.querySelector('#loadFill').style.width='100%';beginTransition();},Math.max(2300,Math.min(5500,loaded*260)));
- }catch(e){document.querySelector('#fallback').style.display='flex';loading.classList.add('hide');console.error(e);}
-}
-function glowTexture(){const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');const g=ctx.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.18,'rgba(255,230,160,.5)');g.addColorStop(1,'rgba(255,120,20,0)');ctx.fillStyle=g;ctx.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
-function placeKannurMarker(){if(!earthMarker)return;const lat=11.8745*Math.PI/180,lon=75.3704*Math.PI/180;const r=earth.geometry.parameters.radius*1.008;earthMarker.position.set(-r*Math.cos(lat)*Math.cos(lon),r*Math.sin(lat),r*Math.cos(lat)*Math.sin(lon));}
-function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
-function beginTransition(){if(transitionDone)return;transitionDone=true;loading.classList.add('hide');document.querySelector('#introCopy').classList.add('show');}
-function onScroll(){scrollY=window.scrollY/(document.documentElement.scrollHeight-innerHeight);const p=Math.max(0,Math.min(1,scrollY));document.querySelector('#progressFill').style.height=(p*100)+'%';document.querySelector('#progressDot').style.top=(p*100)+'%';}
-function smooth(a,b,t){t=Math.max(0,Math.min(1,t));return a+(b-a)*(t*t*(3-2*t))}
-function cameraState(p){
- // 0 overview, .12 inner, .28 Earth, .42 India, .55 Kerala, .66 Kannur, then content journey
- if(p<.12)return {pos:new THREE.Vector3(0,3.4,16),target:new THREE.Vector3(0,0,0),focus:'SOL',sub:'SYSTEM OVERVIEW'};
- if(p<.28){let t=(p-.12)/.16;return {pos:new THREE.Vector3(0,2.2,smooth(13,5,t)),target:new THREE.Vector3(0,0,0),focus:'INNER SYSTEM',sub:'PLANETARY APPROACH'};}
- if(p<.42){let t=(p-.28)/.14;const ep=earth.position.clone();return {pos:ep.clone().add(new THREE.Vector3(0,0,smooth(2.6,.8,t))),target:ep,focus:'EARTH',sub:'BLUE PLANET · TARGET ACQUIRED'};}
- if(p<.55){let t=(p-.42)/.13;return {pos:earth.position.clone().add(new THREE.Vector3(0,smooth(.6,.18,t),smooth(.8,.25,t))),target:earth.position.clone(),focus:'INDIA',sub:'CONTINENTAL APPROACH'};}
- if(p<.66){let t=(p-.55)/.11;return {pos:earth.position.clone().add(new THREE.Vector3(0,smooth(.22,.09,t),smooth(.25,.13,t))),target:earth.position.clone(),focus:'KERALA',sub:'MALABAR COAST'};}
- if(p<.76){let t=(p-.66)/.1;return {pos:earth.position.clone().add(new THREE.Vector3(0,smooth(.09,.04,t),smooth(.13,.055,t))),target:earth.position.clone(),focus:'KANNUR',sub:'11.8745° N · 75.3704° E'};}
- const focus=['ABOUT','PROJECTS','INTERESTS','CONTACT'][Math.min(3,Math.floor((p-.76)/.06))]||'CONTACT';return {pos:new THREE.Vector3(0,0,4.4),target:new THREE.Vector3(0,0,0),focus,sub:'PERSONAL TRANSMISSION'};
-}
-function animate(){requestAnimationFrame(animate);if(!renderer)return;const dt=clock.getDelta(),time=clock.elapsedTime;planetGroup.rotation.y=time*.035;
- if(letterGroup){const reveal=1-Math.max(0,Math.min(1,(scrollY-.08)/.16));letterGroup.visible=reveal>.015;letterGroup.rotation.y=Math.sin(time*.18)*.12;letterGroup.rotation.x=Math.sin(time*.23)*.05;floatingLetters.forEach((m,i)=>{const b=m.userData.base;m.position.y=b.y+Math.sin(time*.7+m.userData.phase)*.22;m.rotation.x+=dt*m.userData.spin*.12;m.rotation.y+=dt*m.userData.spin*.2;m.scale.setScalar(.8+reveal*.2);m.material.transparent=true;m.material.opacity=reveal;});}
- planetGroup.children.forEach(o=>{if(o.userData.planet){const p=o.userData.planet;o.userData.angle+=dt*p.speed*.3;o.position.set(Math.cos(o.userData.angle)*p.d,Math.sin(o.userData.angle)*p.d*.08,Math.sin(o.userData.angle)*p.d);o.rotation.y+=dt*.18;}});
- if(sun)sun.rotation.y+=dt*.08;if(earth)earth.rotation.y+=dt*.04;if(clouds)clouds.rotation.y+=dt*.055;
- const st=cameraState(scrollY);camera.position.lerp(st.pos,.055);camera.lookAt(st.target);document.querySelector('#hudBody').textContent=st.focus;document.querySelector('#hudSub').innerHTML=st.sub.replace(' · ','<br>');
- document.querySelectorAll('.chapter').forEach(sec=>{const rect=sec.getBoundingClientRect();if(rect.top<innerHeight*.65&&rect.bottom>innerHeight*.25)sec.classList.add('active');else sec.classList.remove('active')});
- renderer.render(scene,camera);}
-init();
-</script>
-</body>
-</html>
+const bodies=[];const orbitLine=(r)=>{const points=[];for(let i=0;i<=360;i++){const a=i*Math.PI/180;points.push(new THREE.Vector3(Math.cos(a)*r,0,Math.sin(a)*r))}const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:0x64798e,transparent:true,opacity:.13}));system.add(line)};
+specs.forEach((s,i)=>{const [n,r,d,period,file,tilt]=s;orbitLine(d);const pivot=new THREE.Group();system.add(pivot);const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,64,64),new THREE.MeshStandardMaterial({map:tex(file),roughness:.95}));mesh.position.x=d;mesh.rotation.z=tilt;mesh.userData={spin:1/(r+1)*.12};pivot.add(mesh);bodies.push({name:n,pivot,mesh,d,period,phase:i*.7});if(n==='Earth'){const cloudTex=tex('2k_earth_clouds.jpg');const cloud=new THREE.Mesh(new THREE.SphereGeometry(r*1.012,64,64),new THREE.MeshStandardMaterial({map:cloudTex,transparent:true,opacity:.38,depthWrite:false}));mesh.add(cloud);const atmo=new THREE.Mesh(new THREE.SphereGeometry(r*1.035,64,64),new THREE.MeshBasicMaterial({color:0x3a9bff,transparent:true,opacity:.09,side:THREE.BackSide}));mesh.add(atmo);}});
+const sat=bodies.find(b=>b.name==='Saturn');const ringTex=texLoader.load('https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png');const ring=new THREE.Mesh(new THREE.RingGeometry(4.2,7.1,180),new THREE.MeshStandardMaterial({map:ringTex,transparent:true,opacity:.88,side:THREE.DoubleSide,roughness:1}));ring.rotation.x=Math.PI/2.15;sat.mesh.add(ring);
+const earth=bodies.find(b=>b.name==='Earth');
+const start=new THREE.Vector3(0,24,100),overview=new THREE.Vector3(0,15,145),earthClose=new THREE.Vector3(20,3,22),indiaClose=new THREE.Vector3(20,.5,9);
+function smooth(t){t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)}
+function mix(a,b,t){return a.clone().lerp(b,smooth(t))}
+function cameraTarget(p){if(p<.16)return {pos:mix(start,overview,p/.16),target:new THREE.Vector3()};if(p<.42)return {pos:mix(overview,earthClose,(p-.16)/.26),target:earth.mesh.getWorldPosition(new THREE.Vector3())};if(p<.65)return {pos:mix(earthClose,indiaClose,(p-.42)/.23),target:earth.mesh.getWorldPosition(new THREE.Vector3())};return {pos:indiaClose.clone().multiplyScalar(1-(p-.65)/.35).add(new THREE.Vector3(0,0,4)),target:earth.mesh.getWorldPosition(new THREE.Vector3())}}
+let scroll=0;addEventListener('scroll',()=>{scroll=scroll/(document.body.scrollHeight-innerHeight);scroll=window.scrollY/(document.body.scrollHeight-innerHeight);hintFade()}, {passive:true});
+function hintFade(){hint.classList.toggle('hide',scroll>.03)}
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
+setTimeout(()=>{loader.classList.add('hide');name.classList.add('show');setTimeout(()=>name.classList.remove('show'),2200)},2200);
+function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();sun.rotation.y=t*.06;bodies.forEach(b=>{b.pivot.rotation.y=t*.008/(b.period**.25);b.mesh.rotation.y=t*b.mesh.userData.spin});system.rotation.y=t*.015;const state=cameraTarget(scroll);camera.position.lerp(state.pos,.035);camera.lookAt(state.target);renderer.render(scene,camera)}animate();
+</script></body></html>
