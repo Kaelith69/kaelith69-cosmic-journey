@@ -403,6 +403,31 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .record-sleeve.is-selected .record-vinyl{transform:translateX(43%)}
 }
 
+
+/* Final alignment corrections */
+@keyframes record-spin{to{transform:translateX(43%) rotate(360deg)}}
+.record-sleeve.is-selected .record-sleeve-face{transform:translateX(8%)}
+.record-sleeve.is-selected .record-github{left:17%}
+.record-sleeve.is-selected .record-art{inset:10% 10% 57%}
+.record-sleeve.is-selected .record-sleeve-title{top:46%;max-height:10%}
+.record-sleeve.is-selected .record-sleeve-details{top:59%;bottom:8%;gap:6px}
+.record-detail-description{font-size:clamp(9px,.82vw,11px);line-height:1.3}
+.record-detail-meta{font-size:clamp(8px,.68vw,9px);line-height:1.25}
+.record-unit{overflow:visible}
+.record-sleeve.is-selected{z-index:8}
+@media(max-width:700px){
+ .record-detail-description{font-size:clamp(9px,1.35vw,11px)}
+ .record-detail-meta{font-size:8px}
+}
+@media(max-width:440px){
+ .record-sleeve.is-selected .record-sleeve-details{top:58%;gap:5px}
+ .record-detail-description{font-size:10px}
+ .record-detail-meta{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .record-sleeve.is-selected .record-vinyl{transform:translateX(43%)}
+}
+
 </style>
 </head>
 <body>
