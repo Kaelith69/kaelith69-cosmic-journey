@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
 <title id="title">KAELITH69</title>
 <desc id="desc">An experimental cobalt blue composition with oversized white and acid green typography, a cropped electric blue disc and cyan circular geometry.</desc>
-<rect width="1200" height="420" fill="#0B1538"/>
-<circle cx="1030" cy="205" r="310" fill="#172D63"/>
-<circle cx="1010" cy="205" r="205" fill="none" stroke="#39C9D0" stroke-width="3"/>
-<circle cx="1010" cy="205" r="145" fill="#D7E85A"/>
-<circle cx="1010" cy="205" r="104" fill="none" stroke="#050918" stroke-width="3"/>
-<path d="M0 0H1200V420H0Z" fill="none" stroke="#AAB9D8" stroke-opacity=".35" stroke-width="2"/>
-<path d="M0 0H24V420H0Z" fill="#D7E85A"/>
-<path d="M760 0L950 0L1200 250V420H1120Z" fill="#39C9D0" opacity=".9"/>
-<path d="M0 350H470" stroke="#D7E85A" stroke-width="12"/>
-<text x="68" y="178" fill="#F5F5F2" font-family="Arial,Helvetica,sans-serif" font-size="132" font-weight="900" letter-spacing="-9">KAELITH</text>
-<text x="155" y="330" fill="#D7E85A" font-family="Arial,Helvetica,sans-serif" font-size="142" font-weight="900" letter-spacing="-10">69.</text>
+<rect width="1200" height="420" fill="#071329"/>
+<circle cx="1030" cy="205" r="310" fill="#123B78"/>
+<circle cx="1010" cy="205" r="205" fill="none" stroke="#00D5E8" stroke-width="3"/>
+<circle cx="1010" cy="205" r="145" fill="#E8F542"/>
+<circle cx="1010" cy="205" r="104" fill="none" stroke="#030813" stroke-width="3"/>
+<path d="M0 0H1200V420H0Z" fill="none" stroke="#D0DAEE" stroke-opacity=".35" stroke-width="2"/>
+<path d="M0 0H24V420H0Z" fill="#E8F542"/>
+<path d="M760 0L950 0L1200 250V420H1120Z" fill="#00D5E8" opacity=".9"/>
+<path d="M0 350H470" stroke="#E8F542" stroke-width="12"/>
+<text x="68" y="178" fill="#FAFAF5" font-family="Arial,Helvetica,sans-serif" font-size="132" font-weight="900" letter-spacing="-9">KAELITH</text>
+<text x="155" y="330" fill="#E8F542" font-family="Arial,Helvetica,sans-serif" font-size="142" font-weight="900" letter-spacing="-10">69.</text>
 </svg>
