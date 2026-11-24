@@ -1,36 +1,37 @@
 <div align="center">
-  <img src="assets/cosmic-banner.svg" alt="KAELITH69 Cosmic Journey" width="100%">
+  <img src="assets/cosmic-banner.svg" alt="KAELITH69" width="100%">
 </div>
 
-# KAELITH69 Cosmic Journey
+# KAELITH69
 
-An interactive Three.js portfolio that turns a solar system exploration into a home for selected software projects. The scene remains active behind the portfolio, with scroll driven camera movement and direct planet selection.
+A personal portfolio for selected software projects, digital experiments and contact links.
 
-**[Open the live portfolio](https://kaelith69.github.io/kaelith69-cosmic-journey/)**
+**[View the live site](https://kaelith69.github.io/kaelith69-cosmic-journey/)**
 
-## Experience
+## Projects
 
-- **Solar system scene:** Nine celestial bodies, orbital paths, a star field, planetary textures and Saturn's rings.
-- **Scroll driven camera:** The camera moves from a system overview towards Earth as the page is explored.
-- **Planet focus:** Select a planet to move the camera towards it. Select it again to return to the scroll journey.
-- **Orbit speed:** Adjust or pause the simulation with the speed control.
-- **Portfolio sections:** Selected projects, a concise overview of the work and contact links.
-- **Responsive layout:** Navigation, project layouts and orbital controls adapt to smaller screens.
-- **Reduced motion:** The orbital simulation starts paused when the operating system requests reduced motion.
+The portfolio currently features:
+
+- **PickMe:** Private love letters and a public message wall.
+- **Prism:** AI assisted presentation creation with SVG visuals and PDF export.
+- **GodView:** Configurable dashboard module with geospatial mapping and CSV export.
+- **Medic:** Medicine label reader with on device text recognition, speech and reminders.
+- **Emo:** Cross platform companion for contextual AI conversations.
+- **WRDLiNK:** Four letter word ladder game with dictionary validation and shortest path solving.
+
+Each project links to its source repository.
 
 ## Built with
 
 - HTML
 - CSS
-- JavaScript ES modules
-- [Three.js](https://threejs.org/) 0.164.1, loaded from jsDelivr
-- Planet textures from [Solar System Scope](https://www.solarsystemscope.com/textures/)
+- JavaScript
 
-There is no package manifest, build pipeline or application framework. The site is a static page.
+The site is a static page. It has no package manifest, build step, application framework or backend.
 
 ## Run locally
 
-A local HTTP server is required because the page imports Three.js as an ES module.
+A local HTTP server is sufficient.
 
 ```bash
 git clone https://github.com/Kaelith69/kaelith69-cosmic-journey.git
@@ -40,9 +41,11 @@ python -m http.server 8000
 
 Open [http://localhost:8000](http://localhost:8000).
 
-The browser needs WebGL support and an internet connection to load Three.js and the external planet textures.
+## Deployment
 
-## Project structure
+GitHub Actions deploys the repository root to GitHub Pages when changes are pushed to `main`. The workflow is defined in [pages.yml](.github/workflows/pages.yml).
+
+## Repository structure
 
 ```text
 .
@@ -56,13 +59,8 @@ The browser needs WebGL support and an internet connection to load Three.js and 
 └── README.md
 ```
 
-## Deployment
+## Notes
 
-GitHub Actions deploys the repository root to GitHub Pages when changes are pushed to `main`. The workflow is defined in [pages.yml](.github/workflows/pages.yml).
-
-## Known limitations
-
-- Planet textures are fetched from an external host. If those requests fail, the scene may render without the intended surface maps.
-- The Earth approach is a cinematic camera movement, not a high resolution geographic or satellite imagery zoom.
-- The portfolio currently links to selected public repositories and the GitHub and Instagram profiles. It does not include a contact form or backend.
+- The portfolio links to selected public repositories and profile pages. It does not embed those projects.
+- There is no contact form or backend.
 - No licence file is currently present in the repository.
