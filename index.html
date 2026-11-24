@@ -741,6 +741,55 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .record-sleeve,.record-vinyl,.record-sleeve-details{transition:none!important}
   .record-disc{animation:none!important}
 }
+
+/* Hover first interaction: preview the record without a click */
+.record-unit{transition:z-index .01s}
+.record-unit:has(.record-sleeve:hover),
+.record-unit:has(.record-sleeve:focus-visible){z-index:12}
+.record-sleeve:hover,
+.record-sleeve:focus-visible,
+.record-sleeve.is-selected{
+  transform:translateY(-9px) scale(1.045);
+  filter:drop-shadow(0 16px 13px rgba(0,0,0,.34));
+}
+.record-sleeve:hover .record-vinyl,
+.record-sleeve:focus-visible .record-vinyl{transform:translateX(25%)}
+.record-sleeve:hover .record-disc,
+.record-sleeve:focus-visible .record-disc{animation:record-spin 3.2s linear infinite}
+.record-sleeve:hover .record-sleeve-face,
+.record-sleeve:focus-visible .record-sleeve-face{
+  box-shadow:0 14px 22px rgba(0,0,0,.5),inset 4px 0 rgba(255,255,255,.12),inset -4px 0 rgba(0,0,0,.18);
+}
+.record-sleeve:hover .record-art,
+.record-sleeve:focus-visible .record-art{inset:9% 9% 56%}
+.record-sleeve:hover .record-sleeve-title,
+.record-sleeve:focus-visible .record-sleeve-title{
+  top:46%;
+  bottom:auto;
+  max-height:10%;
+  font-size:clamp(11px,1.12vw,16px);
+  -webkit-line-clamp:1;
+}
+.record-sleeve:hover .record-sleeve-details,
+.record-sleeve:focus-visible .record-sleeve-details{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+  transition-delay:.12s;
+}
+.record-sleeve:hover .record-github,
+.record-sleeve:focus-visible .record-github{left:7%}
+@media(max-width:440px){
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl{transform:translateX(20%)}
+}
+@media(hover:none){
+  .record-sleeve:hover{transform:none;filter:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .record-sleeve:hover .record-disc,
+  .record-sleeve:focus-visible .record-disc{animation:none!important}
+}
 </style>
 </head>
 <body>
