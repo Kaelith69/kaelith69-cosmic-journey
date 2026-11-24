@@ -353,10 +353,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   letter-spacing:.13em;
 }
 
-.repo-loading{position:absolute;inset:0;z-index:8;display:grid;place-content:center;justify-items:center;gap:12px;background:#211f1c;transition:opacity .24s ease,visibility .24s ease}
+.repo-loading{position:absolute;inset:0;z-index:8;display:grid;place-content:center;justify-items:center;gap:12px;background:#0C162A;transition:opacity .24s ease,visibility .24s ease}
 .repo-loading.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
 .repo-loading-svg{display:block;width:min(230px,62vw);height:auto;overflow:visible}
-.repo-loading-caption{color:#F2F0E6;font:700 9px/1.4 "JetBrains Mono",monospace;letter-spacing:.16em;text-align:center}
+.repo-loading-caption{color:#DDE7FF;font:700 9px/1.4 "JetBrains Mono",monospace;letter-spacing:.16em;text-align:center}
 .repo-loading-fallback{position:absolute!important;width:1px;height:1px;padding:0!important;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .record-wall{
   position:relative;
@@ -942,6 +942,106 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @keyframes loading-record-spin{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
 @media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
 
+
+/* MIDNIGHT SYSTEM: deep chromatic surfaces, crisp contrast, no pale panels */
+:root{
+  color-scheme:dark;
+  --cobalt:#080D1B;
+  --blue:#5578FF;
+  --navy:#080D1B;
+  --cyan:#35D6E8;
+  --lime:#C6F36B;
+  --magenta:#A77BFF;
+  --white:#EAF0FF;
+  --pale:#8291B0;
+  --shop-paper:#EAF0FF;
+  --shop-ink:#0A1020;
+  --shop-blue:#5578FF;
+  --shop-orange:#35D6E8;
+  --shop-lime:#C6F36B;
+  --shop-pink:#FF6685;
+}
+html,body{background:#080D1B;color:#EAF0FF;color-scheme:dark}
+body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
+.site-header{color:#EAF0FF}
+.nav .nav-contact{background:#5578FF;color:#F4F7FF}
+.hero{background:#080D1B;color:#EAF0FF}
+.hero::before{background:#172B59}
+.hero::after{border-color:#5578FF;box-shadow:0 0 0 22px transparent,0 0 0 24px rgba(85,120,255,.18)}
+.hero h1 span{color:#35D6E8}
+.hero-disc{background:#A77BFF}
+.hero-disc::before{border-color:#080D1B}
+.hero-disc::after{background:#C6F36B}
+.hero-bottom p{color:#C6D2EA}
+.hero-link .icon{color:#35D6E8}
+.work{background:#0B1325;color:#EAF0FF}
+.work::before{background:#172B59}
+.section-heading span{color:#35D6E8}
+.project{border-color:rgba(130,157,210,.24)}
+.project-copy p{color:#B9C7E2}
+.project-tech{color:#C6F36B}
+.project-arrow{background:#5578FF;color:#F4F7FF}
+.project:hover .project-arrow{background:#A77BFF}
+.project:hover{background:rgba(85,120,255,.08)}
+.about{background:#111D36;color:#EAF0FF}
+.about::before{background:#080D1B}
+.about::after{border-color:#A77BFF}
+.about h2 span{color:#C6F36B}
+.about-copy p{color:#D5DDF0}
+.contact{background:#080D1B;color:#EAF0FF}
+.contact::before{background:#17345A;opacity:.8}
+.contact::after{border-color:#A77BFF}
+.contact h2 span{color:#35D6E8}
+.contact-links a{border-color:rgba(130,157,210,.35)}
+.contact-links a:hover{border-color:#35D6E8;color:#35D6E8}
+.footer{background:#050914;color:#8291B0}
+.footer a{color:#EAF0FF}
+.footer a:hover{color:#C6F36B}
+.record-shop{
+  --shop-paper:#EAF0FF;
+  --shop-ink:#0A1020;
+  --shop-blue:#5578FF;
+  --shop-orange:#35D6E8;
+  --shop-lime:#C6F36B;
+  --shop-pink:#FF6685;
+  background:#0A1122;
+  color:#EAF0FF;
+}
+.record-shop-title{color:#EAF0FF}
+.record-shop-title span{color:#35D6E8}
+.record-count{color:#C6F36B}
+.record-controls input,.record-controls select{
+  background:#111D34;
+  color:#EAF0FF;
+  border-color:#304365;
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.record-controls input::placeholder{color:#8291B0}
+.record-controls input:focus,.record-controls select:focus{outline-color:#5578FF}
+.record-wall{
+  border-color:#263A60;
+  background:linear-gradient(180deg,#111D34 0%,#0C162A 68%,#080F1E 100%);
+  box-shadow:inset 0 1px rgba(174,198,255,.07),0 22px 48px rgba(0,0,0,.38);
+}
+.record-wall::before{
+  background:repeating-linear-gradient(0deg,transparent 0 52px,rgba(173,197,255,.035) 53px,transparent 54px),linear-gradient(90deg,rgba(132,166,255,.055),transparent 12%,transparent 88%,rgba(0,0,0,.22));
+}
+.repo-loading{background:#0C162A}
+.repo-loading-caption{color:#DDE7FF}
+.record-sleeve-face{border-color:rgba(180,202,255,.2);box-shadow:0 12px 24px rgba(0,0,0,.48),inset 4px 0 rgba(255,255,255,.08),inset -4px 0 rgba(0,0,0,.25)}
+.record-sleeve-face::after{border-color:rgba(234,240,255,.75)}
+.record-sleeve-details{background:#101D34;border-color:rgba(133,166,235,.3);box-shadow:0 10px 26px rgba(0,0,0,.42)}
+.record-detail-description{color:#D6E0F5}
+.record-detail-meta{color:#8FA3C8}
+.record-github{background:#0A1224;border-color:rgba(190,208,255,.7);color:#EAF0FF}
+.record-github:hover{background:#5578FF;color:#FFFFFF}
+.record-empty{color:#B9C7E2}
+.record-foot{color:#8291B0}
+.transition-screen{background:#070B16;color:#EAF0FF}
+.vinyl-label{background:#5578FF;color:#F4F7FF}
+.vinyl-label-mark{color:#F4F7FF}
+.record-tonearm .tonearm-head{background:#35D6E8}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -980,12 +1080,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     <div class="repo-loading" id="repo-loading" role="progressbar" aria-label="Loading GitHub repositories" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
       <svg class="repo-loading-svg" viewBox="0 0 120 74" role="img" aria-label="Repository loading progress">
         <g id="repo-digits-group" transform="translate(56, 31)">
-          <text id="repo-digit-hundreds" x="-34" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34" opacity="0">1</text>
+          <text id="repo-digit-hundreds" x="-34" y="0" text-anchor="middle" dominant-baseline="central" fill="#EAF0FF" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34" opacity="0">1</text>
           <g id="repo-eye-left" transform="translate(-12, 0)"><text id="repo-digit-tens" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34">0</text></g>
           <g id="repo-eye-right" transform="translate(12, 0)"><text id="repo-digit-ones" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34">0</text></g>
-          <text id="repo-digit-percent" x="33" y="-6" text-anchor="middle" dominant-baseline="central" fill="#FF3B00" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="14">%</text>
+          <text id="repo-digit-percent" x="33" y="-6" text-anchor="middle" dominant-baseline="central" fill="#35D6E8" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="14">%</text>
         </g>
-        <path id="repo-bezier-smile" d="M 56 56 Q 60 56 64 56" fill="none" stroke="#FF3B00" stroke-width="3" stroke-linecap="square"/>
+        <path id="repo-bezier-smile" d="M 56 56 Q 60 56 64 56" fill="none" stroke="#35D6E8" stroke-width="3" stroke-linecap="square"/>
       </svg>
       <span class="repo-loading-caption" id="repo-loading-caption">CONNECTING TO GITHUB</span>
     </div>
@@ -1103,10 +1203,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   let repositories = [], visible = [], selectedId = null;
   const sleeves = new Map();
   const palette = [
-    ["#244BFF","#F1EBDD"],["#FF4D00","#171717"],
-    ["#171717","#F1EBDD"],["#E83F78","#171717"],
-    ["#D9F04A","#171717"],["#174F45","#F1EBDD"],
-    ["#56328C","#F1EBDD"],["#C8C2B5","#171717"]
+    ["#5578FF","#F4F7FF"],["#35D6E8","#07101F"],
+    ["#172B59","#EAF0FF"],["#FF6685","#100D20"],
+    ["#C6F36B","#101A22"],["#176B70","#EAF0FF"],
+    ["#7457D9","#F4F7FF"],["#243A60","#EAF0FF"]
   ];
   const dateLabel = value => {
     if (!value) return "DATE UNAVAILABLE";
