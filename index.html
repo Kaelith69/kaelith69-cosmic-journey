@@ -385,8 +385,16 @@ html.transition-jump{scroll-behavior:auto}
   .transition-stage{width:min(82vw,340px)}
 }
 @media(prefers-reduced-motion:reduce){
-  .vinyl-record{animation:none}
   .transition-screen{transition:none}
+}
+
+/* The vinyl rotation is the loading indicator, so keep it active during transitions. */
+.transition-screen.is-active .vinyl-record{
+  animation:vinyl-spin 1.35s linear infinite!important;
+  animation-duration:1.35s!important;
+  animation-iteration-count:infinite!important;
+  animation-play-state:running!important;
+  transform-origin:50% 50%;
 }
 
 </style>
