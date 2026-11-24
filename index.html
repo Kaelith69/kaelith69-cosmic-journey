@@ -287,22 +287,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   background:linear-gradient(180deg,#d7d2c7,#55534e);
   transform:rotate(12deg);
 }
-.transition-caption{
-  position:absolute;
-  bottom:clamp(28px,7vh,64px);
-  left:50%;
-  transform:translateX(-50%);
-  color:var(--navy);
-  font:800 10px/1 var(--body);
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  white-space:nowrap;
-}
 @keyframes vinyl-spin{to{transform:rotate(360deg)}}
 html.transition-jump{scroll-behavior:auto}
 @media(max-width:600px){
   .transition-stage{width:min(82vw,340px)}
-  .transition-caption{bottom:34px}
 }
 @media(prefers-reduced-motion:reduce){
   .vinyl-record{animation:none}
@@ -320,7 +308,6 @@ html.transition-jump{scroll-behavior:auto}
     </div>
     <div class="record-tonearm"><span class="tonearm-head"></span></div>
   </div>
-  <span class="transition-caption" aria-hidden="true">Please wait</span>
 </div>
 
 <header class="site-header">
