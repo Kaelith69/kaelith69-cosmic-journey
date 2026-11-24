@@ -352,6 +352,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   font:700 10px var(--body);
   letter-spacing:.13em;
 }
+
+.repo-loading{position:absolute;inset:0;z-index:8;display:grid;place-content:center;justify-items:center;gap:12px;background:#211f1c;transition:opacity .24s ease,visibility .24s ease}
+.repo-loading.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.repo-loading-svg{display:block;width:min(230px,62vw);height:auto;overflow:visible}
+.repo-loading-caption{color:#F2F0E6;font:700 9px/1.4 "JetBrains Mono",monospace;letter-spacing:.16em;text-align:center}
+.repo-loading-fallback{position:absolute!important;width:1px;height:1px;padding:0!important;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .record-wall{
   position:relative;
   display:grid;
@@ -969,8 +975,20 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     </div>
   </div>
   <p class="record-count" id="repo-result-count" aria-live="polite">CONNECTING TO GITHUB...</p>
-  <div class="record-wall" id="repo-patchbay" aria-label="Public GitHub repositories">
-    <p class="record-empty">Loading the collection…</p>
+  <div class="record-wall" id="repo-patchbay" aria-label="Public GitHub repositories" aria-busy="true">
+    <div class="repo-loading" id="repo-loading" role="progressbar" aria-label="Loading GitHub repositories" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <svg class="repo-loading-svg" viewBox="0 0 120 74" role="img" aria-label="Repository loading progress">
+        <g id="repo-digits-group" transform="translate(56, 31)">
+          <text id="repo-digit-hundreds" x="-34" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34" opacity="0">1</text>
+          <g id="repo-eye-left" transform="translate(-12, 0)"><text id="repo-digit-tens" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34">0</text></g>
+          <g id="repo-eye-right" transform="translate(12, 0)"><text id="repo-digit-ones" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#F2F0E6" font-family="'JetBrains Mono',monospace" font-weight="800" font-size="34">0</text></g>
+          <text id="repo-digit-percent" x="33" y="-6" text-anchor="middle" dominant-baseline="central" fill="#FF3B00" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="14">%</text>
+        </g>
+        <path id="repo-bezier-smile" d="M 56 56 Q 60 56 64 56" fill="none" stroke="#FF3B00" stroke-width="3" stroke-linecap="square"/>
+      </svg>
+      <span class="repo-loading-caption" id="repo-loading-caption">CONNECTING TO GITHUB</span>
+    </div>
+    <p class="record-empty" id="repo-loading-fallback">Connecting to GitHub…</p>
   </div>
   <p class="record-foot" id="repo-status">PUBLIC REPOSITORIES · LIVE FROM GITHUB</p>
 </section>
@@ -1196,12 +1214,34 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   search.addEventListener("input",render);
   language.addEventListener("change",render);
   sort.addEventListener("change",render);
+  const loading = document.getElementById("repo-loading");
+  const loadingCaption = document.getElementById("repo-loading-caption");
+  const loadingFallback = document.getElementById("repo-loading-fallback");
+  const progress = createRepoProgress();
+  const setProgress = (value,label) => {
+    progress.set(value);
+    loading.setAttribute("aria-valuenow",String(Math.round(value)));
+    if (label) loadingCaption.textContent=label;
+  };
+  const finishLoading = () => {
+    wall.setAttribute("aria-busy","false");
+    setProgress(100,"COLLECTION READY");
+    window.setTimeout(() => {
+      loading.classList.add("is-hidden");
+      loading.setAttribute("aria-hidden","true");
+      loadingFallback.remove();
+    },420);
+  };
   async function loadRepositories() {
+    wall.setAttribute("aria-busy","true");
+    setProgress(4,"CONNECTING TO GITHUB");
     try {
       const response=await fetch("https://api.github.com/users/Kaelith69/repos?per_page=100&sort=updated&type=public",{headers:{Accept:"application/vnd.github+json"}});
       if (!response.ok) throw new Error("GitHub API returned "+response.status);
+      setProgress(58,"RECEIVING REPOSITORIES");
       const data=await response.json();
       if (!Array.isArray(data)) throw new Error("Unexpected repository response");
+      setProgress(84,"BUILDING THE COLLECTION");
       repositories=data.filter(repo=>repo&&!repo.archived&&!repo.disabled&&(repo.visibility==="public"||repo.private===false)).map(repo=>({
         id:repo.id,name:repo.name,html_url:repo.html_url,description:repo.description||"",
         language:repo.language||"",stargazers_count:repo.stargazers_count||0,
@@ -1213,16 +1253,62 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         option.value=value;option.textContent=value;language.append(option);
       });
       render();
+      finishLoading();
     } catch(error) {
       count.textContent="THE RECORDS COULD NOT BE LOADED";
       status.textContent="GITHUB CONNECTION UNAVAILABLE";
-      wall.replaceChildren();
+      wall.querySelectorAll(".record-unit,.record-empty").forEach(node=>node.remove());
       const message=document.createElement("p");
       message.className="record-empty";
       message.textContent="The live collection is unavailable. Visit GitHub to browse the repositories.";
       wall.append(message);
       console.error(error);
+      finishLoading();
     }
+  }
+  function createRepoProgress() {
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    const clamp=(v,a,b)=>Math.min(Math.max(v,a),b);
+    const el=id=>document.getElementById(id);
+    const hundreds=el("repo-digit-hundreds"),tens=el("repo-digit-tens"),ones=el("repo-digit-ones");
+    const percent=el("repo-digit-percent"),group=el("repo-digits-group");
+    const rightEye=el("repo-eye-right"),smile=el("repo-bezier-smile");
+    let target=0,current=0,morph=0,leftX=56,rightX=64,anchorY=56,controlY=56;
+    let blinked=false,blinkActive=false,blinkTime=0,blinkDelay=null,last=performance.now();
+    const set=value=>{target=clamp(value/100,0,1)};
+    function frame(now){
+      const dt=Math.min(now-last,50);last=now;
+      current=Math.abs(target-current)<.0002?target:lerp(current,target,.14);
+      const number=Math.round(current*100);
+      el("repo-loading").setAttribute("aria-valuenow",String(number));
+      const targetMorph=number===100&&target>.992?1:0;
+      morph=lerp(morph,targetMorph,.13);
+      if(Math.abs(targetMorph-morph)<.001)morph=targetMorph;
+      if(morph>.94&&!blinked&&blinkDelay===null)blinkDelay=window.setTimeout(()=>{blinkDelay=null;if(morph>.92&&!blinked){blinked=true;blinkActive=true;blinkTime=0}},320);
+      if(morph<.65){if(blinkDelay!==null)clearTimeout(blinkDelay);blinkDelay=null;blinked=false;blinkActive=false;blinkTime=0;rightEye.setAttribute("transform","translate(12, 0) scale(1, 1)")}
+      if(number<100){
+        const digits=String(number).padStart(2,"0");
+        tens.textContent=digits[0];ones.textContent=digits[1];
+        hundreds.setAttribute("opacity","0");percent.setAttribute("opacity",String(1-morph));
+      }else{
+        tens.textContent="0";ones.textContent="0";
+        hundreds.setAttribute("opacity",String(clamp(1-morph*1.4,0,1)));
+        hundreds.setAttribute("x",String(lerp(-34,-22,morph)));
+        percent.setAttribute("opacity",String(clamp(1-morph*1.6,0,1)));
+      }
+      group.setAttribute("transform","translate("+lerp(56,60,morph)+", 31)");
+      const ease=1-(1-current)*(1-current);
+      const half=lerp(4,22,current)+morph*3;
+      const y=lerp(56,52,ease),dip=lerp(0,14,Math.pow(current,1.15))+morph*4;
+      leftX=lerp(leftX,60-half,.18);rightX=lerp(rightX,60+half,.18);
+      anchorY=lerp(anchorY,y,.18);controlY=lerp(controlY,y+dip,.18);
+      smile.setAttribute("d","M "+leftX+" "+anchorY+" Q 60 "+controlY+" "+rightX+" "+anchorY);
+      smile.setAttribute("stroke-width",String(lerp(2.5,3.8,current)));
+      if(blinkActive){blinkTime+=dt;const t=clamp(blinkTime/240,0,1);rightEye.setAttribute("transform","translate(12, 0) scale(1, "+(1-.92*Math.sin(Math.PI*t))+")");if(t>=1){blinkActive=false;rightEye.setAttribute("transform","translate(12, 0) scale(1, 1)")}}
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    return {set};
   }
   loadRepositories();
 })();</script>
