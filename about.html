@@ -914,10 +914,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @media(prefers-reduced-motion:reduce){
   .record-sleeve{transition:none}
 }
-</style>
+
 .transition-screen.is-active .vinyl-record{animation:loading-record-spin 1.8s linear infinite}
 .transition-screen.is-complete .vinyl-record{animation-play-state:paused}
-</style>\n</head><body>\n<div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
+\n</head><body>\n<div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
   <div class="transition-stage" aria-hidden="true">
     <div class="vinyl-record">
       <div class="vinyl-label"><span class="vinyl-label-mark" id="vinyl-counter" aria-label="K0">K0</span></div>
@@ -941,7 +941,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const counter=document.getElementById("vinyl-counter");
   if(!overlay||!counter)return;
   const STEP_MS=30;
-  let running=false;
+  let running=false,pendingAction=null;
+
   const show=()=>{
     overlay.classList.remove("is-complete");
     overlay.classList.add("is-active");
@@ -961,20 +962,20 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       value+=1;
       counter.textContent="K"+value;
       counter.setAttribute("aria-label","K"+value);
-      if(value===69){
-        overlay.classList.add("is-complete");
-        resolve();
-      }else window.setTimeout(tick,STEP_MS);
+      if(value===69){overlay.classList.add("is-complete");resolve()}
+      else window.setTimeout(tick,STEP_MS);
     };
     window.setTimeout(tick,STEP_MS);
   });
   const run=async(after)=>{
-    if(running)return;
+    if(running){if(after)pendingAction=after;return}
     running=true;
     show();
     await countTo69();
     window.setTimeout(()=>{
-      if(after)after();
+      const action=after||pendingAction;
+      pendingAction=null;
+      if(action)action();
       else hide();
       running=false;
     },180);
@@ -985,9 +986,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if(skipPath===location.pathname+location.search+location.hash){
     sessionStorage.removeItem("kaelith69-transition-destination");
     hide();
-  }else{
-    run();
-  }
+  }else run();
+
   document.addEventListener("click",event=>{
     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
     const link=event.target.closest("a[href]");
@@ -1012,8 +1012,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       location.assign(url.href);
     });
   });
-  window.addEventListener("pageshow",event=>{
-    if(event.persisted)run();
-  });
+  window.addEventListener("pageshow",event=>{if(event.persisted)run()});
 })();
 </script>\n</body></html>
