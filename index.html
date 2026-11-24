@@ -288,66 +288,67 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 
 
-/* Photographic library shelf */
-.machine{position:relative;overflow:hidden;background:#e9e5dc;color:#171717;padding:clamp(76px,8vw,112px) var(--gutter) clamp(64px,7vw,96px)}
-.machine::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.42),transparent 38%,rgba(70,53,35,.06));pointer-events:none}
-.machine-head{position:relative;z-index:1;margin:0 0 22px;display:flex;justify-content:flex-end;align-items:center}
-.machine-title{display:none}
-.machine-total{display:none}
-.library-tools{position:relative;z-index:2;display:flex;gap:8px;justify-content:flex-end;margin:0 0 12px}
-.library-search{flex:1 1 auto;max-width:240px}
+
+/* Physical library shelving */
+.machine{position:relative;overflow:hidden;background:#e8e4dc;color:#171717;padding:clamp(76px,8vw,112px) var(--gutter) clamp(64px,7vw,96px)}
+.machine::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 18% 0%,rgba(255,255,255,.72),transparent 55%),linear-gradient(110deg,rgba(255,255,255,.2),transparent 45%,rgba(64,47,29,.07));pointer-events:none}
+.machine-head{position:relative;z-index:1;display:flex;justify-content:flex-end;align-items:center;margin:0 0 18px}
+.machine-title,.machine-total,.library-count{display:none}
+.library-tools{position:relative;z-index:2;display:flex;gap:8px;justify-content:flex-end;margin:0 0 12px;flex-wrap:wrap}
+.library-search{flex:1 1 220px;max-width:250px}
 .library-tools input,.library-tools select{height:34px;min-width:0;border:1px solid rgba(23,23,23,.2);border-radius:0;background:rgba(255,255,255,.78);color:#29251f;padding:0 10px;font:11px var(--body);outline:none}
 .library-tools input{width:100%}
 .library-tools select{max-width:150px}
 .library-tools input:focus,.library-tools select:focus{border-color:#244BFF;outline:2px solid #244BFF;outline-offset:1px}
-.library-count{display:none}
-.bookcase{position:relative;z-index:1;padding:0 0 15px;background:#f4f1e9;border:1px solid #c9c3b8;box-shadow:0 12px 32px rgba(35,28,20,.16),inset 0 0 0 7px rgba(255,255,255,.42)}
-.book-shelf{position:relative;display:grid;grid-template-columns:repeat(auto-fill,minmax(25px,1fr));grid-auto-rows:clamp(150px,18vw,210px);column-gap:3px;row-gap:22px;align-items:end;padding:12px 14px 0;min-height:184px;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(clamp(150px,18vw,210px) + 10px),#ded8cd calc(clamp(150px,18vw,210px) + 10px),#f7f4ed calc(clamp(150px,18vw,210px) + 18px),#b7afa2 calc(clamp(150px,18vw,210px) + 22px))}
-.book{--book:#315b70;--book-ink:#f5efe4;position:relative;display:block;align-self:end;justify-self:stretch;min-width:0;width:100%;height:var(--book-height,94%);padding:0;border:0;border-radius:2px 2px 0 0;background:transparent;cursor:pointer;transform-origin:bottom center;transition:transform .24s ease,filter .24s ease;isolation:isolate}
-.book:nth-child(5n+1){grid-column:span 2}
-.book:nth-child(7n+3){grid-column:span 3}
-.book:nth-child(11n+6){grid-column:span 2}
-.book:hover{z-index:3;transform:translateY(-9px) rotate(-1deg);filter:drop-shadow(5px 7px 4px rgba(0,0,0,.3))}
-.book:focus-visible{outline:2px solid #244BFF;outline-offset:3px;z-index:4}
-.book-cover{position:absolute;inset:0;overflow:hidden;display:block;background:var(--book);color:var(--book-ink);border-radius:2px 3px 0 0;border-left:2px solid rgba(255,255,255,.24);border-right:2px solid rgba(0,0,0,.25);box-shadow:inset 4px 0 5px rgba(255,255,255,.12),inset -4px 0 6px rgba(0,0,0,.2),0 1px 1px rgba(0,0,0,.25)}
-.book-cover::before{content:"";position:absolute;inset:0 18% 0 22%;background:linear-gradient(90deg,rgba(255,255,255,.13),transparent 18%,rgba(0,0,0,.1) 82%,rgba(255,255,255,.12));border-left:1px solid rgba(255,255,255,.18);border-right:1px solid rgba(0,0,0,.18)}
-.book-cover::after{content:"";position:absolute;left:0;right:0;top:10%;height:2px;background:rgba(255,255,255,.22);box-shadow:0 3px rgba(0,0,0,.12),0 calc(var(--book-height,180px) - 30px) rgba(255,255,255,.16)}
-.book-spine{position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.32),rgba(0,0,0,.12));z-index:2}
-.book-title{position:absolute;z-index:2;left:50%;top:13%;height:72%;max-width:80%;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 clamp(8px,.75vw,11px)/1 var(--body);letter-spacing:.035em;color:var(--book-ink);text-shadow:0 1px 1px rgba(0,0,0,.35);opacity:.9}
+.bookcase{position:relative;z-index:1;padding:22px 22px 28px;background:linear-gradient(90deg,#d4cfc5,#f5f2eb 4%,#e9e4da 96%,#c9c2b6);border:1px solid #bcb4a7;box-shadow:0 18px 38px rgba(35,28,20,.2),inset 0 0 0 7px rgba(255,255,255,.34)}
+.bookcase::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background:repeating-linear-gradient(2deg,transparent 0 42px,rgba(115,93,67,.08) 43px,transparent 45px)}
+.book-shelf{position:relative;z-index:1;display:flex;flex-direction:column;gap:0}
+.shelf-row{position:relative;display:flex;align-items:flex-end;gap:clamp(2px,.35vw,5px);min-height:clamp(170px,19vw,230px);padding:10px 9px 14px;isolation:isolate}
+.shelf-row::after{content:"";position:absolute;z-index:-1;left:-14px;right:-14px;bottom:0;height:15px;background:linear-gradient(180deg,#c8b79d 0%,#a58e70 16%,#816a50 44%,#b5a187 53%,#766047 100%);border-top:1px solid #e0d2bd;box-shadow:0 5px 8px rgba(44,31,19,.25),inset 0 1px rgba(255,255,255,.65)}
+.shelf-row+.shelf-row{margin-top:12px}
+.book{--book:#315b70;--book-ink:#f5efe4;--tilt:0deg;position:relative;display:block;flex:var(--book-width,1) 1 0;min-width:0;height:var(--book-height,190px);max-width:100%;padding:0;border:0;border-radius:2px 3px 0 0;background:transparent;cursor:pointer;transform:rotate(var(--tilt));transform-origin:bottom center;transition:transform .3s cubic-bezier(.2,.8,.2,1),filter .3s,margin .3s;isolation:isolate}
+.book-cover{position:absolute;inset:0;overflow:hidden;display:block;background:linear-gradient(90deg,rgba(0,0,0,.28),transparent 12%,rgba(255,255,255,.12) 22%,transparent 43%,rgba(0,0,0,.13) 100%),var(--book);color:var(--book-ink);border-radius:2px 3px 0 0;border-left:2px solid rgba(255,255,255,.25);border-right:2px solid rgba(0,0,0,.28);box-shadow:inset 3px 0 5px rgba(255,255,255,.13),inset -4px 0 7px rgba(0,0,0,.23),0 1px 1px rgba(0,0,0,.3)}
+.book-cover::before{content:"";position:absolute;inset:0 18%;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent 14%,rgba(0,0,0,.08) 86%,rgba(255,255,255,.1));border-left:1px solid rgba(255,255,255,.15);border-right:1px solid rgba(0,0,0,.16)}
+.book-cover::after{content:"";position:absolute;left:0;right:0;top:9%;height:2px;background:rgba(255,255,255,.2);box-shadow:0 2px rgba(0,0,0,.12),0 calc(var(--book-height,190px) - 22px) rgba(255,255,255,.13)}
+.book-spine{position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.34),rgba(0,0,0,.12));z-index:2}
+.book-title{position:absolute;z-index:2;left:50%;top:12%;height:75%;max-width:78%;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 clamp(8px,.72vw,11px)/1 var(--body);letter-spacing:.035em;color:var(--book-ink);text-shadow:0 1px 1px rgba(0,0,0,.38);opacity:.92}
 .book-number,.book-language{display:none}
-.book.is-selected{z-index:2;transform:translateY(-8px)}
-.book.is-selected .book-cover{outline:2px solid #244BFF;outline-offset:2px;box-shadow:inset 4px 0 5px rgba(255,255,255,.12),inset -4px 0 6px rgba(0,0,0,.2),0 4px 10px rgba(0,0,0,.25)}
-.book-details{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-top:18px;padding:18px 20px;background:rgba(255,255,255,.72);border:1px solid #d0c9bd;color:#171717}
-.book-details-language{display:none}
+.book:nth-child(4n) .book-cover{border-top:3px solid rgba(255,255,255,.2)}
+.book:hover{z-index:5;transform:translateY(-10px) rotate(0deg);filter:drop-shadow(5px 7px 4px rgba(0,0,0,.32))}
+.book:focus-visible{outline:2px solid #244BFF;outline-offset:3px;z-index:6}
+.book.is-selected{z-index:4;transform:translateY(-13px) rotate(0deg);filter:drop-shadow(5px 8px 5px rgba(0,0,0,.34))}
+.book.is-selected .book-cover{outline:2px solid #244BFF;outline-offset:1px}
+.book.is-selected~.book{transform:translateX(2px) rotate(var(--tilt))}
+.book-details{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-top:18px;padding:16px 19px;background:rgba(255,255,255,.76);border:1px solid #d0c9bd;color:#171717}
+.book-details-language,.book-details-meta{display:none}
 .book-details h3{margin:0 0 5px;font:900 clamp(21px,3vw,34px)/.95 var(--display);text-transform:uppercase;overflow-wrap:anywhere}
 .book-details-description{max-width:700px;margin:0;font-size:12px;line-height:1.5;color:#4d4942}
-.book-details-meta{display:none}
-.book-open{display:inline-flex;align-items:center;gap:10px;min-height:38px;padding:0 13px;background:#171717;color:#f1ebdd;font-size:9px;font-weight:800;letter-spacing:.04em;white-space:nowrap;transition:background .2s}
+.book-open{display:inline-flex;align-items:center;gap:10px;min-height:38px;padding:0 13px;background:#171717;color:#f1ebdd;font-size:9px;font-weight:800;letter-spacing:.04em;white-space:nowrap;transition:background .2s,transform .2s}
 .book-open:hover{background:#244BFF}
 .book-open:focus-visible{outline:2px solid #244BFF;outline-offset:3px}
-.library-empty{grid-column:1/-1;padding:36px 14px;color:#4c463d;font-size:12px}
+.library-empty{padding:36px 14px;color:#4c463d;font-size:12px}
 .library-status{display:none}
 @media(max-width:700px){
  .machine{padding:76px 18px 64px}
- .book-shelf{grid-template-columns:repeat(auto-fill,minmax(20px,1fr));grid-auto-rows:clamp(138px,29vw,180px);column-gap:2px;row-gap:18px;padding:9px 8px 0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(clamp(138px,29vw,180px) + 8px),#ded8cd calc(clamp(138px,29vw,180px) + 8px),#f7f4ed calc(clamp(138px,29vw,180px) + 14px),#b7afa2 calc(clamp(138px,29vw,180px) + 18px))}
- .book:nth-child(5n+1){grid-column:span 2}
- .book:nth-child(7n+3){grid-column:span 2}
- .book:nth-child(11n+6){grid-column:span 2}
+ .bookcase{padding:14px 12px 20px}
+ .shelf-row{min-height:clamp(150px,31vw,190px);padding:9px 5px 13px;gap:2px}
+ .shelf-row::after{left:-7px;right:-7px;height:13px}
+ .shelf-row+.shelf-row{margin-top:10px}
  .book-details{grid-template-columns:1fr;gap:12px;padding:15px}
  .book-open{justify-self:start}
 }
 @media(max-width:420px){
  .machine{padding-inline:12px}
- .library-tools{justify-content:stretch;flex-wrap:wrap}
+ .library-tools{justify-content:stretch}
  .library-search{max-width:none;flex:1 1 100%}
  .library-tools select{flex:1 1 calc(50% - 4px);max-width:none}
- .bookcase{padding-bottom:10px}
- .book-shelf{grid-template-columns:repeat(8,minmax(0,1fr));grid-auto-rows:clamp(128px,35vw,158px);column-gap:2px;row-gap:16px;padding:8px 5px 0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(clamp(128px,35vw,158px) + 7px),#ded8cd calc(clamp(128px,35vw,158px) + 7px),#f7f4ed calc(clamp(128px,35vw,158px) + 12px),#b7afa2 calc(clamp(128px,35vw,158px) + 16px))}
- .book:nth-child(5n+1),.book:nth-child(7n+3),.book:nth-child(11n+6){grid-column:span 1}
- .book-title{font-size:8px}
+ .bookcase{padding:10px 8px 16px}
+ .shelf-row{min-height:clamp(136px,38vw,164px);padding:8px 3px 12px;gap:2px}
+ .shelf-row::after{left:-5px;right:-5px;height:12px}
+ .book-title{font-size:7px}
  .book-details h3{font-size:27px}
 }
-@media(prefers-reduced-motion:reduce){.book,.book-cover{transition:none!important}.book:hover,.book.is-selected{transform:none}}
+@media(prefers-reduced-motion:reduce){.book{transition:none!important}.book:hover,.book.is-selected{transform:none}}
 </style>
 </head>
 <body>
@@ -577,7 +578,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const openLink = document.getElementById("scanner-open");
   let repositories = [], visible = [], selectedId = null;
   const books = new Map();
-  const palette = [["#244BFF","#F1EBDD"],["#FF4D00","#171717"],["#D9F04A","#171717"],["#E83F78","#171717"],["#E7DCC7","#171717"],["#477B64","#F1EBDD"],["#6A5ACD","#F1EBDD"],["#B68A54","#171717"]];
+  const palette = [
+    ["#244BFF","#F1EBDD"],["#FF4D00","#171717"],["#D9F04A","#171717"],
+    ["#E83F78","#171717"],["#E7DCC7","#171717"],["#477B64","#F1EBDD"],
+    ["#6A5ACD","#F1EBDD"],["#B68A54","#171717"],["#345B67","#F3E9D6"],
+    ["#7A3E32","#F5ECDD"],["#9B805B","#211C16"],["#3F5544","#F0E7D8"]
+  ];
 
   const dateLabel = value => {
     if (!value) return "Date unavailable";
@@ -635,34 +641,44 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       openLink.href = "https://github.com/Kaelith69?tab=repositories";
       return;
     }
+    const columns = window.matchMedia("(max-width:420px)").matches ? 13 :
+      window.matchMedia("(max-width:700px)").matches ? 19 : 29;
+    let row = null, used = 0;
     visible.forEach((repo,index) => {
+      const width = [1,1,1,2,1,1,2,1,1,1,1,2][index % 12];
+      if (!row || used + width > columns) {
+        row = document.createElement("div");
+        row.className = "shelf-row";
+        shelf.append(row);
+        used = 0;
+      }
       const button = document.createElement("button");
       button.type = "button";
       button.className = "book";
       button.setAttribute("aria-pressed","false");
       button.setAttribute("aria-label","Select "+repo.name);
       const [background,foreground] = palette[index % palette.length];
+      const height = 76 + ((index * 17 + 11) % 25);
+      const tilt = [0,0,0,-1.1,0,.7,0,-.6][index % 8];
       button.style.setProperty("--book",background);
       button.style.setProperty("--book-ink",foreground);
+      button.style.setProperty("--book-width",String(width));
+      button.style.setProperty("--book-height",height+"%");
+      button.style.setProperty("--tilt",tilt+"deg");
       const spine = document.createElement("span");
       spine.className = "book-spine";
       spine.setAttribute("aria-hidden","true");
       const cover = document.createElement("span");
       cover.className = "book-cover";
-      const number = document.createElement("span");
-      number.className = "book-number";
-      number.textContent = String(index+1).padStart(2,"0");
       const title = document.createElement("span");
       title.className = "book-title";
       title.textContent = repo.name;
-      const lang = document.createElement("span");
-      lang.className = "book-language";
-      lang.textContent = repo.language || "Miscellaneous";
-      cover.append(number,title,lang);
+      cover.append(title);
       button.append(spine,cover);
       button.addEventListener("click",()=>selectBook(repo.id));
-      shelf.append(button);
+      row.append(button);
       books.set(String(repo.id),button);
+      used += width;
     });
     if (!visible.some(repo=>String(repo.id)===selectedId)) selectedId = String(visible[0].id);
     selectBook(selectedId);
