@@ -84,7 +84,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .footer{background:var(--navy);padding:22px var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:11px;color:var(--pale)}
 .footer a{color:var(--white)}
 .footer a:hover{color:var(--lime)}
-@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes orbit{to{transform:translateX(48%) rotate(360deg)}}
 @media(max-width:760px){
  .site-header{height:64px}.nav{gap:16px;font-size:11px}
  .hero{min-height:760px;padding-top:110px}.hero::before{width:100vw;right:-45%;top:18%}.hero::after{width:70vw;right:-23%;top:23%}
@@ -671,7 +671,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       number.className = "record-sleeve-number";
       number.textContent = String(index+1).padStart(2,"0");
       face.append(art,title,number);
-      button.append(vinyl,center,face);
+      vinyl.append(center);
+      button.append(vinyl,face);
       button.addEventListener("click",()=>selectRecord(repo.id));
       wall.append(button);
       sleeves.set(String(repo.id),button);
