@@ -155,9 +155,174 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .project:hover{background:transparent}
 }
 
+
+/* Shared vinyl transition */
+.transition-screen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:var(--cobalt);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .32s cubic-bezier(.22,.68,0,1),visibility .32s;
+}
+.transition-screen.is-active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.transition-screen::before,
+.transition-screen::after{
+  content:"";
+  position:absolute;
+  width:1px;
+  height:100%;
+  top:0;
+  background:rgba(23,23,23,.12);
+}
+.transition-screen::before{left:clamp(22px,6vw,92px)}
+.transition-screen::after{right:clamp(22px,6vw,92px)}
+.transition-stage{
+  position:relative;
+  width:min(78vw,420px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+}
+.vinyl-record{
+  position:relative;
+  width:76%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 25%,rgba(255,255,255,.18),transparent 30%),
+    repeating-radial-gradient(circle,rgba(255,255,255,.13) 0 1px,rgba(0,0,0,.25) 1.5px 3px,transparent 3.5px 5px),
+    radial-gradient(circle,#292929 0%,#101010 58%,#050505 76%,#292929 78%,#080808 81%,#030303 100%);
+  box-shadow:0 24px 55px rgba(0,0,0,.28),inset 0 0 0 2px rgba(255,255,255,.12),inset 0 0 22px rgba(0,0,0,.9);
+  animation:vinyl-spin 1.35s linear infinite;
+  will-change:transform;
+}
+.vinyl-record::before{
+  content:"";
+  position:absolute;
+  inset:5%;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 0 0 5px rgba(255,255,255,.025),0 0 0 9px rgba(0,0,0,.24);
+}
+.vinyl-label{
+  position:absolute;
+  width:27%;
+  aspect-ratio:1;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at 34% 28%,#ff8a4b 0,var(--cyan) 42%,#c62c00 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.4),0 0 0 5px rgba(0,0,0,.5);
+}
+.vinyl-label::before{
+  content:"";
+  position:absolute;
+  width:12%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:#d7d2c7;
+  box-shadow:0 0 0 3px rgba(0,0,0,.55),inset 0 1px 2px rgba(0,0,0,.6);
+}
+.vinyl-label-mark{
+  position:absolute;
+  top:18%;
+  color:#171717;
+  font:900 clamp(8px,1.4vw,12px)/1 var(--body);
+  letter-spacing:.12em;
+}
+.record-tonearm{
+  position:absolute;
+  z-index:2;
+  width:32%;
+  height:32%;
+  right:2%;
+  top:0;
+  transform:rotate(24deg);
+  transform-origin:82% 15%;
+}
+.record-tonearm::before{
+  content:"";
+  position:absolute;
+  width:23%;
+  aspect-ratio:1;
+  right:5%;
+  top:3%;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#f7f4eb,#77756f 48%,#272727 72%);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+.record-tonearm::after{
+  content:"";
+  position:absolute;
+  width:7%;
+  height:83%;
+  right:14%;
+  top:13%;
+  border-radius:8px;
+  background:linear-gradient(90deg,#5b5b58,#e5e1d7 45%,#77756f);
+  transform:rotate(-25deg);
+  transform-origin:top center;
+  box-shadow:1px 2px 4px rgba(0,0,0,.35);
+}
+.tonearm-head{
+  position:absolute;
+  width:17%;
+  height:10%;
+  right:31%;
+  bottom:0;
+  border-radius:2px;
+  background:linear-gradient(180deg,#d7d2c7,#55534e);
+  transform:rotate(12deg);
+}
+.transition-caption{
+  position:absolute;
+  bottom:clamp(28px,7vh,64px);
+  left:50%;
+  transform:translateX(-50%);
+  color:var(--navy);
+  font:800 10px/1 var(--body);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+@keyframes vinyl-spin{to{transform:rotate(360deg)}}
+html.transition-jump{scroll-behavior:auto}
+@media(max-width:600px){
+  .transition-stage{width:min(82vw,340px)}
+  .transition-caption{bottom:34px}
+}
+@media(prefers-reduced-motion:reduce){
+  .vinyl-record{animation:none}
+  .transition-screen{transition:none}
+}
+
 </style>
 </head>
 <body>
+
+<div class="transition-screen" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="true">
+  <div class="transition-stage" aria-hidden="true">
+    <div class="vinyl-record">
+      <div class="vinyl-label"><span class="vinyl-label-mark">K69</span></div>
+    </div>
+    <div class="record-tonearm"><span class="tonearm-head"></span></div>
+  </div>
+  <span class="transition-caption" aria-hidden="true">Please wait</span>
+</div>
+
 <header class="site-header">
 <a class="wordmark" href="#home" aria-label="KAELITH69 home">KAELITH69</a>
 <nav class="nav" aria-label="Main navigation">
@@ -228,5 +393,100 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 </section>
 </main>
 <footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
+
+<script>
+(() => {
+  const overlay = document.getElementById("page-transition");
+  const main = document.querySelector("main");
+  if (!overlay) return;
+
+  let transitionTimer;
+  let finishTimer;
+  let handlingPopState = false;
+
+  const show = () => {
+    clearTimeout(transitionTimer);
+    clearTimeout(finishTimer);
+    overlay.classList.add("is-active");
+    overlay.setAttribute("aria-hidden", "false");
+    if (main) main.setAttribute("aria-busy", "true");
+  };
+
+  const hide = () => {
+    overlay.classList.remove("is-active");
+    overlay.setAttribute("aria-hidden", "true");
+    if (main) main.removeAttribute("aria-busy");
+  };
+
+  const findTarget = (hash) => {
+    if (!hash || hash === "#") return document.getElementById("home");
+    let id = hash.slice(1);
+    try { id = decodeURIComponent(id); } catch (_) {}
+    return document.getElementById(id);
+  };
+
+  const transitionTo = (hash, updateHistory = false) => {
+    const target = findTarget(hash);
+    if (!target) return;
+
+    show();
+    if (updateHistory && window.location.hash !== hash) {
+      window.history.pushState({section: hash}, "", hash);
+    }
+
+    transitionTimer = window.setTimeout(() => {
+      document.documentElement.classList.add("transition-jump");
+      const headerOffset = target.id === "home" ? 0 :
+        (window.matchMedia("(max-width: 760px)").matches ? 64 : 72);
+      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
+      window.scrollTo({top, behavior: "auto"});
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove("transition-jump");
+        finishTimer = window.setTimeout(hide, 260);
+      });
+    }, 360);
+  };
+
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    const link = event.target.closest("a[href^='#']");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+
+    const hash = link.getAttribute("href");
+    if (!findTarget(hash)) return;
+
+    event.preventDefault();
+    transitionTo(hash, true);
+  });
+
+  window.addEventListener("popstate", () => {
+    handlingPopState = true;
+    transitionTo(window.location.hash || "#home");
+    window.setTimeout(() => { handlingPopState = false; }, 0);
+  });
+
+  window.addEventListener("hashchange", () => {
+    if (!handlingPopState) transitionTo(window.location.hash || "#home");
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      show();
+      finishTimer = window.setTimeout(hide, 420);
+    }
+  });
+
+  show();
+  window.addEventListener("load", () => {
+    finishTimer = window.setTimeout(hide, 480);
+  }, {once:true});
+  if (document.readyState === "complete") {
+    finishTimer = window.setTimeout(hide, 480);
+  }
+})();
+</script>
+
 </body>
 </html>
