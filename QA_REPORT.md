@@ -15,7 +15,7 @@
 - Added an adjustable orbit speed control and an initial paused state for reduced motion preferences.
 - Added a custom static SVG project banner and updated the README with verified setup and implementation details.
 
-## Not verified in a real browser
+## Static checks\n\n- JavaScript module syntax: PASS.\n- Internal section anchor references: PASS.\n- Custom SVG banner file: present.\n\n## Not verified in a real browser
 
 - Visual rendering and interaction on desktop and mobile devices.
 - WebGL execution and performance across browsers and GPUs.
