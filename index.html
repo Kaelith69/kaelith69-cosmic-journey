@@ -32,8 +32,6 @@ main{position:relative;z-index:1}
 .hero{min-height:100svh;padding:142px clamp(22px,8vw,124px) 80px;display:flex;align-items:center;position:relative;isolation:isolate}
 .hero:after{content:"";position:absolute;z-index:-1;right:5vw;top:20%;width:min(34vw,440px);height:min(34vw,440px);border:1px solid rgba(8,214,208,.22);transform:rotate(45deg);box-shadow:18px 18px 0 -17px var(--lime),36px 36px 0 -35px var(--electric);pointer-events:none}
 .hero-copy{max-width:940px;position:relative}
-.eyebrow{font:10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);display:flex;align-items:center;gap:12px}
-.eyebrow:before{content:"";width:34px;height:2px;background:var(--lime)}
 .hero h1{font:900 clamp(76px,15.4vw,224px)/.76 var(--display);letter-spacing:-.055em;margin:34px 0 26px;text-transform:uppercase;max-width:1100px}
 .hero h1 span{display:block;color:var(--lime);-webkit-text-stroke:1px var(--lime);text-shadow:8px 8px 0 rgba(23,70,216,.8)}
 .hero-bottom{display:grid;grid-template-columns:minmax(0,430px) auto;align-items:end;gap:44px;margin-top:44px}
@@ -44,17 +42,11 @@ main{position:relative;z-index:1}
 .action.primary{background:var(--lime);border-color:var(--lime);color:var(--void);font-weight:800}
 .action.primary:hover{background:var(--cyan);border-color:var(--cyan)}
 .action.secondary{background:rgba(8,13,29,.6);color:var(--paper)}
-.hero-index{position:absolute;right:clamp(22px,5vw,76px);bottom:38px;display:flex;align-items:center;gap:14px;color:var(--muted);font:10px var(--mono);letter-spacing:.15em}
-.hero-index:before{content:"";width:54px;height:1px;background:var(--lime)}
-.scroll-cue{position:absolute;left:clamp(22px,5vw,76px);bottom:38px;color:var(--muted);font:9px var(--mono);letter-spacing:.18em;text-transform:uppercase;writing-mode:vertical-rl;display:flex;gap:14px;align-items:center}
-.scroll-cue:after{content:"";height:48px;width:1px;background:var(--cyan)}
 .section{padding:120px clamp(22px,8vw,124px);position:relative}
 .section-solid{background:rgba(8,13,29,.96);border-top:1px solid rgba(143,168,201,.2);border-bottom:1px solid rgba(143,168,201,.2)}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;margin-bottom:54px}
-.section-kicker{font:10px var(--mono);letter-spacing:.2em;color:var(--cyan);text-transform:uppercase;margin:0 0 14px}
 .section-title{font:900 clamp(48px,8vw,104px)/.86 var(--display);letter-spacing:-.045em;text-transform:uppercase;margin:0}
 .section-title .outline{color:transparent;-webkit-text-stroke:1px var(--paper)}
-.section-note{font:11px/1.6 var(--mono);color:var(--muted);max-width:220px;text-align:right}
 .project-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
 .project{grid-column:span 6;min-height:330px;position:relative;overflow:hidden;background:#101A34;border:1px solid rgba(143,168,201,.3);display:flex;flex-direction:column;justify-content:space-between;padding:26px;isolation:isolate;transition:transform .25s,border-color .25s}
 .project:nth-child(3n+2){background:#0B174A}
@@ -67,8 +59,6 @@ main{position:relative;z-index:1}
 .project:nth-child(5):before{border:2px solid rgba(215,245,29,.25);width:150px;height:150px;box-shadow:12px 12px 0 -10px var(--magenta),24px 24px 0 -22px var(--cyan)}
 .project:nth-child(6):before{border:1px dashed rgba(168,85,247,.5);width:230px;height:230px;transform:rotate(65deg)}
 .project-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.project-number{font:10px var(--mono);color:var(--lime);letter-spacing:.15em}
-.project-type{font:9px var(--mono);color:var(--muted);letter-spacing:.13em;text-transform:uppercase;border:1px solid rgba(143,168,201,.3);padding:7px 9px}
 .project-bottom{position:relative;z-index:1;max-width:560px}
 .project h3{font:900 clamp(34px,5vw,58px)/.9 var(--display);letter-spacing:-.03em;text-transform:uppercase;margin:0 0 14px}
 .project p{color:#b9c7dc;font-size:14px;line-height:1.55;max-width:480px;margin:0 0 20px}
@@ -84,20 +74,11 @@ main{position:relative;z-index:1}
 .about-statement em{font-style:normal;color:var(--lime)}
 .about-copy{padding-top:8px}
 .about-copy p{font-size:16px;line-height:1.8;color:#c0cce0;margin:0 0 22px;max-width:560px}
-.discipline-list{margin-top:38px;border-top:1px solid var(--line)}
-.discipline{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:16px;padding:17px 0;border-bottom:1px solid var(--line)}
-.discipline-number{font:10px var(--mono);color:var(--cyan)}
-.discipline-name{font:900 clamp(18px,2.4vw,26px) var(--display);letter-spacing:.01em;text-transform:uppercase}
-.discipline-mark{width:10px;height:10px;background:var(--lime);transform:rotate(45deg)}
-.stack-band{background:var(--blue);color:white;padding:32px clamp(22px,8vw,124px);display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
-.stack-band strong{font:900 clamp(24px,4vw,42px)/.9 var(--display);text-transform:uppercase}
-.stack-band p{font:10px/1.8 var(--mono);letter-spacing:.08em;color:#dbe4ff;max-width:620px;margin:0}
 .contact-section{padding-top:130px;padding-bottom:90px;overflow:hidden}
 .contact-section:after{content:"69";position:absolute;right:-.02em;bottom:-.28em;font:900 min(48vw,660px)/.8 var(--display);letter-spacing:-.08em;color:rgba(36,87,255,.16);pointer-events:none;z-index:-1}
 .contact-title{font:900 clamp(64px,13vw,180px)/.78 var(--display);letter-spacing:-.055em;text-transform:uppercase;margin:0 0 34px;max-width:1000px}
 .contact-title span{color:var(--lime)}
 .contact-row{display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:24px;max-width:900px}
-.contact-copy{font-size:15px;line-height:1.6;color:#bdcbe0;max-width:360px;margin:0}
 .contact-actions{display:flex;gap:10px;flex-wrap:wrap}
 .site-footer{position:relative;z-index:1;padding:20px clamp(22px,5vw,76px);border-top:1px solid rgba(143,168,201,.2);display:flex;justify-content:space-between;align-items:center;gap:20px;background:var(--void);color:var(--muted);font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
 .site-footer a:hover{color:var(--lime)}
@@ -106,17 +87,11 @@ main{position:relative;z-index:1}
 .planet-btn:hover,.planet-btn.active{background:var(--lime);color:var(--void)}
 .speed-control{position:fixed;z-index:5;left:clamp(12px,3vw,42px);bottom:25px;display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(8,13,29,.82);border-left:2px solid var(--cyan);font:9px var(--mono);letter-spacing:.1em;color:var(--muted)}
 .speed-control input{width:76px;accent-color:var(--lime)}
-#planet-label{position:fixed;z-index:4;left:clamp(20px,5vw,76px);top:50%;transform:translateY(-50%);font:900 clamp(18px,2vw,28px) var(--display);letter-spacing:.08em;color:var(--cyan);writing-mode:vertical-rl;opacity:0;transition:opacity .25s;pointer-events:none}
-#planet-label.show{opacity:.9}
-#loader{position:fixed;z-index:20;inset:0;background:var(--void);display:grid;place-items:center;transition:opacity .5s}
-#loader.hide{opacity:0;pointer-events:none}
-.loader-core{width:44px;height:44px;border:1px solid var(--cyan);border-top:5px solid var(--lime);transform:rotate(45deg);animation:loadspin 1s linear infinite}
-@keyframes loadspin{to{transform:rotate(405deg)}}
 @media(max-width:760px){
 .site-header{height:66px;padding:0 18px}.header-nav{gap:13px}.header-nav a{font-size:8px;letter-spacing:.08em}.header-nav .contact-link{padding:10px}
-.hero{padding:120px 22px 100px;align-items:center}.hero:after{right:2vw;top:22%;width:48vw;height:48vw;opacity:.7}.hero h1{font-size:clamp(72px,19vw,144px);margin:28px 0 20px}.hero-bottom{grid-template-columns:1fr;gap:24px;margin-top:32px}.hero-description{max-width:390px}.hero-index{right:22px;bottom:24px}.scroll-cue{left:18px;bottom:24px}
-.section{padding:84px 22px}.section-head{align-items:flex-start;flex-direction:column;margin-bottom:34px}.section-note{text-align:left;max-width:320px}.project{grid-column:span 12;min-height:290px;padding:22px}.project h3{font-size:48px}.about-layout{grid-template-columns:1fr;gap:30px}.stack-band{padding:28px 22px}.contact-section{padding-top:90px;padding-bottom:110px}.contact-title{font-size:clamp(66px,16vw,120px)}
-.orbit-ui{right:10px;bottom:10px;left:10px;justify-content:flex-start;overflow-x:auto}.planet-btn{padding:9px 7px;font-size:8px}.speed-control{left:10px;bottom:66px;padding:7px 9px;background:rgba(8,13,29,.9)}#planet-label{left:10px}
+.hero{padding:120px 22px 100px;align-items:center}.hero:after{right:2vw;top:22%;width:48vw;height:48vw;opacity:.7}.hero h1{font-size:clamp(72px,19vw,144px);margin:28px 0 20px}.hero-bottom{grid-template-columns:1fr;gap:24px;margin-top:32px}.hero-description{max-width:390px}
+.section{padding:84px 22px}.section-head{align-items:flex-start;flex-direction:column;margin-bottom:34px}.project{grid-column:span 12;min-height:290px;padding:22px}.project h3{font-size:48px}.about-layout{grid-template-columns:1fr;gap:30px}.contact-section{padding-top:90px;padding-bottom:110px}.contact-title{font-size:clamp(66px,16vw,120px)}
+.orbit-ui{right:10px;bottom:10px;left:10px;justify-content:flex-start;overflow-x:auto}.planet-btn{padding:9px 7px;font-size:8px}.speed-control{left:10px;bottom:66px;padding:7px 9px;background:rgba(8,13,29,.9)}
 .site-footer{padding:18px;flex-wrap:wrap}
 }
 @media(max-width:420px){.header-nav a:nth-child(2){display:none}.hero h1{font-size:19vw}.project h3{font-size:42px}.contact-actions{width:100%}.contact-actions .action{flex:1}.speed-control{font-size:8px}.speed-control input{width:56px}}
@@ -126,59 +101,46 @@ main{position:relative;z-index:1}
 <body>
 <canvas id="space" aria-hidden="true"></canvas>
 <div class="scene-wash" aria-hidden="true"></div><div class="grid-wash" aria-hidden="true"></div>
-<div id="loader" aria-label="Loading cosmic scene"><div class="loader-core"></div></div>
-<script>window.setTimeout(function(){var node=document.getElementById("loader");if(node)node.classList.add("hide");},2400);</script>
 <header class="site-header">
 <a class="brand" href="#home" aria-label="KAELITH69 home"><span class="brand-mark"></span>KAELITH69</a>
 <nav class="header-nav" aria-label="Main navigation">
 <a href="#work">Work</a><a href="#about">About</a><a class="contact-link" href="#contact">Get in touch ↗</a>
 </nav>
 </header>
-<div id="planet-label" aria-live="polite"></div>
 <main>
 <section class="hero" id="home">
 <div class="hero-copy">
-<p class="eyebrow">Independent software portfolio</p>
 <h1>KAELITH<span>69.</span></h1>
 <div class="hero-bottom">
-<p class="hero-description">A collection of software experiments across interactive worlds, useful tools, AI powered applications and the web.</p>
+<p class="hero-description">Interactive experiences, useful tools and software built to explore ideas.</p>
 <div class="hero-actions">
 <a class="action primary" href="#work">Explore the work <span aria-hidden="true">↘</span></a>
-<a class="action secondary" href="https://github.com/Kaelith69" target="_blank" rel="noreferrer">GitHub ↗</a>
+
 </div>
 </div>
 </div>
-<div class="scroll-cue">Scroll to explore</div><div class="hero-index">01 / 04</div>
+
 </section>
 
 <section class="section section-solid" id="work">
-<div class="section-head">
-<div><p class="section-kicker">A selection from the repository universe</p><h2 class="section-title">Selected <span class="outline">work.</span></h2></div>
-<p class="section-note">A few things built across different corners of software.</p>
-</div>
+<div class="section-head"><h2 class="section-title">Work<span class="outline">.</span></h2></div>
 <div class="project-grid">
 <a class="project" href="https://github.com/Kaelith69/pickme" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">01 / WEB APP</span><span class="project-type">PWA · Firebase</span></div>
 <div class="project-bottom"><h3>PickMe</h3><p>A romantic web app for creating private love letters, sharing them with secret codes and exploring a public wall of messages.</p><div class="project-meta"><span class="tech-list">VANILLA JS · FIRESTORE · SERVICE WORKER</span><span class="project-open" aria-label="Open PickMe repository">↗</span></div></div>
 </a>
 <a class="project" href="https://github.com/Kaelith69/Prism" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">02 / AI TOOL</span><span class="project-type">Generation · Export</span></div>
 <div class="project-bottom"><h3>Prism</h3><p>An AI presentation studio that turns a topic into structured slides, deterministic SVG visuals and widescreen PDF exports.</p><div class="project-meta"><span class="tech-list">NODE.JS · EXPRESS · GROQ · LLAMA 3.1</span><span class="project-open" aria-label="Open Prism repository">↗</span></div></div>
 </a>
 <a class="project" href="https://github.com/Kaelith69/GodView" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">03 / DEVELOPER TOOL</span><span class="project-type">ES6 · Dashboard</span></div>
 <div class="project-bottom"><h3>GodView</h3><p>A zero build dashboard module with configurable metrics, geospatial mapping, live search, data refresh and CSV export.</p><div class="project-meta"><span class="tech-list">JAVASCRIPT · LEAFLET · CSS</span><span class="project-open" aria-label="Open GodView repository">↗</span></div></div>
 </a>
 <a class="project" href="https://github.com/Kaelith69/medic" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">04 / MOBILE APP</span><span class="project-type">Accessibility · OCR</span></div>
 <div class="project-bottom"><h3>Medic</h3><p>A medicine label reader combining on device text recognition, text to speech and medication reminders in a Flutter application.</p><div class="project-meta"><span class="tech-list">FLUTTER · DART · GOOGLE ML KIT · TTS</span><span class="project-open" aria-label="Open Medic repository">↗</span></div></div>
 </a>
 <a class="project" href="https://github.com/Kaelith69/Emo" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">05 / AI APP</span><span class="project-type">Conversation · Mobile</span></div>
 <div class="project-bottom"><h3>Emo</h3><p>A cross platform Flutter companion for contextual AI conversations, with locally saved responses and an AMOLED dark interface.</p><div class="project-meta"><span class="tech-list">FLUTTER · DART · GEMINI API</span><span class="project-open" aria-label="Open Emo repository">↗</span></div></div>
 </a>
 <a class="project" href="https://github.com/Kaelith69/WRDLiNK-Web" target="_blank" rel="noreferrer">
-<div class="project-top"><span class="project-number">06 / BROWSER GAME</span><span class="project-type">Logic · Puzzles</span></div>
 <div class="project-bottom"><h3>WRDLiNK</h3><p>A four letter word ladder game built around local dictionary validation, shortest path solving and a persistent campaign score.</p><div class="project-meta"><span class="tech-list">VANILLA JS · DICTIONARY · GRAPH SEARCH</span><span class="project-open" aria-label="Open WRDLiNK repository">↗</span></div></div>
 </a>
 </div>
@@ -186,32 +148,19 @@ main{position:relative;z-index:1}
 </section>
 
 <section class="section" id="about">
-<div class="section-head">
-<div><p class="section-kicker">The thread between the experiments</p><h2 class="section-title">Beyond the <span class="outline">pixels.</span></h2></div>
-<p class="section-note">Different problems. Different tools. One curiosity driven practice.</p>
-</div>
+<div class="section-head"><h2 class="section-title">About<span class="outline">.</span></h2></div>
 <div class="about-layout">
-<h3 class="about-statement">Software should be <em>useful</em>, curious and a little unexpected.</h3>
+<h3 class="about-statement">Curiosity, <em>made</em> tangible.</h3>
 <div class="about-copy">
-<p>KAELITH69 is an independent collection of software projects, from browser based experiments and developer tools to AI powered applications and mobile experiences.</p>
-<p>The projects range from small, focused utilities to interactive systems. The common thread is exploring how software can make an idea tangible, understandable or simply more enjoyable to use.</p>
-<div class="discipline-list">
-<div class="discipline"><span class="discipline-number">01</span><span class="discipline-name">Web experiences</span><span class="discipline-mark"></span></div>
-<div class="discipline"><span class="discipline-number">02</span><span class="discipline-name">AI applications</span><span class="discipline-mark"></span></div>
-<div class="discipline"><span class="discipline-number">03</span><span class="discipline-name">Mobile software</span><span class="discipline-mark"></span></div>
-<div class="discipline"><span class="discipline-number">04</span><span class="discipline-name">Interactive systems</span><span class="discipline-mark"></span></div>
-</div>
+<p>I build web experiences, AI applications, developer tools and mobile software. Each project starts with an idea worth exploring.</p>
 </div>
 </div>
 </section>
 
-<div class="stack-band"><strong>Many tools. One curiosity.</strong><p>VANILLA JAVASCRIPT / NODE.JS / EXPRESS / FLUTTER / DART / FIREBASE / THREE.JS / LEAFLET / GEMINI / GROQ</p></div>
 
 <section class="section contact-section" id="contact">
-<p class="section-kicker">Open channel</p>
-<h2 class="contact-title">Have an idea?<br><span>Let's build.</span></h2>
+<h2 class="contact-title">Get in<br><span>touch.</span></h2>
 <div class="contact-row">
-<p class="contact-copy">Find the code, explore the experiments or reach out through the links below.</p>
 <div class="contact-actions">
 <a class="action primary" href="https://github.com/Kaelith69" target="_blank" rel="noreferrer">GitHub ↗</a>
 <a class="action secondary" href="https://instagram.com/kaelith6.9" target="_blank" rel="noreferrer">Instagram ↗</a>
@@ -219,18 +168,16 @@ main{position:relative;z-index:1}
 </div>
 </section>
 </main>
-<footer class="site-footer"><span>© KAELITH69</span><span>Independent software portfolio</span><a href="#home">Back to top ↑</a></footer>
+<footer class="site-footer">© KAELITH69</footer>
 
-<div class="speed-control"><label for="speed">ORBIT RATE</label><input id="speed" type="range" min="0" max="4" step=".1" value="1"><span id="speed-value">1.0×</span></div>
+<div class="speed-control"><label for="speed">Speed</label><input id="speed" type="range" min="0" max="4" step=".1" value="1" aria-label="Orbit speed"><span id="speed-value">1.0×</span></div>
 <nav class="orbit-ui" id="controls" aria-label="Select a planet"></nav>
 
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
 
 const canvas=document.querySelector('#space');
-const loader=document.querySelector('#loader');
 const controls=document.querySelector('#controls');
-const planetLabel=document.querySelector('#planet-label');
 const speedInput=document.querySelector('#speed');
 const speedValue=document.querySelector('#speed-value');
 const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -380,8 +327,6 @@ function getCameraTarget(progress){
 function focusPlanet(name){
  selectedPlanet=selectedPlanet===name?null:name;
  const activeName=selectedPlanet;
- planetLabel.textContent=activeName?activeName.toUpperCase():'';
- planetLabel.classList.toggle('show',Boolean(activeName));
  document.querySelectorAll('.planet-btn').forEach(button=>button.classList.toggle('active',button.textContent===activeName?.toUpperCase()));
 }
 
@@ -418,7 +363,6 @@ function animate(){
  renderer.render(scene,camera);
 }
 animate();
-window.setTimeout(()=>loader.classList.add('hide'),1200);
 </script>
 </body>
 </html>
