@@ -1,19 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
-<title id="title">KAELITH69 Cosmic Journey</title>
-<desc id="desc">A midnight navy geometric composition with orbital rings and the words Cosmic Journey.</desc>
-<rect width="1200" height="300" fill="#080D1D"/>
-<path d="M0 0H1200V300H0Z" fill="none" stroke="#1746D8" stroke-width="3"/>
-<path d="M0 0H22V300H0Z" fill="#D7F51D"/>
-<path d="M830 -120L1130 180L1010 300L710 0Z" fill="#1746D8"/>
-<path d="M890 -100L1190 200" stroke="#08D6D0" stroke-width="2"/>
-<path d="M960 -100L1260 200" stroke="#D7F51D" stroke-width="2"/>
-<circle cx="1000" cy="150" r="112" fill="none" stroke="#08D6D0" stroke-width="1.5" opacity=".8"/>
-<circle cx="1000" cy="150" r="78" fill="none" stroke="#A855F7" stroke-width="1.5" opacity=".8"/>
-<circle cx="1000" cy="150" r="10" fill="#D7F51D"/>
-<path d="M1000 18V282M868 150H1132" stroke="#8FA8C9" stroke-width="1" opacity=".35"/>
-<text x="70" y="68" fill="#08D6D0" font-family="monospace" font-size="15" letter-spacing="5">KAELITH69</text>
-<text x="64" y="174" fill="#F4F5FF" font-family="Arial,Helvetica,sans-serif" font-size="91" font-weight="900" letter-spacing="-5">COSMIC</text>
-<text x="64" y="256" fill="#D7F51D" font-family="Arial,Helvetica,sans-serif" font-size="91" font-weight="900" letter-spacing="-5">JOURNEY</text>
-<path d="M64 276H560" stroke="#2457FF" stroke-width="8"/>
-<path d="M570 276H650" stroke="#08D6D0" stroke-width="8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+<title id="title">KAELITH69</title>
+<desc id="desc">An experimental cobalt blue composition with oversized white and acid green typography, a cropped electric blue disc and cyan circular geometry.</desc>
+<rect width="1200" height="420" fill="#12349B"/>
+<circle cx="1030" cy="205" r="310" fill="#2457F4"/>
+<circle cx="1010" cy="205" r="205" fill="none" stroke="#08C9D0" stroke-width="3"/>
+<circle cx="1010" cy="205" r="145" fill="#E4F51D"/>
+<circle cx="1010" cy="205" r="104" fill="none" stroke="#080D2A" stroke-width="3"/>
+<path d="M0 0H1200V420H0Z" fill="none" stroke="#B9C9F2" stroke-opacity=".35" stroke-width="2"/>
+<path d="M0 0H24V420H0Z" fill="#E4F51D"/>
+<path d="M760 0L950 0L1200 250V420H1120Z" fill="#08C9D0" opacity=".9"/>
+<path d="M0 350H470" stroke="#E4F51D" stroke-width="12"/>
+<text x="68" y="178" fill="#F5F5F2" font-family="Arial,Helvetica,sans-serif" font-size="132" font-weight="900" letter-spacing="-9">KAELITH</text>
+<text x="155" y="330" fill="#E4F51D" font-family="Arial,Helvetica,sans-serif" font-size="142" font-weight="900" letter-spacing="-10">69.</text>
 </svg>
