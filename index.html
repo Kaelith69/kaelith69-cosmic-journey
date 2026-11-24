@@ -396,7 +396,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   <div class="library-tools">
     <label class="library-search"><input id="repo-search" type="search" placeholder="Search the shelves" aria-label="Search repositories" autocomplete="off"></label>
     <select id="repo-language" aria-label="Filter by language"><option value="">All languages</option></select>
-    <select id="repo-genre" aria-label="Filter by project genre"><option value="">All genres</option></select>
     <select id="repo-sort" aria-label="Sort repositories">
       <option value="updated">Recently updated</option>
       <option value="created">Recently created</option>
@@ -570,7 +569,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const shelf = document.getElementById("repo-patchbay");
   const search = document.getElementById("repo-search");
   const language = document.getElementById("repo-language");
-  const genre = document.getElementById("repo-genre");
   const sort = document.getElementById("repo-sort");
   const total = document.getElementById("repo-total");
   const count = document.getElementById("repo-result-count");
@@ -609,10 +607,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return Number.isNaN(date.getTime()) ? "Date unavailable" : date.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
   };
   function filteredRepositories() {
-    const query = search.value.trim().toLowerCase(), lang = language.value, selectedGenre = genre.value;
+    const query = search.value.trim().toLowerCase(), lang = language.value;
     const list = repositories.filter(repo => {
       const text = (repo.name+" "+(repo.description||"")+" "+(repo.language||"")).toLowerCase();
-      return (!query || text.includes(query)) && (!lang || repo.language === lang) && (!selectedGenre || repo.genre === selectedGenre);
+      return (!query || text.includes(query)) && (!lang || repo.language === lang);
     });
     if (sort.value === "name") list.sort((a,b)=>a.name.localeCompare(b.name));
     if (sort.value === "updated") list.sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
@@ -723,7 +721,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   }
   search.addEventListener("input",render);
   language.addEventListener("change",render);
-  genre.addEventListener("change",render);
   sort.addEventListener("change",render);
 
   async function loadRepositories() {
@@ -744,12 +741,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         option.value = value;
         option.textContent = value;
         language.append(option);
-      });
-      [...new Set(repositories.map(repo=>repo.genre))].sort().forEach(value=>{
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = value;
-        genre.append(option);
       });
       render();
     } catch (error) {
