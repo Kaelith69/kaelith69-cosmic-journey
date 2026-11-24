@@ -891,7 +891,7 @@ html.transition-jump{scroll-behavior:auto}
     const repo=visible.find(item=>String(item.id)===String(id));
     if(!repo) return;
     selectedId=String(repo.id);
-    modules.forEach((button,key)=>button.classList.toggle("is-selected",key===selectedId));
+    modules.forEach((button,key)=>{const active=key===selectedId;button.classList.toggle("is-selected",active);button.setAttribute("aria-pressed",String(active));});
     const index=visible.findIndex(item=>String(item.id)===selectedId);
     scannerIndex.textContent=String(index+1).padStart(2,"0");
     pageCount.textContent="K69 / "+String(index+1).padStart(3,"0");
