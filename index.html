@@ -304,10 +304,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .bookcase{position:relative;z-index:1;padding:22px 22px 28px;background:linear-gradient(90deg,#d4cfc5,#f5f2eb 4%,#e9e4da 96%,#c9c2b6);border:1px solid #bcb4a7;box-shadow:0 18px 38px rgba(35,28,20,.2),inset 0 0 0 7px rgba(255,255,255,.34)}
 .bookcase::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background:repeating-linear-gradient(2deg,transparent 0 42px,rgba(115,93,67,.08) 43px,transparent 45px)}
 .book-shelf{position:relative;z-index:1;display:flex;flex-direction:column;gap:0}
-.shelf-row{position:relative;display:grid;grid-template-columns:repeat(var(--shelf-columns,29),minmax(0,1fr));align-items:end;gap:0 clamp(2px,.35vw,5px);height:clamp(170px,19vw,230px);padding:10px 9px 14px;isolation:isolate}
-.shelf-row::after{content:"";position:absolute;z-index:-1;left:-14px;right:-14px;bottom:0;height:15px;background:linear-gradient(180deg,#c8b79d 0%,#a58e70 16%,#816a50 44%,#b5a187 53%,#766047 100%);border-top:1px solid #e0d2bd;box-shadow:0 5px 8px rgba(44,31,19,.25),inset 0 1px rgba(255,255,255,.65)}
+.shelf-row{position:relative;display:grid;grid-template-columns:repeat(var(--shelf-columns,29),minmax(0,1fr));align-items:end;gap:0 clamp(2px,.35vw,5px);height:clamp(170px,19vw,230px);padding:10px 9px 14px;box-sizing:border-box;isolation:isolate}
+.shelf-row::after{content:"";position:absolute;z-index:4;pointer-events:none;left:-14px;right:-14px;bottom:0;height:15px;background:linear-gradient(180deg,#c8b79d 0%,#a58e70 16%,#816a50 44%,#b5a187 53%,#766047 100%);border-top:1px solid #e0d2bd;box-shadow:0 5px 8px rgba(44,31,19,.25),inset 0 1px rgba(255,255,255,.65)}
 .shelf-row+.shelf-row{margin-top:12px}
-.book{--book:#315b70;--book-ink:#f5efe4;--tilt:0deg;--pull-tilt:4deg;position:relative;display:block;grid-column:span var(--book-width,1);justify-self:stretch;align-self:end;min-width:0;width:100%;height:var(--book-height,180px);padding:0;border:0;border-radius:3px 4px 0 0;background:transparent;cursor:pointer;transform:rotate(var(--tilt));transform-origin:50% 100%;transition:transform .38s cubic-bezier(.2,.85,.25,1),filter .38s,margin .38s;isolation:isolate;z-index:1}
+.book{box-sizing:border-box;--book:#315b70;--book-ink:#f5efe4;--tilt:0deg;--pull-tilt:4deg;position:relative;display:block;grid-column:span var(--book-width,1);justify-self:stretch;align-self:end;min-width:0;width:100%;height:var(--book-height,180px);padding:0;border:0;border-radius:3px 4px 0 0;background:transparent;cursor:pointer;transform:rotate(var(--tilt));transform-origin:50% 100%;transition:transform .38s cubic-bezier(.2,.85,.25,1),filter .38s,margin .38s;isolation:isolate;z-index:1}
 .book-cover{position:absolute;inset:0;overflow:hidden;display:block;background-color:var(--book);background-image:linear-gradient(90deg,rgba(0,0,0,.34),transparent 9%,rgba(255,255,255,.18) 17%,transparent 31%,rgba(0,0,0,.08) 76%,rgba(0,0,0,.25)),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,rgba(0,0,0,.025) 1px 2px);color:var(--book-ink);border-radius:3px 4px 0 0;border-left:2px solid rgba(255,255,255,.28);border-right:2px solid rgba(0,0,0,.34);box-shadow:inset 3px 0 6px rgba(255,255,255,.17),inset -5px 0 8px rgba(0,0,0,.27),0 1px 2px rgba(0,0,0,.38)}
 .book-cover::before{content:"";position:absolute;inset:0 15%;background:linear-gradient(90deg,rgba(255,255,255,.13),transparent 13%,rgba(0,0,0,.09) 83%,rgba(255,255,255,.1));border-left:1px solid rgba(255,255,255,.18);border-right:1px solid rgba(0,0,0,.2);box-shadow:inset 1px 0 rgba(255,255,255,.12)}
 .book-cover::after{content:"";position:absolute;left:8%;right:8%;top:8%;height:3px;background:linear-gradient(90deg,transparent,rgba(239,211,151,.8),transparent);box-shadow:0 3px rgba(0,0,0,.12),0 calc(var(--book-height,180px) - 22px) rgba(239,211,151,.42)}
@@ -682,10 +682,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       button.setAttribute("aria-pressed","false");
       button.setAttribute("aria-label","Select "+repo.name);
       const [background,foreground] = palette[index % palette.length];
-      const rowHeight = window.matchMedia("(max-width:420px)").matches ? Math.min(164,Math.max(136,window.innerWidth*.38)) :
-        window.matchMedia("(max-width:700px)").matches ? Math.min(190,Math.max(150,window.innerWidth*.31)) :
+      const smallScreen = window.matchMedia("(max-width:420px)").matches;
+      const mediumScreen = window.matchMedia("(max-width:700px)").matches;
+      const rowHeight = smallScreen ? Math.min(164,Math.max(136,window.innerWidth*.38)) :
+        mediumScreen ? Math.min(190,Math.max(150,window.innerWidth*.31)) :
         Math.min(230,Math.max(170,window.innerWidth*.19));
-      const height = Math.round(rowHeight * (.76 + ((index * 17 + 11) % 25) / 100));
+      const rowPadding = smallScreen ? 20 : mediumScreen ? 22 : 24;
+      const usableHeight = rowHeight - rowPadding;
+      const height = Math.round(usableHeight * (.76 + ((index * 17 + 11) % 25) / 100));
       const restingTilts = [0,0,0,-2.4,0,1.8,0,-3.2,0,2.6,0,-1.6];
       const tilt = restingTilts[index % restingTilts.length];
       const pullTilt = tilt < 0 ? 7 : tilt > 0 ? -7 : (index % 2 ? 6 : -6);
