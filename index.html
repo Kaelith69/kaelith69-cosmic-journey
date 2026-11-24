@@ -637,10 +637,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       const button = unit.querySelector(".record-sleeve");
       button.classList.toggle("is-selected",selected);
       button.setAttribute("aria-pressed",String(selected));
-      unit.classList.toggle("is-active",selected);
     });
   }
   function render() {
+    const previousSelection = selectedId;
     visible = filteredRepositories();
     count.textContent = visible.length+" / "+repositories.length+" RECORDS";
     wall.replaceChildren();
@@ -689,7 +689,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       description.textContent = repo.description || "No description available.";
       const meta = document.createElement("span");
       meta.className = "record-detail-meta";
-      meta.textContent = [repo.language || "Unspecified", "★ "+(repo.stargazers_count||0)].join("  ·  ");
+      meta.textContent = [repo.language || "Unspecified","★ "+(repo.stargazers_count||0)].join("  ·  ");
       const updated = document.createElement("span");
       updated.className = "record-detail-meta";
       updated.textContent = "Updated "+dateLabel(repo.updated_at);
@@ -697,6 +697,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       face.append(art,title,number,details);
       vinyl.append(center);
       button.append(vinyl,face);
+      button.addEventListener("click",()=>selectRecord(repo.id));
       const github = document.createElement("a");
       github.className = "record-github";
       github.href = repo.html_url;
@@ -704,13 +705,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       github.rel = "noopener noreferrer";
       github.textContent = "↗";
       github.setAttribute("aria-label","Open "+repo.name+" on GitHub");
-      button.addEventListener("click",()=>selectRecord(repo.id));
       unit.append(button,github);
       wall.append(unit);
       sleeves.set(String(repo.id),unit);
     });
-    if (!visible.some(repo=>String(repo.id)===selectedId)) selectedId=String(visible[0].id);
-    selectRecord(selectedId);
+    selectedId = visible.some(repo=>String(repo.id)===previousSelection) ? previousSelection : null;
+    if (selectedId) selectRecord(selectedId);
   }
   search.addEventListener("input",render);
   language.addEventListener("change",render);
@@ -744,142 +744,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     }
   }
   loadRepositories();
-})();  let repositories = [], visible = [], selectedId = null;
-  const sleeves = new Map();
-  const palette = [
-    ["#244BFF","#F1EBDD"],["#FF4D00","#171717"],
-    ["#171717","#F1EBDD"],["#E83F78","#171717"],
-    ["#D9F04A","#171717"],["#174F45","#F1EBDD"],
-    ["#56328C","#F1EBDD"],["#C8C2B5","#171717"]
-  ];
-  const dateLabel = value => {
-    if (!value) return "DATE UNAVAILABLE";
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? "DATE UNAVAILABLE" : date.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}).toUpperCase();
-  };
-  function filteredRepositories() {
-    const query = search.value.trim().toLowerCase(), lang = language.value;
-    const list = repositories.filter(repo => {
-      const haystack = (repo.name+" "+(repo.description||"")+" "+(repo.language||"")).toLowerCase();
-      return (!query || haystack.includes(query)) && (!lang || repo.language === lang);
-    });
-    if (sort.value === "name") list.sort((a,b)=>a.name.localeCompare(b.name));
-    if (sort.value === "updated") list.sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0));
-    if (sort.value === "created") list.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-    if (sort.value === "stars") list.sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0));
-    return list;
-  }
-  function selectRecord(id) {
-    const repo = visible.find(item=>String(item.id)===String(id));
-    if (!repo) return;
-    selectedId = String(repo.id);
-    sleeves.forEach((button,key)=>{
-      const selected = key === selectedId;
-      button.classList.toggle("is-selected",selected);
-      button.setAttribute("aria-pressed",String(selected));
-    });
-    const index = visible.findIndex(item=>String(item.id)===selectedId);
-    detailName.textContent = repo.name;
-    detailDescription.textContent = repo.description || "No description has been added to this repository.";
-    detailLanguage.textContent = (repo.language || "LANGUAGE NOT SPECIFIED").toUpperCase()+"  /  "+(repo.genre || "PROJECT");
-    detailUpdated.textContent = "UPDATED "+dateLabel(repo.updated_at);
-    detailStars.textContent = "★ "+(repo.stargazers_count||0);
-    detailIndex.textContent = String(index+1).padStart(2,"0")+" / "+String(visible.length).padStart(2,"0");
-    openLink.href = repo.html_url;
-    openLink.setAttribute("aria-label","Open "+repo.name+" on GitHub");
-  }
-  function render() {
-    visible = filteredRepositories();
-    count.textContent = visible.length+" / "+repositories.length+" RECORDS";
-    wall.replaceChildren();
-    sleeves.clear();
-    if (!visible.length) {
-      const empty = document.createElement("p");
-      empty.className = "record-empty";
-      empty.textContent = "No records match that search.";
-      wall.append(empty);
-      selectedId = null;
-      detailName.textContent = "Nothing in this section";
-      detailDescription.textContent = "Try another title or programming language.";
-      detailLanguage.textContent = "NO SELECTION";
-      detailUpdated.textContent = "UPDATED ···";
-      detailStars.textContent = "★ 0";
-      detailIndex.textContent = "00";
-      openLink.href = "https://github.com/Kaelith69?tab=repositories";
-      return;
-    }
-    visible.forEach((repo,index)=>{
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "record-sleeve record-style-"+(index%6);
-      button.setAttribute("aria-pressed","false");
-      button.setAttribute("aria-label","Select record: "+repo.name);
-      const [coverColor,inkColor] = palette[index%palette.length];
-      button.style.setProperty("--sleeve",coverColor);
-      button.style.setProperty("--sleeve-ink",inkColor);
-      button.style.setProperty("--disc-label",palette[(index+3)%palette.length][0]);
-      button.style.setProperty("--rest-angle",[-1.2,0,.8,0,-.6,0][index%6]+"deg");
-      const vinyl = document.createElement("span");
-      vinyl.className = "record-vinyl";
-      vinyl.setAttribute("aria-hidden","true");
-      const center = document.createElement("span");
-      center.className = "record-vinyl-center";
-      const face = document.createElement("span");
-      face.className = "record-sleeve-face";
-      const art = document.createElement("span");
-      art.className = "record-art";
-      art.setAttribute("aria-hidden","true");
-      const title = document.createElement("span");
-      title.className = "record-sleeve-title";
-      title.textContent = repo.name.replace(/[-_]+/g," ");
-      const number = document.createElement("span");
-      number.className = "record-sleeve-number";
-      number.textContent = String(index+1).padStart(2,"0");
-      face.append(art,title,number);
-      vinyl.append(center);
-      button.append(vinyl,face);
-      button.addEventListener("click",()=>selectRecord(repo.id));
-      wall.append(button);
-      sleeves.set(String(repo.id),button);
-    });
-    if (!visible.some(repo=>String(repo.id)===selectedId)) selectedId=String(visible[0].id);
-    selectRecord(selectedId);
-  }
-  search.addEventListener("input",render);
-  language.addEventListener("change",render);
-  sort.addEventListener("change",render);
-  async function loadRepositories() {
-    try {
-      const response=await fetch("https://api.github.com/users/Kaelith69/repos?per_page=100&sort=updated&type=public",{headers:{Accept:"application/vnd.github+json"}});
-      if (!response.ok) throw new Error("GitHub API returned "+response.status);
-      const data=await response.json();
-      if (!Array.isArray(data)) throw new Error("Unexpected repository response");
-      repositories=data.filter(repo=>repo&&!repo.archived&&!repo.disabled&&(repo.visibility==="public"||repo.private===false)).map(repo=>({
-        id:repo.id,name:repo.name,html_url:repo.html_url,description:repo.description||"",
-        language:repo.language||"",stargazers_count:repo.stargazers_count||0,
-        updated_at:repo.updated_at,created_at:repo.created_at
-      }));
-      status.textContent="PUBLIC REPOSITORIES · LIVE FROM GITHUB";
-      [...new Set(repositories.map(repo=>repo.language).filter(Boolean))].sort().forEach(value=>{
-        const option=document.createElement("option");
-        option.value=value;option.textContent=value;language.append(option);
-      });
-      render();
-    } catch(error) {
-      count.textContent="THE RECORDS COULD NOT BE LOADED";
-      status.textContent="GITHUB CONNECTION UNAVAILABLE";
-      wall.replaceChildren();
-      const message=document.createElement("p");
-      message.className="record-empty";
-      message.textContent="The live collection is unavailable. Visit GitHub to browse the repositories.";
-      wall.append(message);
-      detailName.textContent="Collection unavailable";
-      detailDescription.textContent="The live GitHub repository feed could not be reached. Try again later.";
-      console.error(error);
-    }
-  }
-  loadRepositories();
-})();
-</script>
+})();</script>
 </body>
 </html>
