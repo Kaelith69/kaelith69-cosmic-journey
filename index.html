@@ -313,7 +313,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .book-cover::before{content:"";position:absolute;inset:0 16%;background:linear-gradient(90deg,rgba(255,255,255,.1),transparent 20%,transparent 80%,rgba(0,0,0,.16));border-left:1px solid rgba(255,255,255,.12);border-right:1px solid rgba(0,0,0,.18)}
 .book-cover::after{content:"";position:absolute;left:13%;right:13%;top:8%;height:2px;background:var(--book-accent);opacity:.9;box-shadow:0 calc(var(--book-height,170px) - 20px) var(--book-accent)}
 .book-spine{position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(90deg,rgba(0,0,0,.72),rgba(255,255,255,.34),rgba(0,0,0,.3));z-index:2}
-.book-title{position:absolute;z-index:3;left:50%;top:10%;height:80%;width:84%;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);font:800 clamp(8px,.62vw,10px)/1 var(--body);letter-spacing:.015em;color:var(--book-ink);text-shadow:0 1px 2px rgba(0,0,0,.85);text-align:center}
+.book-title{position:absolute;z-index:3;left:50%;top:7%;height:86%;width:88%;display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);font:900 clamp(10px,.88vw,14px)/.98 var(--display);letter-spacing:0;color:var(--book-ink);text-shadow:0 1px 1px rgba(0,0,0,.48);text-align:center}
 .book-genre-mark{display:none}
 .book-style-0 .book-cover::before{inset:7px 13%;border:1px solid var(--book-accent);box-shadow:inset 0 0 0 2px rgba(0,0,0,.18)}
 .book-style-0 .book-title{font-family:Georgia,serif}
@@ -323,8 +323,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .book-style-2 .book-cover{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 4px),linear-gradient(90deg,rgba(0,0,0,.5),transparent 30%,rgba(0,0,0,.22))}
 .book-style-2 .book-cover::before{inset:15% 0;border-top:3px double var(--book-accent);border-bottom:3px double var(--book-accent)}
 .book-style-2 .book-title{font-family:Georgia,serif;letter-spacing:.06em}
-.book-style-3 .book-cover::before{inset:22% 12%;background:var(--book-accent);border:1px solid rgba(0,0,0,.55)}
-.book-style-3 .book-title{color:#171717;text-shadow:none;font-family:var(--display);font-weight:900}
+.book-style-3 .book-cover::before{inset:8% 12%;border:2px solid var(--book-accent);background:transparent}
+.book-style-3 .book-title{color:var(--book-ink);text-shadow:0 1px 1px rgba(0,0,0,.5);font-family:var(--display);font-weight:900}
 .book-style-4 .book-cover{background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 5px),linear-gradient(90deg,rgba(0,0,0,.45),transparent 35%,rgba(0,0,0,.2))}
 .book-style-4 .book-cover::before{inset:10% 0;border-top:4px ridge var(--book-accent);border-bottom:4px ridge var(--book-accent)}
 .book-style-4 .book-title{font-family:Georgia,serif}
@@ -372,7 +372,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .bookcase{padding:10px 8px 16px}
  .shelf-row{height:clamp(136px,38vw,164px);padding:7px 3px 15px;gap:0 2px}
  .shelf-row::after{left:-5px;right:-5px;height:12px}
- .book-title{font-size:7px}
+ .book-title{font-size:10px}
  .book-details h3{font-size:27px}
 }
 @media(prefers-reduced-motion:reduce){.book{transition:none!important}.book:hover,.book.is-selected{transform:none}}
@@ -606,10 +606,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   let repositories = [], visible = [], selectedId = null;
   const books = new Map();
   const palette = [
-    ["#244BFF","#F1EBDD","#D9F04A"],["#FF4D00","#171717","#D9F04A"],
-    ["#171717","#F1EBDD","#FF4D00"],["#E83F78","#171717","#F1EBDD"],
-    ["#D9F04A","#171717","#244BFF"],["#174F45","#F1EBDD","#D9F04A"],
-    ["#56328C","#F1EBDD","#FF4D00"],["#C8C2B5","#171717","#244BFF"]
+    ["#244BFF","#F1EBDD"],["#FF4D00","#171717"],
+    ["#171717","#F1EBDD"],["#E83F78","#171717"],
+    ["#D9F04A","#171717"],["#174F45","#F1EBDD"],
+    ["#56328C","#F1EBDD"],["#C8C2B5","#171717"]
   ];
   const genreColors = {"Web":"#477FA5","Systems":"#8B493C","AI & Data":"#6B4A8B","Games":"#B17A36","Creative":"#A34F69","Developer Tools":"#55705A","Applications":"#547C83","Other":"#8A806F"};
   function classifyGenre(repo) {
@@ -703,7 +703,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       button.className = "book book-style-"+(styleSeed % 8);
       button.setAttribute("aria-pressed","false");
       button.setAttribute("aria-label","Select "+repo.name);
-      const [background,foreground,accent] = palette[index % palette.length];
+      const [background,foreground] = palette[index % palette.length];
+      const accent = foreground;
       const smallScreen = window.matchMedia("(max-width:420px)").matches;
       const mediumScreen = window.matchMedia("(max-width:700px)").matches;
       const rowHeight = smallScreen ? Math.min(164,Math.max(136,window.innerWidth*.38)) :
