@@ -938,6 +938,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @keyframes loading-tonearm{0%,18%{transform:rotate(-17deg)}35%,100%{transform:rotate(-7deg)}}
 @media(max-width:600px){.transition-stage{width:min(92vw,480px);aspect-ratio:1.12}.vinyl-record{width:70%;left:7%}.record-tonearm{width:34%;right:3%;top:18%}}
 @media(prefers-reduced-motion:reduce){.transition-screen,.transition-stage{transition:none}.transition-screen.is-active .vinyl-record,.transition-screen.is-active .record-tonearm{animation:none}}
+
+/* Keep the platter moving for the full K0 to K69 sequence */
+.transition-screen.is-active .vinyl-record{animation:loading-record-spin 2.07s linear infinite}
+.transition-screen.is-complete .vinyl-record{animation-play-state:paused}
 </style>
 </head>
 <body>
@@ -999,46 +1003,100 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <h2 id="contact-title">Let’s<br><span>connect.</span></h2>
 <div class="contact-links">
 <a class="icon-link" href="https://github.com/Kaelith69" target="_blank" rel="noopener noreferrer"><svg class="icon brand-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.53v-2.07c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 1.7 2.61 1.21 3.25.92.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.11-1.45 3.04-1.15 3.04-1.15.61 1.54.23 2.68.12 2.96.71.78 1.14 1.78 1.14 3.01 0 4.29-2.61 5.23-5.1 5.51.4.35.76 1.02.76 2.06V22c0 .29.2.64.77.53A11.1 11.1 0 0 0 12 .9Z"/></svg>GitHub<svg class="icon out-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="2"/></svg></a>
-<a class="icon-link" href="https://instagram.com/kaelith6.9" target="_blank" rel="noopener noreferrer"><svg class="icon brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.9"/><circle cx="17.6" cy="6.7" r="1.1" fill="currentColor"/></svg>Instagram<svg class="icon out-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="2"/></svg></a>
-</div>
-</div>
-</section>
-</main>
-<footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
-
-<script>
+<a class="icon-link" href="https://instagram.com/kaelith6.9" target="_blank" rel="noopener noreferrer"><svg class="icon brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.9"/><circle cx="17.6" cy="6.7" r="1.1" fill="currentColor"/></svg>Instagram<svg class="icon out-icon" viewBox="0 0 24 24<script>
 (() => {
   const overlay=document.getElementById("page-transition"),main=document.querySelector("main"),counter=document.getElementById("vinyl-counter");
   if(!overlay||!counter)return;
   const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)");
+  const STEP_MS=30;
   let sequence=0,activeHash=window.location.hash||"#home",hideTimer=0;
-  const show=()=>{window.clearTimeout(hideTimer);overlay.classList.add("is-active");overlay.setAttribute("aria-hidden","false");if(main)main.setAttribute("aria-busy","true")};
-  const hide=id=>{if(id!==sequence)return;overlay.classList.remove("is-active");overlay.setAttribute("aria-hidden","true");if(main)main.removeAttribute("aria-busy")};
-  const targetFor=hash=>{if(!hash||hash==="#")return document.getElementById("home");let id=hash.slice(1);try{id=decodeURIComponent(id)}catch(_){}return document.getElementById(id)};
+
+  const show=()=>{
+    window.clearTimeout(hideTimer);
+    overlay.classList.remove("is-complete");
+    overlay.classList.add("is-active");
+    overlay.setAttribute("aria-hidden","false");
+    if(main)main.setAttribute("aria-busy","true");
+  };
+  const hide=id=>{
+    if(id!==sequence)return;
+    overlay.classList.remove("is-active","is-complete");
+    overlay.setAttribute("aria-hidden","true");
+    if(main)main.removeAttribute("aria-busy");
+  };
+  const targetFor=hash=>{
+    if(!hash||hash==="#")return document.getElementById("home");
+    let id=hash.slice(1);
+    try{id=decodeURIComponent(id)}catch(_){}
+    return document.getElementById(id);
+  };
+
   const countUp=id=>new Promise(resolve=>{
-    counter.textContent="K0";counter.setAttribute("aria-label","K0");
-    if(reducedMotion.matches){counter.textContent="K69";counter.setAttribute("aria-label","K69");window.setTimeout(()=>resolve(id===sequence),180);return}
-    const start=performance.now();
-    const tick=now=>{if(id!==sequence){resolve(false);return}const progress=Math.min(1,(now-start)/1550),eased=1-Math.pow(1-progress,3),value=Math.min(69,Math.floor(eased*69));counter.textContent="K"+value;counter.setAttribute("aria-label","K"+value);if(progress<1)requestAnimationFrame(tick);else window.setTimeout(()=>resolve(id===sequence),160)};
-    requestAnimationFrame(tick);
+    let value=0;
+    counter.textContent="K0";
+    counter.setAttribute("aria-label","K0");
+    const tick=()=>{
+      if(id!==sequence){resolve(false);return}
+      value+=1;
+      counter.textContent="K"+value;
+      counter.setAttribute("aria-label","K"+value);
+      if(value===69){
+        overlay.classList.add("is-complete");
+        resolve(true);
+        return;
+      }
+      window.setTimeout(tick,STEP_MS);
+    };
+    window.setTimeout(tick,STEP_MS);
   });
+
   const navigate=async(hash,push=false)=>{
-    const target=targetFor(hash);if(!target)return;const id=++sequence;show();
-    if(push&&window.location.hash!==hash)window.history.pushState({section:hash},"",hash);
-    activeHash=hash;const complete=await countUp(id);if(!complete||id!==sequence)return;
+    const target=targetFor(hash);
+    if(!target)return;
+    const id=++sequence;
+    show();
+    const complete=await countUp(id);
+    if(!complete||id!==sequence)return;
+
+    if(push&&window.location.hash!==hash){
+      window.history.pushState({section:hash},"",hash);
+    }
+    activeHash=hash;
     document.documentElement.classList.add("transition-jump");
     const offset=target.id==="home"?0:(window.matchMedia("(max-width:760px)").matches?64:72);
     window.scrollTo({top:Math.max(0,target.getBoundingClientRect().top+window.scrollY-offset),behavior:"auto"});
-    requestAnimationFrame(()=>{if(id!==sequence)return;document.documentElement.classList.remove("transition-jump");hideTimer=window.setTimeout(()=>hide(id),reducedMotion.matches?0:180)});
+    requestAnimationFrame(()=>{
+      if(id!==sequence)return;
+      document.documentElement.classList.remove("transition-jump");
+      hideTimer=window.setTimeout(()=>hide(id),reducedMotion.matches?0:220);
+    });
   };
+
   document.addEventListener("click",event=>{
     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    const link=event.target.closest("a[href^='#']");if(!link||link.target==="_blank"||link.hasAttribute("download"))return;
-    const hash=link.getAttribute("href");if(!targetFor(hash))return;event.preventDefault();navigate(hash,true);
+    const link=event.target.closest("a[href^='#']");
+    if(!link||link.target==="_blank"||link.hasAttribute("download"))return;
+    const hash=link.getAttribute("href");
+    if(!targetFor(hash))return;
+    event.preventDefault();
+    navigate(hash,true);
   });
-  const onHistory=()=>{const hash=window.location.hash||"#home";if(hash!==activeHash)navigate(hash,false)};
-  window.addEventListener("popstate",onHistory);window.addEventListener("hashchange",onHistory);
-  window.addEventListener("pageshow",event=>{if(event.persisted)navigate(window.location.hash||"#home",false)});
+
+  const onHistory=()=>{
+    const hash=window.location.hash||"#home";
+    if(hash!==activeHash)navigate(hash,false);
+  };
+  window.addEventListener("popstate",onHistory);
+  window.addEventListener("hashchange",onHistory);
+  window.addEventListener("pageshow",event=>{
+    if(event.persisted)navigate(window.location.hash||"#home",false);
+  });
+
+  const intro=()=>navigate(window.location.hash||"#home",false);
+  if(document.readyState==="complete")intro();
+  else window.addEventListener("load",intro,{once:true});
+})();
+</script>d)navigate(window.location.hash||"#home",false)});
   const intro=()=>navigate(window.location.hash||"#home",false);
   if(document.readyState==="complete")intro();else window.addEventListener("load",intro,{once:true});
 })();
