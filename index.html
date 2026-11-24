@@ -156,6 +156,90 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 }
 
 
+/* Centered hero call to action */
+.hero-bottom{
+  width:min(100%,900px);
+  margin:clamp(48px,7vh,76px) auto 0;
+  flex-direction:column;
+  align-items:center;
+  gap:28px;
+  text-align:center;
+}
+.hero-bottom p{
+  max-width:460px;
+  text-align:center;
+}
+.hero-link{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  min-height:66px;
+  padding:10px 11px 10px 22px;
+  border:2px solid var(--navy);
+  background:var(--blue);
+  color:var(--white);
+  box-shadow:6px 6px 0 var(--navy);
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  transition:transform .22s cubic-bezier(.2,.75,.25,1),box-shadow .22s cubic-bezier(.2,.75,.25,1),background-color .22s,color .22s;
+}
+.hero-link-label{display:block}
+.hero-link-icon{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  flex:none;
+  background:var(--lime);
+  color:var(--navy);
+  border:1px solid var(--navy);
+  transition:transform .22s cubic-bezier(.2,.75,.25,1),background-color .22s;
+}
+.hero-link-icon svg{display:block;width:22px;height:22px}
+.hero-link:hover{
+  color:var(--navy);
+  background:var(--cyan);
+  transform:translate(-3px,-3px);
+  box-shadow:9px 9px 0 var(--navy);
+}
+.hero-link:hover .hero-link-icon{
+  background:var(--white);
+  transform:translateY(3px);
+}
+.hero-link:active{
+  transform:translate(4px,4px);
+  box-shadow:2px 2px 0 var(--navy);
+}
+.hero-link:focus-visible{
+  outline:3px solid var(--magenta);
+  outline-offset:7px;
+}
+@media(max-width:760px){
+  .hero-bottom{margin-top:52px;gap:24px}
+  .hero-link{min-height:62px;padding:9px 10px 9px 18px;gap:16px}
+  .hero-link-icon{width:40px;height:40px}
+}
+@media(max-width:420px){
+  .hero-bottom{margin-top:44px;gap:22px}
+  .hero-link{width:min(100%,340px);min-height:60px;padding-left:16px;gap:12px;font-size:11px}
+  .hero-link-icon{width:38px;height:38px}
+}
+@media(hover:none){
+  .hero-link:active{
+    background:var(--cyan);
+    color:var(--navy);
+    transform:translate(3px,3px);
+    box-shadow:2px 2px 0 var(--navy);
+  }
+}
+
+
 /* Shared vinyl transition */
 .transition-screen{
   position:fixed;
@@ -325,7 +409,7 @@ html.transition-jump{scroll-behavior:auto}
 <h1 id="hero-title">KAELITH<span>69</span></h1>
 <div class="hero-bottom">
 <p>Independent software, digital experiments and things built out of curiosity</p>
-<a class="hero-link" href="#work">Explore selected work <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6 18 18M8 18h10V8" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></a>
+<a class="hero-link" href="#work"> <span class="hero-link-label">Explore selected work</span><span class="hero-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v16m-7-7 7 7 7-7" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg></span></a>
 </div>
 </div>
 </section>
