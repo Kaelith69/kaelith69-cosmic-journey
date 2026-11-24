@@ -790,6 +790,130 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .record-sleeve:hover .record-disc,
   .record-sleeve:focus-visible .record-disc{animation:none!important}
 }
+
+/* Lighter gallery and a clearer, larger record focus state */
+.record-shop{
+  --shop-paper:#F4F0E7;
+  --shop-ink:#24221F;
+  --shop-blue:#244BFF;
+  --shop-orange:#FF4D00;
+  --shop-lime:#D9F04A;
+  --shop-pink:#E83F78;
+  background:#E9E3D7;
+  color:#24221F;
+}
+.record-shop-title{color:#24221F}
+.record-count{color:#4D493F}
+.record-controls input,.record-controls select{
+  background:#F7F3EA;
+  color:#24221F;
+  border-color:#A69D8E;
+}
+.record-controls input::placeholder{color:#716B60}
+.record-controls input:focus,.record-controls select:focus{
+  outline-color:#244BFF;
+}
+.record-wall{
+  border-color:#B5AA98;
+  background:linear-gradient(180deg,#DCD3C3 0%,#D4C9B7 100%);
+  box-shadow:inset 0 1px rgba(255,255,255,.75),0 18px 38px rgba(57,46,30,.12);
+}
+.record-wall::before{
+  background:repeating-linear-gradient(0deg,transparent 0 52px,rgba(76,65,49,.09) 53px,transparent 54px),linear-gradient(90deg,rgba(255,255,255,.22),transparent 12%,transparent 88%,rgba(76,65,49,.08));
+}
+.record-unit:has(.record-sleeve:hover),
+.record-unit:has(.record-sleeve:focus-visible),
+.record-unit:has(.record-sleeve.is-selected){z-index:20}
+.record-sleeve{
+  transition:transform .48s cubic-bezier(.18,.82,.2,1),filter .48s cubic-bezier(.18,.82,.2,1);
+}
+.record-sleeve:hover,
+.record-sleeve:focus-visible,
+.record-sleeve.is-selected{
+  transform:translateY(-12px) scale(1.13);
+  filter:drop-shadow(0 22px 18px rgba(36,31,24,.32));
+}
+.record-sleeve:hover .record-vinyl,
+.record-sleeve:focus-visible .record-vinyl,
+.record-sleeve.is-selected .record-vinyl{transform:translateX(29%)}
+.record-sleeve:hover .record-sleeve-details,
+.record-sleeve:focus-visible .record-sleeve-details,
+.record-sleeve.is-selected .record-sleeve-details{
+  top:57%;
+  bottom:7%;
+  left:7%;
+  right:7%;
+  padding:9px 10px;
+  gap:6px;
+  justify-content:flex-start;
+  background:#F4F0E7;
+  border:1px solid rgba(36,34,31,.2);
+  box-shadow:0 5px 14px rgba(30,26,20,.16);
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+  transition-delay:.08s;
+}
+.record-sleeve:hover .record-detail-description,
+.record-sleeve:focus-visible .record-detail-description,
+.record-sleeve.is-selected .record-detail-description{
+  color:#24221F;
+  font-size:clamp(11px,.95vw,13px);
+  line-height:1.38;
+  -webkit-line-clamp:3;
+}
+.record-sleeve:hover .record-detail-meta,
+.record-sleeve:focus-visible .record-detail-meta,
+.record-sleeve.is-selected .record-detail-meta{
+  color:#514B42;
+  font-size:clamp(9px,.76vw,10px);
+  line-height:1.35;
+  letter-spacing:.025em;
+}
+.record-sleeve:hover .record-sleeve-title,
+.record-sleeve:focus-visible .record-sleeve-title,
+.record-sleeve.is-selected .record-sleeve-title{
+  color:var(--sleeve-ink);
+  font-size:clamp(12px,1.25vw,17px);
+}
+.record-github{
+  width:32px;
+  height:32px;
+  border-color:rgba(255,255,255,.85);
+}
+.record-empty{color:#24221F}
+@media(max-width:700px){
+  .record-sleeve:hover,
+  .record-sleeve:focus-visible,
+  .record-sleeve.is-selected{transform:translateY(-8px) scale(1.07)}
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translateX(22%)}
+  .record-sleeve:hover .record-sleeve-details,
+  .record-sleeve:focus-visible .record-sleeve-details,
+  .record-sleeve.is-selected .record-sleeve-details{padding:6px 7px;gap:4px}
+  .record-sleeve:hover .record-detail-description,
+  .record-sleeve:focus-visible .record-detail-description,
+  .record-sleeve.is-selected .record-detail-description{font-size:10px;line-height:1.3}
+  .record-sleeve:hover .record-detail-meta,
+  .record-sleeve:focus-visible .record-detail-meta,
+  .record-sleeve.is-selected .record-detail-meta{font-size:8px}
+}
+@media(max-width:440px){
+  .record-sleeve:hover,
+  .record-sleeve:focus-visible,
+  .record-sleeve.is-selected{transform:translateY(-6px) scale(1.045)}
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translateX(18%)}
+}
+@media(hover:none){
+  .record-sleeve:hover{transform:none;filter:none}
+  .record-sleeve:hover .record-sleeve-details{background:transparent;box-shadow:none;border:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .record-sleeve{transition:none}
+}
 </style>
 </head>
 <body>
