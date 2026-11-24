@@ -353,6 +353,58 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .book-details h3{font-size:27px}
 }
 @media(prefers-reduced-motion:reduce){.book{transition:none!important}.book:hover,.book.is-selected{transform:none}}
+
+/* Distinct book editions: richer pigments and varied spine construction */
+.book{--book-ink:#fff7e8}
+.book-cover{background-color:var(--book);background-image:linear-gradient(90deg,rgba(0,0,0,.42),transparent 10%,rgba(255,255,255,.2) 19%,transparent 32%,rgba(0,0,0,.08) 76%,rgba(0,0,0,.34)),repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,rgba(0,0,0,.035) 1px 2px);box-shadow:inset 3px 0 7px rgba(255,255,255,.2),inset -5px 0 9px rgba(0,0,0,.32),0 2px 3px rgba(0,0,0,.42)}
+.book-cover::before{inset:0 13%;border-left:1px solid rgba(255,255,255,.22);border-right:1px solid rgba(0,0,0,.26)}
+.book-cover::after{left:7%;right:7%;top:7%;height:2px;background:rgba(255,226,164,.72);box-shadow:0 3px rgba(0,0,0,.18),0 calc(var(--book-height,180px) - 22px) rgba(255,226,164,.5)}
+.book-spine{width:5px;background:linear-gradient(90deg,rgba(0,0,0,.62),rgba(255,255,255,.42),rgba(0,0,0,.28))}
+.book-title{font-weight:800;letter-spacing:.055em;text-shadow:0 1px 2px rgba(0,0,0,.7),0 0 1px rgba(0,0,0,.7)}
+/* Cloth bound volumes */
+.book-style-0 .book-cover{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.055) 0 1px,rgba(0,0,0,.045) 1px 2px),linear-gradient(90deg,rgba(0,0,0,.46),transparent 22%,rgba(255,255,255,.12) 50%,rgba(0,0,0,.3)),linear-gradient(135deg,transparent 0 44%,rgba(255,255,255,.08) 45% 46%,transparent 47%),var(--book)}
+.book-style-0 .book-cover::before{inset:7px 16%;border:1px solid rgba(255,220,155,.72);box-shadow:0 0 0 2px rgba(0,0,0,.12)}
+.book-style-0 .book-cover::after{top:14%;height:2px;background:#e9c77e;box-shadow:0 3px rgba(0,0,0,.25),0 calc(var(--book-height,180px) - 26px) #e9c77e}
+.book-style-0 .book-title{top:20%;height:60%;font-family:Georgia,serif;font-weight:700}
+/* Modern matte paperbacks */
+.book-style-1 .book-cover{background-image:linear-gradient(160deg,rgba(255,255,255,.2),transparent 34%),linear-gradient(0deg,rgba(0,0,0,.24),transparent 25%),var(--book)}
+.book-style-1 .book-cover::before{inset:auto 0 18% 0;height:3px;background:rgba(255,255,255,.78);border:0;box-shadow:none}
+.book-style-1 .book-cover::after{left:12%;right:12%;top:auto;bottom:10%;height:1px;background:rgba(255,255,255,.55);box-shadow:none}
+.book-style-1 .book-title{top:12%;height:72%;font-family:var(--display);font-size:clamp(9px,.8vw,12px);letter-spacing:.015em}
+/* Decorative gilt and raised bands */
+.book-style-2 .book-cover{background-image:linear-gradient(90deg,rgba(0,0,0,.5),transparent 20%,rgba(255,255,255,.14) 28%,transparent 60%,rgba(0,0,0,.3)),var(--book)}
+.book-style-2 .book-cover::before{inset:18% 0 18%;border-top:3px double rgba(255,220,150,.9);border-bottom:3px double rgba(255,220,150,.9);border-left:0;border-right:0}
+.book-style-2 .book-cover::after{top:8%;height:5px;border-top:1px solid rgba(255,225,165,.85);border-bottom:1px solid rgba(255,225,165,.85);background:transparent;box-shadow:0 calc(var(--book-height,180px) - 18px) rgba(255,225,165,.65)}
+.book-style-2 .book-title{font-family:Georgia,serif;font-weight:700;letter-spacing:.08em}
+/* Library reference volumes with a central title cartouche */
+.book-style-3 .book-cover{background-image:linear-gradient(90deg,rgba(0,0,0,.42),transparent 16%,rgba(255,255,255,.12) 50%,rgba(0,0,0,.3)),var(--book)}
+.book-style-3 .book-cover::before{inset:26% 10%;background:linear-gradient(135deg,#e9d6a6,#b99a61 50%,#eadbb7);border:1px solid rgba(65,42,17,.8);box-shadow:inset 0 0 0 2px rgba(255,255,255,.32)}
+.book-style-3 .book-title{top:29%;height:64%;color:#282015;text-shadow:none;font-family:Georgia,serif;font-size:clamp(8px,.7vw,10px);font-weight:900}
+/* Ribbed leather spines */
+.book-style-4 .book-cover{background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 2px,rgba(255,255,255,.055) 2px 4px),linear-gradient(90deg,rgba(0,0,0,.42),transparent 25%,rgba(255,255,255,.12),rgba(0,0,0,.32)),var(--book)}
+.book-style-4 .book-cover::before{inset:10% 0;border:0;border-top:5px ridge rgba(255,222,164,.42);border-bottom:5px ridge rgba(255,222,164,.42)}
+.book-style-4 .book-cover::after{top:6%;height:2px;background:rgba(255,222,164,.7);box-shadow:0 calc(var(--book-height,180px) - 12px) rgba(255,222,164,.7)}
+/* Minimal contemporary hardbacks */
+.book-style-5 .book-cover{background-image:linear-gradient(90deg,rgba(0,0,0,.3),transparent 20%,rgba(255,255,255,.24) 50%,transparent 75%,rgba(0,0,0,.25)),var(--book)}
+.book-style-5 .book-cover::before{inset:0 0 0 22%;border:0;border-left:1px solid rgba(255,255,255,.3)}
+.book-style-5 .book-cover::after{left:24%;right:12%;top:15%;height:1px;background:rgba(255,255,255,.75);box-shadow:0 calc(var(--book-height,180px) - 30px) rgba(255,255,255,.55)}
+.book-style-5 .book-title{left:60%;font-family:var(--display);font-weight:900}
+/* Striped publisher editions */
+.book-style-6 .book-cover{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.13) 0 3px,transparent 3px 8px),linear-gradient(90deg,rgba(0,0,0,.4),transparent 25%,rgba(0,0,0,.18)),var(--book)}
+.book-style-6 .book-cover::before{inset:0 12%;border-left:2px solid rgba(255,255,255,.28);border-right:2px solid rgba(255,255,255,.28)}
+.book-style-6 .book-cover::after{top:12%;height:2px;background:rgba(255,255,255,.8);box-shadow:0 calc(var(--book-height,180px) - 25px) rgba(255,255,255,.8)}
+/* Bright illustrated editions */
+.book-style-7 .book-cover{background-image:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.24),transparent 52%),linear-gradient(90deg,rgba(0,0,0,.4),transparent 22%,rgba(255,255,255,.12),rgba(0,0,0,.28)),var(--book)}
+.book-style-7 .book-cover::before{inset:12% 18%;border:1px solid rgba(255,238,190,.8);border-radius:45% 45% 4px 4px;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent)}
+.book-style-7 .book-cover::after{top:auto;bottom:12%;height:2px;background:#f5d58d;box-shadow:none}
+.book-style-7 .book-title{font-family:Georgia,serif;font-weight:700}
+/* Give the collection richer colour and a little variation in spine width */
+.book:nth-child(3n) .book-title{letter-spacing:.09em}
+.book:nth-child(4n) .book{--tilt:0deg}
+@media(max-width:700px){
+ .book-style-3 .book-title{font-size:8px}
+ .book-style-5 .book-title{left:58%}
+}
 </style>
 </head>
 <body>
@@ -583,10 +635,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   let repositories = [], visible = [], selectedId = null;
   const books = new Map();
   const palette = [
-    ["#315B70","#F2EBDD"],["#713E32","#F5EBDD"],["#49634D","#F3EBDD"],
-    ["#8A6A43","#F7EBD2"],["#34445B","#F1EBDD"],["#6B4A61","#F6EBDD"],
-    ["#8B493C","#F6EBDD"],["#4D5B62","#F2EBDD"],["#A18A68","#24201B"],
-    ["#3F5544","#F0E7D8"],["#745A39","#F7EBD2"],["#384D70","#F3EBDD"]
+    ["#123F78","#FFF1D0"],["#D83B22","#FFF4E5"],["#176B4B","#FFF0D2"],
+    ["#E4B51F","#202020"],["#49256F","#F9E8FF"],["#007C91","#F2FAF5"],
+    ["#B51F50","#FFF0E4"],["#A44D16","#FFF1D5"],["#243B53","#F6E9D0"],
+    ["#6D8B22","#171B12"],["#7A2435","#FFF0DC"],["#315DAB","#F4F1E6"],
+    ["#C65B18","#1D1711"],["#1B665E","#F4E9D4"],["#733F86","#FFF0E9"],["#C19A19","#241B0C"]
   ];
   const genreColors = {"Web":"#477FA5","Systems":"#8B493C","AI & Data":"#6B4A8B","Games":"#B17A36","Creative":"#A34F69","Developer Tools":"#55705A","Applications":"#547C83","Other":"#8A806F"};
   function classifyGenre(repo) {
@@ -676,7 +729,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       }
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "book";
+      button.className = "book book-style-"+(index % 8);
       button.setAttribute("aria-pressed","false");
       button.setAttribute("aria-label","Select "+repo.name);
       const [background,foreground] = palette[index % palette.length];
