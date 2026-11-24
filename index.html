@@ -287,7 +287,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 
 /* Single viewport repository machine */
-.machine{height:100svh;min-height:620px;max-height:100svh;padding:88px var(--gutter) 18px;display:flex;flex-direction:column;overflow:hidden}
+.machine{height:100svh;min-height:min(620px,100svh);max-height:100svh;padding:88px var(--gutter) 18px;display:flex;flex-direction:column;overflow:hidden}
 .machine-head{flex:none;align-items:flex-end;margin-bottom:18px}
 .machine-kicker{margin-bottom:12px}
 .machine .section-heading{font-size:clamp(54px,7.2vw,104px);line-height:.78;margin:0;letter-spacing:-.035em}
@@ -333,7 +333,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .patchbay{grid-auto-rows:clamp(54px,7vh,68px)}
 }
 @media(max-width:600px){
- .machine{height:100svh;min-height:650px;padding:76px 14px 12px}
+ .machine{height:100svh;min-height:min(650px,100svh);padding:76px 14px 12px}
  .machine-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px}
  .machine-kicker{font-size:8px;margin-bottom:9px}
  .machine .section-heading{font-size:clamp(43px,10.5vw,66px);line-height:.8}
