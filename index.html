@@ -304,6 +304,7 @@ const bodies=[];
 let selectedPlanet=null;
 let timeScale=reducedMotion?0:1;
 let scrollProgress=0;
+if(reducedMotion){speedInput.value='0';speedValue.textContent='0.0×';}
 
 function addOrbit(distance){
  const points=[];
