@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#F1EBDD">
-<meta name="description" content="Connect with KAELITH69">\n<title>Contact | KAELITH69</title>
+<meta name="description" content="Connect with KAELITH69">
+<title>Contact | KAELITH69</title>
 <style>
 :root{
   color-scheme:light;
@@ -731,7 +732,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .record-controls{display:grid;grid-template-columns:1fr 1fr;width:100%}
   .record-controls label{grid-column:1/-1}
   .record-controls input,.record-controls select{width:100%;max-width:none}
-  .record-wall{padding:16px 12px;gap:22px 14px}\n  .record-sleeve.is-selected .record-vinyl{transform:translateX(20%)}
+  .record-wall{padding:16px 12px;gap:22px 14px}
+  .record-sleeve.is-selected .record-vinyl{transform:translateX(20%)}
   .record-detail-description{font-size:10px}
   .record-detail-meta{font-size:8px}
   .record-github{width:26px;height:26px}
@@ -916,22 +918,42 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 .transition-screen.is-active .vinyl-record{animation:loading-record-spin 1.8s linear infinite}
 .transition-screen.is-complete .vinyl-record{animation-play-state:paused}
-\n</style>
-</head><body>\n<div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
+
+
+.transition-screen{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;background:#171717;color:#F1EBDD;opacity:1;visibility:visible;pointer-events:auto;transition:opacity .22s ease,visibility .22s ease}
+.transition-screen:not(.is-active){opacity:0;visibility:hidden;pointer-events:none}
+.transition-stage{position:relative;width:min(76vw,560px);aspect-ratio:1.35;display:grid;place-items:center}
+.vinyl-record{position:absolute;left:12%;top:50%;width:min(68%,360px);aspect-ratio:1;border-radius:50%;transform:translateY(-50%);transform-origin:center;background:radial-gradient(circle at center,transparent 0 8%,rgba(255,255,255,.12) 8.2% 8.5%,transparent 8.7% 18%,rgba(255,255,255,.08) 18.2% 18.5%,transparent 18.7% 28%,rgba(255,255,255,.07) 28.2% 28.5%,transparent 28.7% 38%,rgba(255,255,255,.08) 38.2% 38.5%,transparent 38.7% 48%,rgba(255,255,255,.08) 48.2% 48.5%,#111 49%),radial-gradient(circle at 34% 28%,#343434,#080808 68%);box-shadow:0 22px 65px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.13);animation:loading-record-spin 2.07s linear infinite!important}
+.vinyl-record:before{content:"";position:absolute;inset:3.5%;border:1px solid rgba(255,255,255,.1);border-radius:50%}
+.vinyl-label{position:absolute;inset:35%;display:grid;place-items:center;border-radius:50%;background:#244BFF;color:#F1EBDD;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.vinyl-label:after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:#171717}
+.vinyl-label-mark{font:900 clamp(16px,3vw,27px)/1 Arial,Helvetica,sans-serif;letter-spacing:-.08em}
+.record-tonearm{position:absolute;z-index:2;top:12%;right:9%;width:34%;height:65%;border-top:10px solid #C8C2B5;border-right:10px solid #C8C2B5;border-radius:0 28px 0 0;transform:rotate(-9deg);transform-origin:top right}
+.tonearm-head{position:absolute;right:-15px;bottom:-8px;width:28px;height:42px;border-radius:4px;background:#FF4D00;transform:rotate(18deg)}
+.transition-screen.is-complete .vinyl-record{animation-play-state:paused!important}
+@keyframes loading-record-spin{to{rotate:360deg}}
+@media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
+
+</style>
+</head><body>
+<div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
   <div class="transition-stage" aria-hidden="true">
     <div class="vinyl-record">
       <div class="vinyl-label"><span class="vinyl-label-mark" id="vinyl-counter" aria-label="K0">K0</span></div>
     </div>
     <div class="record-tonearm"><span class="tonearm-head"></span></div>
   </div>
-</div>\n<header class="site-header">
+</div>
+<header class="site-header">
 <a class="wordmark" href="index.html" aria-label="KAELITH69 home">KAELITH69</a>
 <nav class="nav" aria-label="Main navigation">
 <a href="work.html" >Work</a>
 <a href="about.html" >About</a>
 <a class="nav-contact" aria-current="page" href="contact.html">Contact <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5h16v11H4z" stroke="currentColor" stroke-width="1.8"/><path d="m5 7.5 7 5.5 7-5.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></a>
 </nav>
-</header>\n<main>\n<section class="contact" id="contact" aria-labelledby="contact-title">
+</header>
+<main>
+<section class="contact" id="contact" aria-labelledby="contact-title">
 <div class="contact-inner">
 <h2 id="contact-title">Let’s<br><span>connect.</span></h2>
 <div class="contact-links">
@@ -939,84 +961,103 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <a class="icon-link" href="https://instagram.com/kaelith6.9" target="_blank" rel="noopener noreferrer"><svg class="icon brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.9"/><circle cx="17.6" cy="6.7" r="1.1" fill="currentColor"/></svg>Instagram<svg class="icon out-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="2"/></svg></a>
 </div>
 </div>
-</section>\n</main>\n<footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>\n<script>
+</section>
+</main>
+<footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
+<script>
 (() => {
-  const overlay=document.getElementById("page-transition");
-  const main=document.querySelector("main");
-  const counter=document.getElementById("vinyl-counter");
-  if(!overlay||!counter)return;
-  const STEP_MS=30;
-  let running=false,pendingAction=null;
+  const overlay = document.getElementById("page-transition");
+  const main = document.querySelector("main");
+  const counter = document.getElementById("vinyl-counter");
+  if (!overlay || !counter) return;
+  const STEP_MS = 30;
+  const COMPLETE_HOLD_MS = 140;
+  const pageNames = ["index.html","work.html","about.html","contact.html"];
+  const destinationKey = "kaelith69-transition-destination";
+  let running = false, pendingAction = null, sequence = 0;
 
-  const show=()=>{
-    overlay.classList.remove("is-complete");
-    overlay.classList.add("is-active");
-    overlay.setAttribute("aria-hidden","false");
-    if(main)main.setAttribute("aria-busy","true");
-  };
-  const hide=()=>{
+  const hide = () => {
     overlay.classList.remove("is-active","is-complete");
     overlay.setAttribute("aria-hidden","true");
-    if(main)main.removeAttribute("aria-busy");
+    if (main) main.removeAttribute("aria-busy");
   };
-  const countTo69=()=>new Promise(resolve=>{
-    let value=0;
-    counter.textContent="K0";
+  const countTo69 = runId => new Promise(resolve => {
+    let value = 0;
+    counter.textContent = "K0";
     counter.setAttribute("aria-label","K0");
-    const tick=()=>{
-      value+=1;
-      counter.textContent="K"+value;
-      counter.setAttribute("aria-label","K"+value);
-      if(value===69){overlay.classList.add("is-complete");resolve()}
-      else window.setTimeout(tick,STEP_MS);
+    const tick = () => {
+      if (runId !== sequence) { resolve(false); return; }
+      value += 1;
+      counter.textContent = "K" + value;
+      counter.setAttribute("aria-label","K" + value);
+      if (value === 69) { overlay.classList.add("is-complete"); resolve(true); return; }
+      window.setTimeout(tick,STEP_MS);
     };
     window.setTimeout(tick,STEP_MS);
   });
-  const run=async(after)=>{
-    if(running){if(after)pendingAction=after;return}
-    running=true;
-    show();
-    await countTo69();
-    window.setTimeout(()=>{
-      const action=after||pendingAction;
-      pendingAction=null;
-      if(action)action();
-      else hide();
-      running=false;
-    },180);
+  const run = async action => {
+    if (running) { if (action) pendingAction = action; return; }
+    running = true;
+    const runId = ++sequence;
+    overlay.classList.remove("is-complete");
+    overlay.classList.add("is-active");
+    overlay.setAttribute("aria-hidden","false");
+    if (main) main.setAttribute("aria-busy","true");
+    const complete = await countTo69(runId);
+    if (!complete || runId !== sequence) { running = false; return; }
+    window.setTimeout(() => {
+      const next = action || pendingAction;
+      pendingAction = null;
+      if (next) next(); else hide();
+      running = false;
+    },COMPLETE_HOLD_MS);
   };
-  const pageFor=url=>url.pathname.split("/").pop()||"index.html";
-  const isLocalPage=url=>url.origin===location.origin&&/^(index|work|about|contact)\.html$/.test(pageFor(url));
-  const skipPath=sessionStorage.getItem("kaelith69-transition-destination");
-  if(skipPath===location.pathname+location.search+location.hash){
-    sessionStorage.removeItem("kaelith69-transition-destination");
-    hide();
-  }else run();
 
-  document.addEventListener("click",event=>{
-    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-    const link=event.target.closest("a[href]");
-    if(!link||link.target==="_blank"||link.hasAttribute("download"))return;
-    const url=new URL(link.href,location.href);
-    if(!isLocalPage(url))return;
-    if(url.pathname===location.pathname&&url.search===location.search){
-      if(url.hash&&url.hash!==location.hash){
-        event.preventDefault();
-        run(()=>{
-          history.pushState(null,"",url.href);
-          const target=document.querySelector(url.hash);
-          if(target)target.scrollIntoView({behavior:"auto",block:"start"});
-          hide();
-        });
-      }
+  const pageFor = url => url.pathname.split("/").pop() || "index.html";
+  const isLocalPage = url => url.origin === location.origin && pageNames.includes(pageFor(url));
+  const expected = location.pathname + location.search + location.hash;
+  let stored = null;
+  try { stored = sessionStorage.getItem(destinationKey); } catch (_) {}
+  if (stored === expected) {
+    try { sessionStorage.removeItem(destinationKey); } catch (_) {}
+    hide();
+  } else run();
+
+  document.addEventListener("click",event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest("a[href]");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+    let url;
+    try { url = new URL(link.href,location.href); } catch (_) { return; }
+    if (!isLocalPage(url)) return;
+    if (url.pathname === location.pathname && url.search === location.search) {
+      if (!url.hash || url.hash === location.hash) return;
+      event.preventDefault();
+      run(() => {
+        history.pushState({pageTransition:true},"",url.href);
+        const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+        if (target) target.scrollIntoView({behavior:"auto",block:"start"});
+        hide();
+      });
       return;
     }
     event.preventDefault();
-    run(()=>{
-      sessionStorage.setItem("kaelith69-transition-destination",url.pathname+url.search+url.hash);
+    run(() => {
+      try { sessionStorage.setItem(destinationKey,url.pathname + url.search + url.hash); } catch (_) {}
       location.assign(url.href);
     });
   });
-  window.addEventListener("pageshow",event=>{if(event.persisted)run()});
+
+  window.addEventListener("pageshow",event => { if (event.persisted) run(); });
+  window.addEventListener("popstate",() => {
+    run(() => {
+      if (location.hash) {
+        const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+        if (target) target.scrollIntoView({behavior:"auto",block:"start"});
+      }
+      hide();
+    });
+  });
 })();
-</script>\n</body></html>
+</script>
+</body></html>
