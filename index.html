@@ -327,6 +327,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   font:900 clamp(8px,1.4vw,12px)/1 var(--body);
   letter-spacing:.12em;
 }
+.vinyl-label-mark{
+  min-width:3.2em;
+  text-align:center;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+
 .record-tonearm{
   position:absolute;
   z-index:2;
@@ -388,7 +396,7 @@ html.transition-jump{scroll-behavior:auto}
 <div class="transition-screen" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="true">
   <div class="transition-stage" aria-hidden="true">
     <div class="vinyl-record">
-      <div class="vinyl-label"><span class="vinyl-label-mark">K69</span></div>
+      <div class="vinyl-label"><span class="vinyl-label-mark" id="vinyl-counter" aria-label="K0">K0</span></div>
     </div>
     <div class="record-tonearm"><span class="tonearm-head"></span></div>
   </div>
@@ -469,15 +477,16 @@ html.transition-jump{scroll-behavior:auto}
 (() => {
   const overlay = document.getElementById("page-transition");
   const main = document.querySelector("main");
-  if (!overlay) return;
+  const counter = document.getElementById("vinyl-counter");
+  if (!overlay || !counter) return;
 
-  let transitionTimer;
-  let finishTimer;
-  let handlingPopState = false;
+  const COUNT_TO = 69;
+  const TICK_MS = 22;
+  const HOLD_MS = 180;
+  let runId = 0;
+  let activeHash = window.location.hash || "#home";
 
   const show = () => {
-    clearTimeout(transitionTimer);
-    clearTimeout(finishTimer);
     overlay.classList.add("is-active");
     overlay.setAttribute("aria-hidden", "false");
     if (main) main.setAttribute("aria-busy", "true");
@@ -496,26 +505,54 @@ html.transition-jump{scroll-behavior:auto}
     return document.getElementById(id);
   };
 
-  const transitionTo = (hash, updateHistory = false) => {
+  const spinCount = (id) => new Promise((resolve) => {
+    let value = 0;
+    counter.textContent = "K0";
+    counter.setAttribute("aria-label", "K0");
+    const interval = window.setInterval(() => {
+      if (id !== runId) {
+        window.clearInterval(interval);
+        resolve(false);
+        return;
+      }
+      value = Math.min(value + 1, COUNT_TO);
+      counter.textContent = "K" + value;
+      counter.setAttribute("aria-label", "K" + value);
+      if (value === COUNT_TO) {
+        window.clearInterval(interval);
+        window.setTimeout(() => resolve(id === runId), HOLD_MS);
+      }
+    }, TICK_MS);
+  });
+
+  const finishTransition = async (hash, updateHistory = false) => {
     const target = findTarget(hash);
     if (!target) return;
 
+    const id = ++runId;
     show();
-    if (updateHistory && window.location.hash !== hash) {
-      window.history.pushState({section: hash}, "", hash);
-    }
 
-    transitionTimer = window.setTimeout(() => {
-      document.documentElement.classList.add("transition-jump");
-      const headerOffset = target.id === "home" ? 0 :
-        (window.matchMedia("(max-width: 760px)").matches ? 64 : 72);
-      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
-      window.scrollTo({top, behavior: "auto"});
-      requestAnimationFrame(() => {
-        document.documentElement.classList.remove("transition-jump");
-        finishTimer = window.setTimeout(hide, 260);
-      });
-    }, 360);
+    if (updateHistory && window.location.hash !== hash) {
+      window.history.pushState({section:hash}, "", hash);
+    }
+    activeHash = hash;
+
+    const completed = await spinCount(id);
+    if (!completed || id !== runId) return;
+
+    document.documentElement.classList.add("transition-jump");
+    const headerOffset = target.id === "home" ? 0 :
+      (window.matchMedia("(max-width:760px)").matches ? 64 : 72);
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
+    window.scrollTo({top,behavior:"auto"});
+
+    requestAnimationFrame(() => {
+      if (id !== runId) return;
+      document.documentElement.classList.remove("transition-jump");
+      window.setTimeout(() => {
+        if (id === runId) hide();
+      }, 280);
+    });
   };
 
   document.addEventListener("click", (event) => {
@@ -529,32 +566,32 @@ html.transition-jump{scroll-behavior:auto}
     if (!findTarget(hash)) return;
 
     event.preventDefault();
-    transitionTo(hash, true);
+    if (hash === activeHash && window.location.hash === hash) {
+      finishTransition(hash);
+      return;
+    }
+    finishTransition(hash,true);
   });
 
-  window.addEventListener("popstate", () => {
-    handlingPopState = true;
-    transitionTo(window.location.hash || "#home");
-    window.setTimeout(() => { handlingPopState = false; }, 0);
-  });
-
-  window.addEventListener("hashchange", () => {
-    if (!handlingPopState) transitionTo(window.location.hash || "#home");
-  });
+  const handleHistoryNavigation = () => {
+    const hash = window.location.hash || "#home";
+    if (hash === activeHash) return;
+    finishTransition(hash);
+  };
+  window.addEventListener("popstate", handleHistoryNavigation);
+  window.addEventListener("hashchange", handleHistoryNavigation);
 
   window.addEventListener("pageshow", (event) => {
-    if (event.persisted) {
-      show();
-      finishTimer = window.setTimeout(hide, 420);
-    }
+    if (event.persisted) finishTransition(window.location.hash || "#home");
   });
 
+  // Keep the page covered until its assets are ready, then run the K0 to K69 intro.
   show();
-  window.addEventListener("load", () => {
-    finishTimer = window.setTimeout(hide, 480);
-  }, {once:true});
+  const startIntro = () => finishTransition(window.location.hash || "#home");
   if (document.readyState === "complete") {
-    finishTimer = window.setTimeout(hide, 480);
+    startIntro();
+  } else {
+    window.addEventListener("load", startIntro, {once:true});
   }
 })();
 </script>
