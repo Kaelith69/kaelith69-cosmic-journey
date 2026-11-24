@@ -1139,7 +1139,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const previousSelection = selectedId;
     visible = filteredRepositories();
     count.textContent = visible.length+" / "+repositories.length+" RECORDS";
+    const loadingNode=document.getElementById("repo-loading");
     wall.replaceChildren();
+    if (loadingNode) wall.append(loadingNode);
     sleeves.clear();
     if (!visible.length) {
       const empty = document.createElement("p");
