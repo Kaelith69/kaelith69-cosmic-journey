@@ -618,13 +618,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   transform:translate(-50%,-50%);
   box-shadow:0 0 0 1px rgba(0,0,0,.65);
 }
-.record-sleeve:hover,.record-sleeve.is-selected{
-  transform:translateY(-7px);
-  filter:drop-shadow(0 12px 9px rgba(0,0,0,.25));
-}
-.record-sleeve:hover .record-vinyl{transform:translateX(12%)}
-.record-sleeve.is-selected .record-vinyl{transform:translateX(25%)}
-.record-sleeve.is-selected .record-disc{animation:record-spin 3.2s linear infinite}
 .record-sleeve.is-selected .record-sleeve-face{
   box-shadow:0 12px 20px rgba(0,0,0,.48),inset 4px 0 rgba(255,255,255,.12),inset -4px 0 rgba(0,0,0,.18);
 }
@@ -740,30 +733,41 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .record-controls label{grid-column:1/-1}
   .record-controls input,.record-controls select{width:100%;max-width:none}
   .record-wall{padding:16px 12px;gap:22px 14px}
-  .record-sleeve.is-selected .record-vinyl{transform:translateX(20%)}
   .record-detail-description{font-size:10px}
   .record-detail-meta{font-size:8px}
   .record-github{width:26px;height:26px}
 }
-@media(prefers-reduced-motion:reduce){
-  .record-sleeve,.record-vinyl,.record-sleeve-details{transition:none!important}
-  .record-disc{animation:none!important}
-}
 
-/* Hover first interaction: preview the record without a click */
-.record-unit{transition:z-index .01s}
+/* Hover preview: sleeve stays fixed while the record emerges */
+.record-unit{position:relative;isolation:isolate}
 .record-unit:has(.record-sleeve:hover),
-.record-unit:has(.record-sleeve:focus-visible){z-index:12}
-.record-sleeve:hover,
-.record-sleeve:focus-visible,
-.record-sleeve.is-selected{
-  transform:translateY(-9px) scale(1.045);
-  filter:drop-shadow(0 16px 13px rgba(0,0,0,.34));
+.record-unit:has(.record-sleeve:focus-visible),
+.record-unit:has(.record-sleeve.is-selected){z-index:30}
+.record-sleeve{
+  transform:none!important;
+  filter:none!important;
+  transition:none!important;
+  overflow:visible;
+  backface-visibility:hidden;
 }
+.record-vinyl{
+  top:2%;left:2%;width:96%;
+  transform:translate3d(0,0,0);
+  transform-origin:50% 50%;
+  transition:transform 3600ms cubic-bezier(.42,0,.58,1);
+  backface-visibility:hidden;
+}
+.record-sleeve-face{z-index:3}
 .record-sleeve:hover .record-vinyl,
-.record-sleeve:focus-visible .record-vinyl{transform:translateX(25%)}
+.record-sleeve:focus-visible .record-vinyl,
+.record-sleeve.is-selected .record-vinyl{
+  transform:translate3d(43%,0,0);
+  transition-duration:3600ms;
+  transition-timing-function:cubic-bezier(.42,0,.58,1);
+}
 .record-sleeve:hover .record-disc,
-.record-sleeve:focus-visible .record-disc{animation:record-spin 3.2s linear infinite}
+.record-sleeve:focus-visible .record-disc,
+.record-sleeve.is-selected .record-disc{animation:record-spin 6s linear infinite}
 .record-sleeve:hover .record-sleeve-face,
 .record-sleeve:focus-visible .record-sleeve-face{
   box-shadow:0 14px 22px rgba(0,0,0,.5),inset 4px 0 rgba(255,255,255,.12),inset -4px 0 rgba(0,0,0,.18);
@@ -772,33 +776,36 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .record-sleeve:focus-visible .record-art{inset:9% 9% 56%}
 .record-sleeve:hover .record-sleeve-title,
 .record-sleeve:focus-visible .record-sleeve-title{
-  top:46%;
-  bottom:auto;
-  max-height:10%;
-  font-size:clamp(11px,1.12vw,16px);
-  -webkit-line-clamp:1;
+  top:46%;bottom:auto;max-height:10%;
+  font-size:clamp(11px,1.12vw,16px);-webkit-line-clamp:1;
 }
 .record-sleeve:hover .record-sleeve-details,
 .record-sleeve:focus-visible .record-sleeve-details{
-  opacity:1;
-  visibility:visible;
-  transform:translateY(0);
-  transition-delay:.12s;
+  opacity:1;visibility:visible;transform:translateY(0);transition-delay:.12s;
 }
 .record-sleeve:hover .record-github,
 .record-sleeve:focus-visible .record-github{left:7%}
+@media(max-width:700px){
+  .record-vinyl{width:94%;left:2%;top:3%}
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(38%,0,0)}
+}
 @media(max-width:440px){
   .record-sleeve:hover .record-vinyl,
-  .record-sleeve:focus-visible .record-vinyl{transform:translateX(20%)}
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(35%,0,0)}
 }
 @media(hover:none){
-  .record-sleeve:hover{transform:none;filter:none}
+  .record-sleeve:hover .record-vinyl{transform:translate3d(0,0,0)}
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(38%,0,0)}
 }
 @media(prefers-reduced-motion:reduce){
+  .record-vinyl{transition:none!important}
   .record-sleeve:hover .record-disc,
-  .record-sleeve:focus-visible .record-disc{animation:none!important}
+  .record-sleeve:focus-visible .record-disc,
+  .record-sleeve.is-selected .record-disc{animation:none!important}
 }
-
 
 /* Photographic black vinyl with a vermilion centre label */
 .record-disc{
