@@ -989,8 +989,9 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
 
 
 
-/* Vinyl movement: one continuous glide, with no moving hover target */
-.record-unit{position:relative;isolation:isolate;transition:z-index .01s linear}
+
+/* Slow, deliberate vinyl extraction with a soft settle */
+.record-unit{position:relative;isolation:isolate}
 .record-unit:has(.record-sleeve:hover),
 .record-unit:has(.record-sleeve:focus-visible),
 .record-unit:has(.record-sleeve.is-selected){z-index:30}
@@ -1005,7 +1006,7 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
   top:2%;left:2%;width:96%;
   transform:translate3d(0,0,0);
   transform-origin:50% 50%;
-  transition:transform 1120ms cubic-bezier(.42,0,.58,1);
+  transition:transform 2200ms cubic-bezier(.25,.1,.25,1);
   backface-visibility:hidden;
 }
 .record-sleeve-face{z-index:3}
@@ -1013,12 +1014,12 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
 .record-sleeve:focus-visible .record-vinyl,
 .record-sleeve.is-selected .record-vinyl{
   transform:translate3d(43%,0,0);
-  transition-duration:1120ms;
-  transition-timing-function:cubic-bezier(.42,0,.58,1);
+  transition-duration:2200ms;
+  transition-timing-function:cubic-bezier(.25,.1,.25,1);
 }
 .record-sleeve:hover .record-disc,
 .record-sleeve:focus-visible .record-disc,
-.record-sleeve.is-selected .record-disc{animation:record-spin 4.2s linear infinite}
+.record-sleeve.is-selected .record-disc{animation:record-spin 5.2s linear infinite}
 @media(max-width:700px){
   .record-vinyl{width:94%;left:2%;top:3%}
   .record-sleeve:hover .record-vinyl,
