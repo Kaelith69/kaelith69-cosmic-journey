@@ -1338,6 +1338,7 @@ body.record-focus-open::before{
   });
   function render() {
     const previousSelection = selectedId;
+    if(selectedId)closeRecordFocus();
     visible = filteredRepositories();
     count.textContent = visible.length+" / "+repositories.length+" RECORDS";
     const loadingNode=document.getElementById("repo-loading");
