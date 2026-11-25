@@ -1108,18 +1108,18 @@ body.record-focus-open::before{
 
 
 
-/* Focus composition: large partially inserted vinyl with clear text area */
+/* Focus composition: vinyl sits behind the sleeve, with a partial reveal */
 .record-unit.is-focus-view .record-vinyl{
   top:2%;
   left:5%;
   width:76%;
-  z-index:4;
+  z-index:2;
   transition:transform 1900ms cubic-bezier(.22,.7,.2,1);
 }
 .record-unit.is-focus-view .record-sleeve .record-vinyl{
   transform:translate3d(38%,0,0);
 }
-.record-unit.is-focus-view .record-sleeve-face{z-index:3}
+.record-unit.is-focus-view .record-sleeve-face{z-index:3;position:absolute}
 .record-unit.is-focus-view .record-art{inset:9% 9% 34%}
 .record-unit.is-focus-view .record-sleeve-title{
   top:68%;
