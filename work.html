@@ -988,56 +988,37 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
 
 
 
-/* Refined record motion: eased entry, controlled return, compositor friendly */
-.record-unit{
-  position:relative;
-  isolation:isolate;
-  transition:z-index .01s linear;
-}
+
+/* Vinyl movement: one continuous glide, with no moving hover target */
+.record-unit{position:relative;isolation:isolate;transition:z-index .01s linear}
 .record-unit:has(.record-sleeve:hover),
 .record-unit:has(.record-sleeve:focus-visible),
 .record-unit:has(.record-sleeve.is-selected){z-index:30}
-
 .record-sleeve{
   overflow:visible;
-  transform:translate3d(0,0,0);
-  transition:transform 440ms cubic-bezier(.4,0,.2,1);
+  transform:none!important;
+  filter:none!important;
+  transition:none!important;
   backface-visibility:hidden;
 }
 .record-vinyl{
-  top:2%;
-  left:2%;
-  width:96%;
+  top:2%;left:2%;width:96%;
   transform:translate3d(0,0,0);
   transform-origin:50% 50%;
-  transition:transform 560ms cubic-bezier(.4,0,.2,1);
+  transition:transform 1120ms cubic-bezier(.42,0,.58,1);
   backface-visibility:hidden;
 }
 .record-sleeve-face{z-index:3}
-
-/* Enter: quick response, gradual deceleration into the open position */
-.record-sleeve:hover,
-.record-sleeve:focus-visible,
-.record-sleeve.is-selected{
-  transform:translate3d(0,-5px,0);
-  transition-timing-function:cubic-bezier(.16,1,.3,1);
-}
 .record-sleeve:hover .record-vinyl,
 .record-sleeve:focus-visible .record-vinyl,
 .record-sleeve.is-selected .record-vinyl{
   transform:translate3d(43%,0,0);
-  transition-duration:760ms;
-  transition-timing-function:cubic-bezier(.16,1,.3,1);
+  transition-duration:1120ms;
+  transition-timing-function:cubic-bezier(.42,0,.58,1);
 }
-
-/* Keep the disc spinning at a constant angular velocity while exposed */
 .record-sleeve:hover .record-disc,
 .record-sleeve:focus-visible .record-disc,
-.record-sleeve.is-selected .record-disc{
-  animation:record-spin 3.6s linear infinite;
-}
-
-/* A slightly shorter return prevents the sleeve from feeling sluggish */
+.record-sleeve.is-selected .record-disc{animation:record-spin 4.2s linear infinite}
 @media(max-width:700px){
   .record-vinyl{width:94%;left:2%;top:3%}
   .record-sleeve:hover .record-vinyl,
@@ -1050,13 +1031,11 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
   .record-sleeve.is-selected .record-vinyl{transform:translate3d(35%,0,0)}
 }
 @media(hover:none){
-  .record-sleeve:hover{transform:translate3d(0,0,0)}
   .record-sleeve:hover .record-vinyl{transform:translate3d(0,0,0)}
-  .record-sleeve.is-selected{transform:translate3d(0,-4px,0)}
   .record-sleeve.is-selected .record-vinyl{transform:translate3d(38%,0,0)}
 }
 @media(prefers-reduced-motion:reduce){
-  .record-sleeve,.record-vinyl{transition:none!important}
+  .record-vinyl{transition:none!important}
   .record-sleeve:hover .record-disc,
   .record-sleeve:focus-visible .record-disc,
   .record-sleeve.is-selected .record-disc{animation:none!important}
