@@ -1106,6 +1106,57 @@ body.record-focus-open::before{
   .record-unit.is-focus-view .record-vinyl{transition:none!important}
 }
 
+
+
+/* Focus composition: keep the record clear of the repository information */
+.record-unit.is-focus-view .record-vinyl{
+  top:6%;
+  left:43%;
+  width:56%;
+  z-index:4;
+  transition:transform 1900ms cubic-bezier(.22,.7,.2,1);
+}
+.record-unit.is-focus-view .record-sleeve .record-vinyl{
+  transform:translate3d(34%,0,0);
+}
+.record-unit.is-focus-view .record-sleeve-face{z-index:3}
+.record-unit.is-focus-view .record-art{inset:9% 9% 43%}
+.record-unit.is-focus-view .record-sleeve-title{
+  top:50%;
+  bottom:auto;
+  max-height:8%;
+  font-size:clamp(15px,1.55vw,21px);
+  -webkit-line-clamp:1;
+}
+.record-unit.is-focus-view .record-sleeve-details{
+  top:64%;
+  left:9%;
+  right:9%;
+  bottom:8%;
+  gap:clamp(7px,1vw,11px);
+}
+.record-unit.is-focus-view .record-detail-description{
+  max-width:100%;
+  font-size:clamp(11px,1vw,13px);
+  line-height:1.42;
+  -webkit-line-clamp:3;
+}
+.record-unit.is-focus-view .record-detail-meta{
+  font-size:clamp(9px,.78vw,10px);
+}
+@media(max-width:700px){
+  .record-unit.is-focus-view .record-vinyl{
+    top:6%;
+    left:42%;
+    width:54%;
+  }
+  .record-unit.is-focus-view .record-sleeve .record-vinyl{
+    transform:translate3d(32%,0,0);
+  }
+  .record-unit.is-focus-view .record-art{inset:9% 9% 45%}
+  .record-unit.is-focus-view .record-sleeve-title{top:49%}
+  .record-unit.is-focus-view .record-sleeve-details{top:63%}
+}
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
