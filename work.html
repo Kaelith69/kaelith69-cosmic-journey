@@ -1289,6 +1289,8 @@ body.record-focus-open::before{
     if (sort.value === "stars") list.sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0));
     return list;
   }
+  let focusPlaceholder=null;
+  let focusHome=null;
   function closeRecordFocus() {
     if (!selectedId) return;
     const previous = sleeves.get(selectedId);
@@ -1296,7 +1298,15 @@ body.record-focus-open::before{
       previous.classList.remove("is-focus-view");
       const button=previous.querySelector(".record-sleeve");
       if(button){button.classList.remove("is-selected");button.setAttribute("aria-pressed","false")}
+      if(focusPlaceholder&&focusPlaceholder.parentNode){
+        focusPlaceholder.parentNode.insertBefore(previous,focusPlaceholder);
+        focusPlaceholder.remove();
+      }else if(focusHome&&focusHome.isConnected){
+        focusHome.append(previous);
+      }
     }
+    focusPlaceholder=null;
+    focusHome=null;
     selectedId=null;
     document.body.classList.remove("record-focus-open");
   }
@@ -1307,11 +1317,15 @@ body.record-focus-open::before{
     closeRecordFocus();
     selectedId=String(repo.id);
     const unit=sleeves.get(selectedId);
-    if(!unit)return;
+    if(!unit){selectedId=null;return}
+    focusHome=unit.parentNode;
+    focusPlaceholder=document.createComment("focused repository record position");
+    focusHome.insertBefore(focusPlaceholder,unit);
     unit.classList.add("is-focus-view");
     const button=unit.querySelector(".record-sleeve");
     button.classList.add("is-selected");
     button.setAttribute("aria-pressed","true");
+    document.body.append(unit);
     document.body.classList.add("record-focus-open");
   }
   document.addEventListener("click",event=>{
