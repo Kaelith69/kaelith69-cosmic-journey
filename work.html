@@ -1108,54 +1108,55 @@ body.record-focus-open::before{
 
 
 
-/* Focus composition: keep the record clear of the repository information */
+/* Focus composition: full-size vinyl contained inside the sleeve */
 .record-unit.is-focus-view .record-vinyl{
   top:6%;
-  left:43%;
-  width:56%;
+  left:5%;
+  width:88%;
   z-index:4;
-  transition:transform 1900ms cubic-bezier(.22,.7,.2,1);
+  transition:transform 900ms cubic-bezier(.22,.7,.2,1);
 }
+.record-unit.is-focus-view .record-sinyl{transform:translate3d(0,0,0)}
 .record-unit.is-focus-view .record-sleeve .record-vinyl{
-  transform:translate3d(34%,0,0);
+  transform:translate3d(0,0,0);
 }
 .record-unit.is-focus-view .record-sleeve-face{z-index:3}
-.record-unit.is-focus-view .record-art{inset:9% 9% 43%}
+.record-unit.is-focus-view .record-art{inset:9% 9% 24%}
 .record-unit.is-focus-view .record-sleeve-title{
-  top:50%;
+  top:76%;
   bottom:auto;
-  max-height:8%;
+  max-height:6%;
   font-size:clamp(15px,1.55vw,21px);
   -webkit-line-clamp:1;
 }
 .record-unit.is-focus-view .record-sleeve-details{
-  top:64%;
+  top:83%;
   left:9%;
   right:9%;
-  bottom:8%;
-  gap:clamp(7px,1vw,11px);
+  bottom:5%;
+  gap:clamp(5px,.7vw,8px);
 }
 .record-unit.is-focus-view .record-detail-description{
   max-width:100%;
-  font-size:clamp(11px,1vw,13px);
-  line-height:1.42;
-  -webkit-line-clamp:3;
+  font-size:clamp(10px,.9vw,12px);
+  line-height:1.32;
+  -webkit-line-clamp:2;
 }
 .record-unit.is-focus-view .record-detail-meta{
-  font-size:clamp(9px,.78vw,10px);
+  font-size:clamp(8px,.68vw,9px);
 }
 @media(max-width:700px){
   .record-unit.is-focus-view .record-vinyl{
     top:6%;
-    left:42%;
-    width:54%;
+    left:5%;
+    width:88%;
   }
   .record-unit.is-focus-view .record-sleeve .record-vinyl{
-    transform:translate3d(32%,0,0);
+    transform:translate3d(0,0,0);
   }
-  .record-unit.is-focus-view .record-art{inset:9% 9% 45%}
-  .record-unit.is-focus-view .record-sleeve-title{top:49%}
-  .record-unit.is-focus-view .record-sleeve-details{top:63%}
+  .record-unit.is-focus-view .record-art{inset:9% 9% 24%}
+  .record-unit.is-focus-view .record-sleeve-title{top:76%}
+  .record-unit.is-focus-view .record-sleeve-details{top:83%}
 }
 </style>
 </head><body>
