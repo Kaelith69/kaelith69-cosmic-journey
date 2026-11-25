@@ -1108,54 +1108,54 @@ body.record-focus-open::before{
 
 
 
-/* Focus composition: restore the original partially inserted vinyl */
+/* Focus composition: large partially inserted vinyl with clear text area */
 .record-unit.is-focus-view .record-vinyl{
-  top:6%;
+  top:2%;
   left:5%;
-  width:88%;
+  width:76%;
   z-index:4;
   transition:transform 1900ms cubic-bezier(.22,.7,.2,1);
 }
 .record-unit.is-focus-view .record-sleeve .record-vinyl{
-  transform:translate3d(43%,0,0);
+  transform:translate3d(38%,0,0);
 }
 .record-unit.is-focus-view .record-sleeve-face{z-index:3}
-.record-unit.is-focus-view .record-art{inset:9% 9% 43%}
+.record-unit.is-focus-view .record-art{inset:9% 9% 34%}
 .record-unit.is-focus-view .record-sleeve-title{
-  top:50%;
+  top:68%;
   bottom:auto;
-  max-height:8%;
+  max-height:7%;
   font-size:clamp(15px,1.55vw,21px);
   -webkit-line-clamp:1;
 }
 .record-unit.is-focus-view .record-sleeve-details{
-  top:64%;
+  top:76%;
   left:9%;
   right:9%;
-  bottom:8%;
-  gap:clamp(7px,1vw,11px);
+  bottom:6%;
+  gap:clamp(5px,.7vw,9px);
 }
 .record-unit.is-focus-view .record-detail-description{
   max-width:100%;
-  font-size:clamp(11px,1vw,13px);
-  line-height:1.42;
-  -webkit-line-clamp:3;
+  font-size:clamp(10px,.9vw,12px);
+  line-height:1.35;
+  -webkit-line-clamp:2;
 }
 .record-unit.is-focus-view .record-detail-meta{
-  font-size:clamp(9px,.78vw,10px);
+  font-size:clamp(8px,.68vw,9px);
 }
 @media(max-width:700px){
   .record-unit.is-focus-view .record-vinyl{
-    top:6%;
+    top:2%;
     left:5%;
-    width:88%;
+    width:76%;
   }
   .record-unit.is-focus-view .record-sleeve .record-vinyl{
-    transform:translate3d(38%,0,0);
+    transform:translate3d(34%,0,0);
   }
-  .record-unit.is-focus-view .record-art{inset:9% 9% 43%}
-  .record-unit.is-focus-view .record-sleeve-title{top:50%}
-  .record-unit.is-focus-view .record-sleeve-details{top:64%}
+  .record-unit.is-focus-view .record-art{inset:9% 9% 34%}
+  .record-unit.is-focus-view .record-sleeve-title{top:68%}
+  .record-unit.is-focus-view .record-sleeve-details{top:76%}
 }
 </style>
 </head><body>
