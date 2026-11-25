@@ -986,6 +986,72 @@ body{background:linear-gradient(180deg,#080D1B 0%,#0A1122 48%,#080D1B 100%)}
 @keyframes loading-record-spin{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
 @media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
 
+
+/* Smooth record pull out: larger disc, deeper travel, matched return motion */
+.record-unit{
+  position:relative;
+  isolation:isolate;
+  transition:z-index .01s linear;
+}
+.record-unit:has(.record-sleeve:hover),
+.record-unit:has(.record-sleeve:focus-visible),
+.record-unit:has(.record-sleeve.is-selected){z-index:30}
+.record-sleeve{
+  overflow:visible;
+  transform:translate3d(0,0,0);
+  transition:transform 560ms cubic-bezier(.22,.75,.25,1),filter 560ms cubic-bezier(.22,.75,.25,1);
+  will-change:transform;
+}
+.record-vinyl{
+  top:2%;
+  left:2%;
+  width:96%;
+  transform:translate3d(0,0,0);
+  transform-origin:center;
+  transition:transform 760ms cubic-bezier(.16,1,.3,1);
+  will-change:transform;
+}
+.record-sleeve-face{z-index:3}
+.record-sleeve:hover,
+.record-sleeve:focus-visible,
+.record-sleeve.is-selected{
+  transform:translate3d(0,-7px,0);
+  filter:drop-shadow(0 18px 17px rgba(0,0,0,.42));
+}
+.record-sleeve:hover .record-vinyl,
+.record-sleeve:focus-visible .record-vinyl,
+.record-sleeve.is-selected .record-vinyl{
+  transform:translate3d(46%,0,0);
+}
+.record-sleeve:hover .record-disc,
+.record-sleeve:focus-visible .record-disc,
+.record-sleeve.is-selected .record-disc{
+  animation:record-spin 3.2s linear infinite;
+}
+@media(max-width:700px){
+  .record-vinyl{width:94%;left:2%;top:3%}
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(39%,0,0)}
+}
+@media(max-width:440px){
+  .record-sleeve:hover .record-vinyl,
+  .record-sleeve:focus-visible .record-vinyl,
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(36%,0,0)}
+}
+@media(hover:none){
+  .record-sleeve:hover{transform:none;filter:none}
+  .record-sleeve:hover .record-vinyl{transform:translate3d(0,0,0)}
+  .record-sleeve.is-selected{transform:translate3d(0,-5px,0)}
+  .record-sleeve.is-selected .record-vinyl{transform:translate3d(39%,0,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .record-sleeve,.record-vinyl{transition:none!important;will-change:auto}
+  .record-sleeve:hover .record-disc,
+  .record-sleeve:focus-visible .record-disc,
+  .record-sleeve.is-selected .record-disc{animation:none!important}
+}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
