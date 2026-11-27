@@ -1232,15 +1232,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     shadowPlane.className = "fall-ground-shadow";
     shadowPlane.setAttribute("aria-hidden", "true");
 
-    const softShadow = document.createElement("span");
-    softShadow.className = "fall-cast-shape fall-cast-soft";
-    softShadow.textContent = character;
+    const softShadows = Array.from({length:4}, () => {
+      const shadow = document.createElement("span");
+      shadow.className = "fall-cast-shape fall-cast-soft";
+      shadow.textContent = character;
+      return shadow;
+    });
 
     const hardShadow = document.createElement("span");
     hardShadow.className = "fall-cast-shape fall-cast-hard";
     hardShadow.textContent = character;
-
-    shadowPlane.append(softShadow, hardShadow);
+    shadowPlane.append(hardShadow, ...softShadows);
 
     const body = document.createElement("span");
     body.className = "fall-object";
@@ -1248,12 +1250,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const face = document.createElement("span");
     face.className = "fall-letter";
     face.textContent = character;
-
     body.appendChild(face);
+
     unit.append(shadowPlane, body);
     word.appendChild(unit);
 
-    return { body, softShadow, hardShadow };
+    return {unit, body, hardShadow, softShadows};
   });
 
   sourceText.replaceWith(word);
@@ -1264,26 +1266,42 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const gravity = 2800;
   const restitution = 0.24;
   const friction = 0.52;
-
-  // A finite point light above and to the upper left of the word.
-  // The floor is foreshortened into the page beneath the letters.
-  const lightX = -window.innerWidth * 0.24;
-  const lightDepth = -window.innerHeight * 0.95;
-  const lightHeight = window.innerHeight * 1.5;
-  const floorProjection = 0.36;
   const fallDistance = Math.max(window.innerHeight * 0.9, 720);
 
-  // Each glyph is its own rigid body with its own mass and rotational inertia.
-  const states = glyphs.map(({body, softShadow, hardShadow}, index) => {
+  const light = {
+    x: -window.innerWidth * 0.24,
+    depth: -window.innerHeight * 0.95,
+    height: Math.max(
+      window.innerHeight * 2.4,
+      fallDistance + heading.getBoundingClientRect().height + 520
+    )
+  };
+  const lightRadiusX = 20;
+  const lightRadiusDepth = 14;
+  const lightSamples = [
+    {x:-lightRadiusX, depth:-lightRadiusDepth},
+    {x: lightRadiusX, depth:-lightRadiusDepth},
+    {x:-lightRadiusX, depth: lightRadiusDepth},
+    {x: lightRadiusX, depth: lightRadiusDepth}
+  ];
+  const floorPerspective = 0.36;
+
+  const states = glyphs.map(({unit, body, hardShadow, softShadows}, index) => {
     const width = Math.max(1, body.offsetWidth);
     const height = Math.max(1, body.offsetHeight);
     const mass = Math.max(0.35, width * height / 15000);
     const inertia = mass * (width * width + height * height) / 12;
+    const unitRect = unit.getBoundingClientRect();
+
+    [...softShadows, hardShadow].forEach(shadow => {
+      shadow.style.width = `${width}px`;
+      shadow.style.height = `${height}px`;
+    });
 
     const state = {
-      body, softShadow, hardShadow,
+      unit, body, hardShadow, softShadows,
       width, height, mass, inertia,
-      baseX: body.getBoundingClientRect().left,
+      baseX: unitRect.left,
       x: 0,
       y: -(fallDistance + 90 + index * 22),
       vx: 0,
@@ -1300,33 +1318,34 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return state;
   });
 
-  // Map an arbitrary point on a rotated letter onto the floor using point-light rays.
-  const projectToFloor = (state, x, y) => {
-    const localX = x - state.width / 2;
-    const localY = state.height - y;
+  // CSS rotate() is clockwise in screen coordinates. These signs match that transform.
+  const projectToFloor = (state, x, y, source) => {
+    const dx = x - state.width / 2;
+    const localHeight = state.height - y;
     const cosine = Math.cos(state.angle);
     const sine = Math.sin(state.angle);
 
     const worldX = state.baseX + state.x + state.width / 2 +
-      cosine * localX - sine * localY;
-    const worldHeight = Math.max(0.25,
-      -state.y + sine * localX + cosine * localY
+      cosine * dx + sine * localHeight;
+    const worldHeight = Math.max(0,
+      -state.y - sine * dx + cosine * localHeight
     );
 
-    const rayScale = lightHeight / Math.max(1, lightHeight - worldHeight);
-    const floorX = lightX + rayScale * (worldX - lightX);
-    const floorDepth = lightDepth * (1 - rayScale);
+    const denominator = Math.max(1, light.height - worldHeight);
+    const rayScale = light.height / denominator;
+    const floorX = source.x + rayScale * (worldX - source.x);
+    const floorDepth = source.depth * (1 - rayScale);
 
     return {
       x: floorX - state.baseX,
-      y: state.height + floorDepth * floorProjection
+      y: state.height + floorDepth * floorPerspective,
+      height: worldHeight
     };
   };
 
-  // Solve the eight unknowns of a planar projective transform from four corners.
   const solveHomography = points => {
     const rows = [];
-    points.forEach(({x, y, u, v}) => {
+    points.forEach(({x,y,u,v}) => {
       rows.push([x,y,1,0,0,0,-u*x,-u*y,u]);
       rows.push([0,0,0,x,y,1,-v*x,-v*y,v]);
     });
@@ -1337,7 +1356,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column])) pivot = row;
       }
       if (Math.abs(rows[pivot][column]) < 1e-10) return null;
-      [rows[column], rows[pivot]] = [rows[pivot], rows[column]];
+      [rows[column],rows[pivot]] = [rows[pivot],rows[column]];
 
       const divisor = rows[column][column];
       for (let k = column; k < 9; k++) rows[column][k] /= divisor;
@@ -1348,10 +1367,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         for (let k = column; k < 9; k++) rows[row][k] -= factor * rows[column][k];
       }
     }
-    return rows.map(row => row[8]);
+    const solution = rows.map(row => row[8]);
+    return solution.every(Number.isFinite) ? solution : null;
   };
 
-  const updateShadow = state => {
+  const projectShadowLayer = (state, element, source) => {
     const corners = [
       [0,0],
       [state.width,0],
@@ -1359,41 +1379,70 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       [0,state.height]
     ];
     const points = corners.map(([x,y]) => {
-      const projected = projectToFloor(state,x,y);
-      return {x,y,u:projected.x,v:projected.y};
+      const projected = projectToFloor(state,x,y,source);
+      return {x,y,u:projected.x,v:projected.y,height:projected.height};
     });
-    const h = solveHomography(points);
+    const matrix = solveHomography(points);
 
-    if (h) {
-      // CSS matrix3d expresses the full projective map, not a repeated offset.
-      const matrix = `matrix3d(${h[0]},${h[3]},0,${h[6]},${h[1]},${h[4]},0,${h[7]},0,0,1,0,${h[2]},${h[5]},0,1)`;
-      state.hardShadow.style.transform = matrix;
-      state.softShadow.style.transform = matrix;
+    if (!matrix) {
+      element.style.opacity = "0";
+      return 0;
     }
 
-    const altitude = clamp(-state.y / fallDistance, 0, 1);
-    const speed = clamp(Math.abs(state.vy) / 1500, 0, 1);
-    const impact = clamp(state.impact, 0, 1);
-
-    // The hard silhouette stays defined; the separate penumbra widens with height.
-    state.hardShadow.style.opacity = (0.31 - altitude * 0.10 + impact * 0.13).toFixed(3);
-    state.hardShadow.style.filter = `blur(${(0.10 + altitude * 0.40).toFixed(2)}px)`;
-    state.softShadow.style.opacity = (0.11 + altitude * 0.08 + impact * 0.05).toFixed(3);
-    state.softShadow.style.filter = `blur(${(2.4 + altitude * 1.5 + speed * 0.35).toFixed(2)}px)`;
+    element.style.transform =
+      `matrix3d(${matrix[0]},${matrix[3]},0,${matrix[6]},${matrix[1]},${matrix[4]},0,${matrix[7]},0,0,1,0,${matrix[2]},${matrix[5]},0,1)`;
+    return Math.max(...points.map(point => point.height));
   };
 
-  // Rectangle support points keep each letter's collision stable while it rotates.
+  const updateShadow = state => {
+    const maximumHeight = Math.max(0,-state.y + state.height);
+    const altitude = clamp(maximumHeight / light.height,0,0.95);
+    const impact = clamp(state.impact,0,1);
+    const hardHeight = projectShadowLayer(state,state.hardShadow,light);
+
+    state.hardShadow.style.opacity = (0.54 - altitude * 0.10 + impact * 0.12).toFixed(3);
+    state.hardShadow.style.filter = `blur(${(0.05 + altitude * 0.10).toFixed(2)}px)`;
+
+    const penumbraRatio = hardHeight / Math.max(1,light.height - hardHeight);
+    const penumbra = (lightRadiusX + lightRadiusDepth) * penumbraRatio;
+    state.softShadows.forEach((shadow,index) => {
+      projectShadowLayer(state,shadow,{
+        x:light.x + lightSamples[index].x,
+        depth:light.depth + lightSamples[index].depth
+      });
+      shadow.style.opacity = ((0.13 + altitude * 0.07 + impact * 0.025) / 4).toFixed(3);
+      shadow.style.filter = `blur(${(0.45 + Math.min(7,penumbra * 0.11)).toFixed(2)}px)`;
+    });
+  };
+
+  // Use the midpoint of the lower edge when both bottom corners touch.
   const supportPoint = state => {
     const cosine = Math.cos(state.angle);
     const sine = Math.sin(state.angle);
+    const leftBottom = {
+      x: cosine * -state.width / 2,
+      y: sine * -state.width / 2
+    };
+    const rightBottom = {
+      x: cosine * state.width / 2,
+      y: sine * state.width / 2
+    };
+
+    if (Math.abs(leftBottom.y - rightBottom.y) < 2) {
+      return {
+        x: (leftBottom.x + rightBottom.x) / 2,
+        y: (leftBottom.y + rightBottom.y) / 2
+      };
+    }
+
     const corners = [
       [-state.width / 2,-state.height],
       [ state.width / 2,-state.height],
       [-state.width / 2,0],
       [ state.width / 2,0]
     ];
-
     let support = null;
+
     for (const [localX,localY] of corners) {
       const point = {
         x: cosine * localX - sine * localY,
@@ -1404,6 +1453,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return support;
   };
 
+  states.forEach(updateShadow);
+
   let started = false;
   const startFall = () => {
     if (started) return;
@@ -1412,15 +1463,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
     const tick = time => {
       if (!previousTime) previousTime = time;
-      const dt = Math.min((time - previousTime) / 1000, 0.02);
+      const dt = Math.min((time - previousTime) / 1000,0.016);
       previousTime = time;
       let moving = false;
 
       for (const state of states) {
         if (state.settled) continue;
-
         if (state.delay > 0) {
-          state.delay = Math.max(0, state.delay - dt);
+          state.delay = Math.max(0,state.delay - dt);
           moving = true;
           continue;
         }
@@ -1428,8 +1478,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         state.vy += gravity * dt;
         state.vx += (-state.x * 24 - state.vx * 7) * dt;
 
-        const stiffness = state.grounded ? 48 : 1.4;
-        const angularDamping = state.grounded ? 12 : 1.1;
+        const nearFloor = state.y > -90;
+        const stiffness = state.grounded ? 52 : nearFloor ? 32 : 1.4;
+        const angularDamping = state.grounded ? 15 : nearFloor ? 12 : 1.1;
         state.angularVelocity +=
           (-state.angle * stiffness - state.angularVelocity * angularDamping) * dt;
 
@@ -1443,33 +1494,37 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
         if (penetration > 0) {
           state.y -= penetration;
-
           const contactX = support.x;
           const contactY = support.y;
           const contactVX = state.vx - state.angularVelocity * contactY;
           const contactVY = state.vy + state.angularVelocity * contactX;
 
           if (contactVY > 0) {
-            const normalDenominator = 1 / state.mass +
-              contactX * contactX / state.inertia;
-            const normalImpulse = (1 + restitution) * contactVY / normalDenominator;
+            if (contactVY < 55 && Math.abs(state.angle) < 0.08) {
+              state.vy = 0;
+              state.vx *= 0.85;
+              state.angularVelocity *= 0.75;
+            } else {
+              const normalDenominator = 1 / state.mass +
+                contactX * contactX / state.inertia;
+              const normalImpulse = (1 + restitution) * contactVY / normalDenominator;
+              state.vy -= normalImpulse / state.mass;
+              state.angularVelocity -= contactX * normalImpulse / state.inertia;
 
-            state.vy -= normalImpulse / state.mass;
-            state.angularVelocity -= contactX * normalImpulse / state.inertia;
-
-            const tangentDenominator = 1 / state.mass +
-              contactY * contactY / state.inertia;
-            const tangentImpulse = clamp(
-              -contactVX / tangentDenominator,
-              -friction * normalImpulse,
-              friction * normalImpulse
-            );
-            state.vx += tangentImpulse / state.mass;
-            state.angularVelocity -= contactY * tangentImpulse / state.inertia;
-            state.impact = clamp(normalImpulse / (state.mass * 900), 0, 1);
+              const tangentVelocity = state.vx - state.angularVelocity * contactY;
+              const tangentDenominator = 1 / state.mass +
+                contactY * contactY / state.inertia;
+              const tangentImpulse = clamp(
+                -tangentVelocity / tangentDenominator,
+                -friction * normalImpulse,
+                friction * normalImpulse
+              );
+              state.vx += tangentImpulse / state.mass;
+              state.angularVelocity -= contactY * tangentImpulse / state.inertia;
+              state.impact = clamp(normalImpulse / (state.mass * 900),0,1);
+            }
+            state.grounded = true;
           }
-
-          state.grounded = true;
         }
 
         state.impact *= Math.exp(-5.5 * dt);
@@ -1479,11 +1534,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
         if (
           state.grounded &&
-          Math.abs(state.vy) < 10 &&
-          Math.abs(state.vx) < 1.5 &&
-          Math.abs(state.angularVelocity) < 0.035 &&
-          Math.abs(state.angle) < 0.012 &&
-          Math.abs(state.x) < 0.5
+          Math.abs(state.vy) < 12 &&
+          Math.abs(state.vx) < 1.8 &&
+          Math.abs(state.angularVelocity) < 0.04 &&
+          Math.abs(state.angle) < 0.014 &&
+          Math.abs(state.x) < 0.6
         ) {
           state.x = 0;
           state.y = 0;
