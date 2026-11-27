@@ -1088,9 +1088,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
   backface-visibility:hidden;
 }
-.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);--slide-x:-84px;--slide-y:24px;--reveal-delay:0ms;z-index:3}
-.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);--slide-x:0px;--slide-y:64px;--reveal-delay:140ms;z-index:2}
-.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);--slide-x:84px;--slide-y:24px;--reveal-delay:280ms;z-index:1}
+.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);z-index:3}
+.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);z-index:2}
+.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);z-index:1}
 .home-focus-card h3{
   position:relative;z-index:1;margin:clamp(24px,2vw,36px) 0 14px;max-width:100%;
   font:900 clamp(32px,3vw,48px)/.88 var(--display);
@@ -1110,18 +1110,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 }
 .home-focus.is-revealed .home-focus-card{
   visibility:visible;pointer-events:auto;
-  animation:home-focus-card-enter .78s cubic-bezier(.2,.78,.22,1) both;
-  animation-delay:var(--reveal-delay,0ms);
-}
-@keyframes home-focus-card-enter{
-  from{
-    opacity:0;
-    transform:translate3d(var(--slide-x,0px),var(--slide-y,32px),0) scale(.985);
-  }
-  to{
-    opacity:1;
-    transform:translate3d(0,0,0) scale(1);
-  }
 }
 .home-focus-card:focus-visible{outline:4px solid var(--magenta);outline-offset:7px}
 @media(hover:hover) and (pointer:fine){
@@ -1137,11 +1125,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .home-focus{padding-top:82px;padding-bottom:92px}
   .home-focus-title{font-size:clamp(68px,14vw,92px);margin-bottom:38px}
   .home-focus-card{min-height:280px;box-shadow:7px 7px 0 var(--navy)}
-}
-@media(prefers-reduced-motion:reduce){
-  .home-focus.is-revealed .home-focus-card{
-    animation:none;visibility:visible;opacity:1;transform:none;
-  }
 }
 
 </style>
@@ -1667,39 +1650,93 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!section) return;
 
   const cardGrid = section.querySelector(".home-focus-grid");
-  if (!cardGrid) return;
+  const cards = Array.from(cardGrid ? cardGrid.querySelectorAll(".home-focus-card") : []);
+  if (!cardGrid || cards.length !== 3) return;
 
-  const scrollingElement = document.scrollingElement || document.documentElement;
-  let previousScrollTop = scrollingElement.scrollTop;
-  let framePending = false;
   let revealed = false;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const revealIfReached = () => {
-    framePending = false;
+  const revealCards = () => {
     if (revealed) return;
-
-    const currentScrollTop = scrollingElement.scrollTop;
-    const movedDown = currentScrollTop > previousScrollTop + 0.01;
-    previousScrollTop = currentScrollTop;
-    if (!movedDown) return;
-
-    const gridRect = cardGrid.getBoundingClientRect();
-    const triggerLine = window.innerHeight * 0.88;
-    if (gridRect.top > triggerLine || gridRect.bottom <= 0) return;
-
     revealed = true;
+    observer.disconnect();
+
     section.classList.remove("is-pending");
     section.classList.add("is-revealed");
-    window.removeEventListener("scroll", onScroll);
+
+    const normalOffsets = [
+      {x:-84,y:24},
+      {x:0,y:64},
+      {x:84,y:24}
+    ];
+    const reducedOffsets = [
+      {x:-28,y:10},
+      {x:0,y:18},
+      {x:28,y:10}
+    ];
+    const offsets = reducedMotion.matches ? reducedOffsets : normalOffsets;
+    const duration = reducedMotion.matches ? 460 : 780;
+    const stagger = reducedMotion.matches ? 90 : 140;
+
+    cards.forEach((card,index) => {
+      const offset = offsets[index];
+      if (typeof card.animate !== "function") {
+        card.style.opacity = "1";
+        card.style.transform = "none";
+        return;
+      }
+
+      card.style.willChange = "opacity, transform";
+      const animation = card.animate(
+        [
+          {
+            opacity:0,
+            transform:"translate3d(" + offset.x + "px," + offset.y + "px,0) scale(.985)"
+          },
+          {
+            opacity:1,
+            transform:"translate3d(0,0,0) scale(1)"
+          }
+        ],
+        {
+          duration,
+          delay:index * stagger,
+          easing:"cubic-bezier(.2,.78,.22,1)",
+          fill:"both"
+        }
+      );
+
+      animation.onfinish = () => {
+        card.style.opacity = "1";
+        card.style.transform = "none";
+        card.style.willChange = "auto";
+        animation.cancel();
+      };
+    });
   };
 
-  const onScroll = () => {
-    if (framePending || revealed) return;
-    framePending = true;
-    window.requestAnimationFrame(revealIfReached);
-  };
+  if (!("IntersectionObserver" in window)) {
+    const checkPosition = () => {
+      const rect = cardGrid.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * .88 && rect.bottom > 0) {
+        window.removeEventListener("scroll", checkPosition);
+        revealCards();
+      }
+    };
+    window.addEventListener("scroll",checkPosition,{passive:true});
+    checkPosition();
+    return;
+  }
 
-  window.addEventListener("scroll", onScroll, {passive:true});
+  const observer = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) revealCards();
+  },{
+    root:null,
+    rootMargin:"0px 0px -12% 0px",
+    threshold:0.01
+  });
+
+  observer.observe(cardGrid);
 })();</script>
 
 </body></html>
