@@ -1226,8 +1226,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const restitution=0.20;
   const airAngularDamping=1.25;
   const contactAngularDamping=9.5;
-  const groundScale=0.52;
-  const groundSkew=0.025;
+  const groundScale=0.68;
+  const groundSkew=0.02;
   const fallHeight=clamp(hero.clientHeight*0.64,380,620);
 
   let heroWidth=0;
@@ -1257,11 +1257,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   // and Z is height above the horizontal floor at Z = 0.
   const light={
     x:wordRect.left-heroRect.left+wordRect.width/2,
-    y:-850,
-    z:Math.max(4800,fallHeight+maxGlyphHeight+3200)
+    y:-1200,
+    z:Math.max(3600,fallHeight+maxGlyphHeight+3000)
   };
-  const areaRadiusX=36;
-  const areaRadiusY=30;
+  const areaRadiusX=42;
+  const areaRadiusY=36;
   const areaLights=[];
   for(const offsetY of [-1,0,1]){
     for(const offsetX of [-1,0,1]){
@@ -1428,14 +1428,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           x:light.x+sample.x,
           y:light.y+sample.y,
           z:light.z
-        },0.045,mesh);
+        },0.05,mesh);
       }
       meanRelativeHeight+=(state.altitude+state.height)/light.z;
     }
 
     ctx.save();
-    ctx.globalAlpha=0.72;
-    ctx.filter=`blur(${(0.45+meanRelativeHeight/states.length*1.1).toFixed(2)}px)`;
+    ctx.globalAlpha=0.62;
+    ctx.filter=`blur(${(0.65+meanRelativeHeight/states.length*1.45).toFixed(2)}px)`;
     ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
     ctx.restore();
   };
