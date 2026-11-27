@@ -1388,110 +1388,37 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     };
   };
 
-  const drawMappedTriangle=(target,mask,dpr,source,destination,alpha)=>{
-    const sx1=source[1].x-source[0].x;
-    const sy1=source[1].y-source[0].y;
-    const sx2=source[2].x-source[0].x;
-    const sy2=source[2].y-source[0].y;
-    const dx1=destination[1].x-destination[0].x;
-    const dy1=destination[1].y-destination[0].y;
-    const dx2=destination[2].x-destination[0].x;
-    const dy2=destination[2].y-destination[0].y;
-    const determinant=sx1*sy2-sx2*sy1;
-    if(Math.abs(determinant)<1e-8) return;
+  const drawGlyphShadow=(target,state,source,alpha)=>{
+    // A single affine projection renders the complete glyph mask in one pass.
+    // This avoids the internal triangle boundaries that produced visible seams.
+    const topLeft=projectPointToFloor(state,0,0,source);
+    const topRight=projectPointToFloor(state,state.width,0,source);
+    const bottomLeft=projectPointToFloor(state,0,state.height,source);
+    if(!topLeft||!topRight||!bottomLeft) return;
 
-    const a=(dx1*sy2-dx2*sy1)/determinant;
-    const c=(sx1*dx2-sx2*dx1)/determinant;
-    const b=(dy1*sy2-dy2*sy1)/determinant;
-    const d=(sx1*dy2-sx2*dy1)/determinant;
-    const e=destination[0].x-a*source[0].x-c*source[0].y;
-    const f=destination[0].y-b*source[0].x-d*source[0].y;
-
-    const left=Math.min(source[0].x,source[1].x,source[2].x);
-    const top=Math.min(source[0].y,source[1].y,source[2].y);
-    const right=Math.max(source[0].x,source[1].x,source[2].x);
-    const bottom=Math.max(source[0].y,source[1].y,source[2].y);
+    const a=(topRight.x-topLeft.x)/state.width;
+    const b=(topRight.y-topLeft.y)/state.width;
+    const c=(bottomLeft.x-topLeft.x)/state.height;
+    const d=(bottomLeft.y-topLeft.y)/state.height;
 
     target.save();
     target.globalAlpha=alpha;
-    // Expand each mesh clip slightly so antialiasing cannot leave hairline
-    // gaps between adjacent projected triangles.
-    const clipCenter={
-      x:(destination[0].x+destination[1].x+destination[2].x)/3,
-      y:(destination[0].y+destination[1].y+destination[2].y)/3
-    };
-    const clipPoints=destination.map(point=>{
-      const dx=point.x-clipCenter.x;
-      const dy=point.y-clipCenter.y;
-      const length=Math.hypot(dx,dy)||1;
-      const overlap=3;
-      return {
-        x:point.x+dx/length*overlap,
-        y:point.y+dy/length*overlap
-      };
-    });
-
-    target.beginPath();
-    target.moveTo(clipPoints[0].x,clipPoints[0].y);
-    target.lineTo(clipPoints[1].x,clipPoints[1].y);
-    target.lineTo(clipPoints[2].x,clipPoints[2].y);
-    target.closePath();
-    target.clip();
-    target.transform(a,b,c,d,e,f);
+    target.transform(a,b,c,d,topLeft.x,topLeft.y);
     target.drawImage(
-      mask,
-      Math.floor(left*dpr),Math.floor(top*dpr),
-      Math.ceil((right-left)*dpr),Math.ceil((bottom-top)*dpr),
-      left,top,right-left,bottom-top
+      state.mask,
+      0,0,state.mask.width,state.mask.height,
+      0,0,state.width,state.height
     );
     target.restore();
-  };
-
-  const drawGlyphShadow=(target,state,source,alpha,grid)=>{
-    const projected=[];
-    for(let row=0;row<=grid;row++){
-      projected[row]=[];
-      const y=state.height*row/grid;
-      for(let col=0;col<=grid;col++){
-        const x=state.width*col/grid;
-        projected[row][col]=projectPointToFloor(state,x,y,source);
-      }
-    }
-
-    for(let row=0;row<grid;row++){
-      for(let col=0;col<grid;col++){
-        const x0=state.width*col/grid;
-        const x1=state.width*(col+1)/grid;
-        const y0=state.height*row/grid;
-        const y1=state.height*(row+1)/grid;
-        const s00={x:x0,y:y0};
-        const s10={x:x1,y:y0};
-        const s01={x:x0,y:y1};
-        const s11={x:x1,y:y1};
-        const d00=projected[row][col];
-        const d10=projected[row][col+1];
-        const d01=projected[row+1][col];
-        const d11=projected[row+1][col+1];
-        if(!d00||!d10||!d01||!d11) continue;
-
-        drawMappedTriangle(target,state.mask,dpr,
-          [s00,s10,s11],[d00,d10,d11],alpha);
-        drawMappedTriangle(target,state.mask,dpr,
-          [s00,s11,s01],[d00,d11,d01],alpha);
-      }
-    }
   };
 
   const drawShadows=()=>{
     softCtx.clearRect(0,0,heroWidth,heroHeight);
     ctx.clearRect(0,0,heroWidth,heroHeight);
 
-    // One point light projection per glyph. The mesh only approximates
-    // perspective across the planar letter, so a small adaptive grid is enough.
-    const mesh=window.innerWidth<600?3:4;
-
+    // Render each complete glyph mask in one continuous pass.
     for(const state of states){
-      drawGlyphShadow(softCtx,state,light,1,mesh);
+      drawGlyphShadow(softCtx,state,light,1);
     }
 
     // Approximate the area light penumbra by blurring the single hard projection.
