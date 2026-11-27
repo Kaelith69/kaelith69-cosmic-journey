@@ -1168,7 +1168,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 </section>
 
 
-<section class="home-focus is-pending" id="toolkit" aria-labelledby="home-focus-title">
+<section class="home-focus" id="toolkit" aria-labelledby="home-focus-title">
   <h2 class="home-focus-title" id="home-focus-title">What I<br>Work With.</h2>
   <div class="home-focus-grid">
     <article class="home-focus-card">
@@ -1646,16 +1646,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 <script>
 (() => {
-  const section = document.querySelector(".home-focus.is-pending");
+  const section = document.querySelector(".home-focus");
   if (!section) return;
 
-  const cardGrid = section.querySelector(".home-focus-grid");
-  const cards = Array.from(cardGrid ? cardGrid.querySelectorAll(".home-focus-card") : []);
-  if (!cardGrid || cards.length !== 3) return;
+  const grid = section.querySelector(".home-focus-grid");
+  const cards = Array.from(grid ? grid.querySelectorAll(".home-focus-card") : []);
+  if (!grid || cards.length !== 3) return;
 
-  let revealed = false;
-  let observer = null;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let observer = null;
+  let revealed = false;
+  let running = false;
 
   const finishCard = card => {
     card.style.opacity = "1";
@@ -1663,19 +1664,25 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     card.style.willChange = "auto";
   };
 
-  const playCard = async (card, fromTransform, duration, fromOpacity) => {
+  const showAllCards = () => {
+    section.classList.remove("is-pending");
+    section.classList.add("is-revealed");
+    cards.forEach(finishCard);
+  };
+
+  const animateCard = async (card, startTransform, duration, startOpacity) => {
     if (typeof card.animate !== "function") {
       finishCard(card);
       return;
     }
 
+    let animation = null;
     card.style.willChange = "transform, opacity";
-    let animation;
     try {
       animation = card.animate(
         [
-          {opacity:fromOpacity,transform:fromTransform},
-          {opacity:1,transform:"translate3d(0,0,0) scale(1)"}
+          { opacity:startOpacity, transform:startTransform },
+          { opacity:1, transform:"translate3d(0,0,0) scale(1)" }
         ],
         {
           duration,
@@ -1685,7 +1692,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       );
       await animation.finished;
     } catch (_) {
-      // A failed or cancelled animation should not leave the card hidden.
+      // Keep the card visible if the browser cancels or rejects an animation.
     }
 
     finishCard(card);
@@ -1693,73 +1700,88 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   };
 
   const revealCards = async () => {
-    if (revealed) return;
+    if (revealed || running) return;
+    running = true;
     revealed = true;
     if (observer) observer.disconnect();
 
-    const rects = cards.map(card => card.getBoundingClientRect());
-    const peek = 14;
-    const underBlue = "translate3d(" +
-      (rects[0].left - rects[1].left + peek) + "px," +
-      (rects[0].top - rects[1].top + peek) + "px,0) scale(.985)";
-    const underOrange = "translate3d(" +
-      (rects[1].left - rects[2].left + peek) + "px," +
-      (rects[1].top - rects[2].top + peek) + "px,0) scale(.985)";
-    const blueStart = "translate3d(-88px,26px,0) scale(.985)";
+    try {
+      const positions = cards.map(card => card.getBoundingClientRect());
+      const peek = 14;
+      const orangeUnderBlue =
+        "translate3d(" +
+        (positions[0].left - positions[1].left + peek) + "px," +
+        (positions[0].top - positions[1].top + peek) + "px,0) scale(.985)";
+      const limeUnderOrange =
+        "translate3d(" +
+        (positions[1].left - positions[2].left + peek) + "px," +
+        (positions[1].top - positions[2].top + peek) + "px,0) scale(.985)";
+      const blueStart = "translate3d(-88px,26px,0) scale(.985)";
 
-    cards[0].style.opacity = "0";
-    cards[0].style.transform = blueStart;
+      cards[0].style.opacity = "0";
+      cards[0].style.transform = blueStart;
+      cards[1].style.opacity = "0";
+      cards[1].style.transform = orangeUnderBlue;
+      cards[2].style.opacity = "0";
+      cards[2].style.transform = limeUnderOrange;
 
-    cards[1].style.opacity = "0";
-    cards[1].style.transform = underBlue;
+      section.classList.remove("is-pending");
+      section.classList.add("is-revealed");
 
-    cards[2].style.opacity = "0";
-    cards[2].style.transform = underOrange;
+      if (reducedMotion.matches) {
+        showAllCards();
+        return;
+      }
 
-    section.classList.remove("is-pending");
-    section.classList.add("is-revealed");
+      await animateCard(cards[0],blueStart,720,0);
 
-    if (reducedMotion.matches) {
-      cards.forEach(finishCard);
+      cards[1].style.opacity = "1";
+      await animateCard(cards[1],orangeUnderBlue,700,1);
+
+      cards[2].style.opacity = "1";
+      await animateCard(cards[2],limeUnderOrange,700,1);
+    } catch (_) {
+      // A geometry or animation error must never leave the section empty.
+      showAllCards();
+    } finally {
+      running = false;
+      cards.forEach(card => {
+        if (getComputedStyle(card).visibility !== "visible") finishCard(card);
+      });
+    }
+  };
+
+  try {
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) revealCards();
+      },{
+        root:null,
+        rootMargin:"0px 0px -8% 0px",
+        threshold:0.01
+      });
+
+      section.classList.add("is-pending");
+      observer.observe(grid);
       return;
     }
 
-    await playCard(cards[0],blueStart,720,0);
-
-    cards[1].style.opacity = "1";
-    await playCard(cards[1],underBlue,700,1);
-
-    cards[2].style.opacity = "1";
-    await playCard(cards[2],underOrange,700,1);
-  };
-
-  if (!("IntersectionObserver" in window)) {
     const checkPosition = () => {
-      const rect = cardGrid.getBoundingClientRect();
-      if (rect.top <= window.innerHeight * .88 && rect.bottom > 0) {
+      const rect = grid.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.88 && rect.bottom > 0) {
         window.removeEventListener("scroll",checkPosition);
         revealCards();
       }
     };
+
+    section.classList.add("is-pending");
     window.addEventListener("scroll",checkPosition,{passive:true});
     checkPosition();
-    return;
+  } catch (_) {
+    if (observer) observer.disconnect();
+    showAllCards();
   }
-
-  observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting)) revealCards();
-  },{
-    root:null,
-    rootMargin:"0px 0px -12% 0px",
-    threshold:0.01
-  });
-
-  observer.observe(cardGrid);
-})();otMargin:"0px 0px -12% 0px",
-    threshold:0.01
-  });
-
-  observer.observe(cardGrid);
-})();</script>
+})();
+</script>
 
 </body></html>
