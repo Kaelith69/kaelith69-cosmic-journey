@@ -54,7 +54,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   text-shadow:5px 5px 0 var(--navy),10px 10px 0 var(--blue),14px 14px 0 var(--magenta);
   filter:drop-shadow(5px 5px 0 rgba(23,23,23,.12));
 }
+.hero h1 .fall-unit{
+  position:relative;
+  display:inline-block;
+  margin:0;
+  padding:0;
+  vertical-align:baseline;
+  isolation:isolate;
+}
 .hero h1 .fall-letter{
+  position:relative;
+  z-index:1;
   display:inline-block;
   margin:0;
   padding:0;
@@ -66,6 +76,46 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     var(--fall-shadow-3-x, 12px) var(--fall-shadow-3-y, 12px) 0 #E83F78;
   transform-origin:50% 88%;
   will-change:transform,text-shadow;
+}
+.hero h1 .fall-ground-shadow{
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  left:50%;
+  top:calc(100% - .015em);
+  width:140%;
+  height:.22em;
+  transform:translateX(-50%);
+}
+.hero h1 .fall-ground-shadow::before,
+.hero h1 .fall-ground-shadow::after{
+  content:"";
+  position:absolute;
+  display:block;
+  border-radius:50%;
+}
+.hero h1 .fall-ground-shadow::before{
+  inset:0;
+  background:radial-gradient(ellipse at center,rgba(12,10,8,.54) 0%,rgba(12,10,8,.31) 39%,rgba(12,10,8,0) 76%);
+  opacity:var(--ground-shadow-opacity,.22);
+  filter:blur(var(--ground-shadow-blur,8px));
+  transform:translate3d(var(--ground-shadow-x,12px),var(--ground-shadow-y,7px),0)
+    rotate(var(--ground-shadow-angle,0deg))
+    scale(var(--ground-shadow-scale-x,1.6),var(--ground-shadow-scale-y,1.15));
+  transform-origin:center;
+}
+.hero h1 .fall-ground-shadow::after{
+  left:18%;
+  right:18%;
+  top:34%;
+  bottom:34%;
+  background:radial-gradient(ellipse,rgba(8,7,6,.72) 0%,rgba(8,7,6,.38) 58%,rgba(8,7,6,0) 100%);
+  opacity:var(--ground-contact-opacity,.12);
+  filter:blur(var(--ground-contact-blur,1.4px));
+  transform:translate3d(var(--ground-shadow-x,12px),var(--ground-shadow-y,7px),0)
+    rotate(var(--ground-shadow-angle,0deg))
+    scaleX(var(--ground-contact-scale,1));
+  transform-origin:center;
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1173,11 +1223,20 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   word.setAttribute("aria-hidden", "true");
 
   const glyphs = [...textNode.textContent.trim()].map(character => {
+    const unit = document.createElement("span");
+    unit.className = "fall-unit";
+
+    const groundShadow = document.createElement("span");
+    groundShadow.className = "fall-ground-shadow";
+    groundShadow.setAttribute("aria-hidden", "true");
+
     const glyph = document.createElement("span");
     glyph.className = "fall-letter";
     glyph.textContent = character;
-    word.appendChild(glyph);
-    return glyph;
+
+    unit.append(groundShadow, glyph);
+    word.appendChild(unit);
+    return { element: glyph, groundShadow };
   });
 
   textNode.replaceWith(word);
@@ -1185,36 +1244,61 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   heading.dataset.physicsFallReady = "true";
 
   const travel = Math.max(window.innerHeight * 0.9, 720);
-  const applyHardShadow = state => {
-    const height = Math.max(0, Math.min(1, -state.y / travel));
-    const speed = Math.min(1, Math.abs(state.velocity) / 900);
-    const spread = 4 + height * 12 + speed * 2;
-    const tilt = Math.sin(state.angle * Math.PI / 180) * spread * 0.35;
-    const layers = [
-      [spread * 0.35 + 2 + tilt, spread * 0.38 + 2],
-      [spread * 0.68 + 4 + tilt * 1.25, spread * 0.72 + 4],
-      [spread + 7 + tilt * 1.6, spread * 1.08 + 7]
-    ];
+  const updateShadows = state => {
+    const altitude = Math.max(0, Math.min(1, -state.y / travel));
+    const speed = Math.min(1, Math.abs(state.velocity) / 1800);
+    const impact = Math.max(0, Math.min(1, state.impact));
 
-    layers.forEach(([x, y], index) => {
-      const n = index + 1;
-      state.element.style.setProperty(`--fall-shadow-${n}-x`, `${x.toFixed(2)}px`);
-      state.element.style.setProperty(`--fall-shadow-${n}-y`, `${y.toFixed(2)}px`);
+    // Three crisp, offset layers retain the comic-book hard-shadow look.
+    const depth = 4 + altitude * 8 + speed * 2;
+    const tilt = Math.sin(state.angle * Math.PI / 180) * depth * 0.32;
+    const hardLayers = [
+      [depth * 0.34 + 2 + tilt, depth * 0.36 + 2],
+      [depth * 0.66 + 4 + tilt * 1.25, depth * 0.70 + 4],
+      [depth + 7 + tilt * 1.6, depth * 1.05 + 7]
+    ];
+    hardLayers.forEach(([x, y], index) => {
+      const layer = index + 1;
+      state.element.style.setProperty(`--fall-shadow-${layer}-x`, `${x.toFixed(2)}px`);
+      state.element.style.setProperty(`--fall-shadow-${layer}-y`, `${y.toFixed(2)}px`);
     });
+
+    // Projected ground shadow is independent of glyph position and remains on the floor.
+    const softness = 2.2 + altitude * 11;
+    const reachX = 4 + altitude * 24;
+    const reachY = 2 + altitude * 8;
+    const widthScale = 0.92 + altitude * 0.95;
+    const depthScale = 0.78 + altitude * 0.34;
+    const diffuseOpacity = Math.max(0.06, 0.48 - altitude * 0.34 + speed * 0.035);
+    const contactOpacity = Math.min(0.92, 0.64 * Math.pow(1 - altitude, 1.8) + impact * 0.3);
+    const projectedAngle = state.angle * altitude * 0.28;
+
+    state.groundShadow.style.setProperty("--ground-shadow-x", `${reachX.toFixed(2)}px`);
+    state.groundShadow.style.setProperty("--ground-shadow-y", `${reachY.toFixed(2)}px`);
+    state.groundShadow.style.setProperty("--ground-shadow-scale-x", widthScale.toFixed(3));
+    state.groundShadow.style.setProperty("--ground-shadow-scale-y", depthScale.toFixed(3));
+    state.groundShadow.style.setProperty("--ground-shadow-opacity", diffuseOpacity.toFixed(3));
+    state.groundShadow.style.setProperty("--ground-shadow-blur", `${softness.toFixed(2)}px`);
+    state.groundShadow.style.setProperty("--ground-shadow-angle", `${projectedAngle.toFixed(2)}deg`);
+    state.groundShadow.style.setProperty("--ground-contact-opacity", contactOpacity.toFixed(3));
+    state.groundShadow.style.setProperty("--ground-contact-blur", `${(0.7 + altitude * 1.8).toFixed(2)}px`);
+    state.groundShadow.style.setProperty("--ground-contact-scale", (0.82 + altitude * 0.25).toFixed(3));
   };
 
-  const states = glyphs.map((element, index) => {
+  const states = glyphs.map(({element, groundShadow}, index) => {
     const state = {
       element,
+      groundShadow,
       y: -(travel + 100 + index * 18),
       velocity: 0,
-      angle: (index % 2 ? -1 : 1) * (7 + (index % 3) * 2),
+      angle: (index % 2 ? 1 : -1) * (7 + (index % 3) * 2),
       angularVelocity: (index % 2 ? 1 : -1) * (24 + index * 3),
       delay: index * 0.045,
+      impact: 0,
       settled: false
     };
     element.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}deg)`;
-    applyHardShadow(state);
+    updateShadows(state);
     return state;
   });
 
@@ -1251,6 +1335,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         if (state.y >= 0) {
           state.y = 0;
           if (state.velocity > 105) {
+            state.impact = Math.min(1, state.velocity / 1800);
             state.velocity = -state.velocity * restitution;
             state.angularVelocity *= rotationalDamping;
             state.angle *= 0.42;
@@ -1262,9 +1347,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           }
         }
 
+        state.impact *= Math.exp(-4.8 * dt);
         state.element.style.transform =
           `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
-        applyHardShadow(state);
+        updateShadows(state);
         if (!state.settled) moving = true;
       }
 
