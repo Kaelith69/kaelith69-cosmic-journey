@@ -60,10 +60,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   padding:0;
   color:inherit;
   -webkit-text-stroke:0;
-  text-shadow:none;
-  filter:none;
+  text-shadow:
+    var(--fall-shadow-1-x, 4px) var(--fall-shadow-1-y, 4px) 0 #171717,
+    var(--fall-shadow-2-x, 8px) var(--fall-shadow-2-y, 8px) 0 #244BFF,
+    var(--fall-shadow-3-x, 12px) var(--fall-shadow-3-y, 12px) 0 #E83F78;
   transform-origin:50% 88%;
-  will-change:transform;
+  will-change:transform,text-shadow;
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1183,6 +1185,24 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   heading.dataset.physicsFallReady = "true";
 
   const travel = Math.max(window.innerHeight * 0.9, 720);
+  const applyHardShadow = state => {
+    const height = Math.max(0, Math.min(1, -state.y / travel));
+    const speed = Math.min(1, Math.abs(state.velocity) / 900);
+    const spread = 4 + height * 12 + speed * 2;
+    const tilt = Math.sin(state.angle * Math.PI / 180) * spread * 0.35;
+    const layers = [
+      [spread * 0.35 + 2 + tilt, spread * 0.38 + 2],
+      [spread * 0.68 + 4 + tilt * 1.25, spread * 0.72 + 4],
+      [spread + 7 + tilt * 1.6, spread * 1.08 + 7]
+    ];
+
+    layers.forEach(([x, y], index) => {
+      const n = index + 1;
+      state.element.style.setProperty(`--fall-shadow-${n}-x`, `${x.toFixed(2)}px`);
+      state.element.style.setProperty(`--fall-shadow-${n}-y`, `${y.toFixed(2)}px`);
+    });
+  };
+
   const states = glyphs.map((element, index) => {
     const state = {
       element,
@@ -1194,6 +1214,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       settled: false
     };
     element.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}deg)`;
+    applyHardShadow(state);
     return state;
   });
 
@@ -1243,6 +1264,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
         state.element.style.transform =
           `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
+        applyHardShadow(state);
         if (!state.settled) moving = true;
       }
 
