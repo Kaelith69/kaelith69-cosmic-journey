@@ -57,6 +57,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   width:max-content;
   white-space:nowrap;
 }
+.hero h1>span:not(.hero-word){
+  display:block;
+  position:relative;
+  width:max-content;
+  color:var(--cyan);
+  margin-left:clamp(26px,11vw,170px);
+  -webkit-text-stroke:2px var(--navy);
+  paint-order:stroke fill;
+  text-shadow:5px 5px 0 var(--navy),10px 10px 0 var(--blue),14px 14px 0 var(--magenta);
+  filter:drop-shadow(5px 5px 0 rgba(23,23,23,.12));
+  z-index:2;
+}
 .hero h1 .fall-unit{
   position:relative;
   display:inline-block;
