@@ -998,13 +998,19 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-tile{min-height:190px}}
 
 /* Physics based hero word landing */
+
 .hero h1 .fall-letter{
   display:inline-block;
+  position:relative;
+  width:auto;
+  margin:0;
+  color:inherit;
+  -webkit-text-stroke:0;
+  text-shadow:none;
+  filter:none;
+  paint-order:normal;
   transform-origin:50% 85%;
   will-change:transform;
-}
-@media(prefers-reduced-motion:reduce){
-  .hero h1 .fall-letter{transform:none!important;will-change:auto}
 }
 </style>
 </head><body>
