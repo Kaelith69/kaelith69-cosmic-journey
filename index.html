@@ -1072,7 +1072,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const hide = () => {
     overlay.classList.remove("is-active","is-complete");
     overlay.setAttribute("aria-hidden","true");
+    overlay.dataset.loaderFinished = "true";
     if (main) main.removeAttribute("aria-busy");
+    window.dispatchEvent(new Event("kaelith:loader-finished"));
   };
   const countTo69 = runId => new Promise(resolve => {
     let value = 0;
@@ -1092,6 +1094,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     if (running) { if (action) pendingAction = action; return; }
     running = true;
     const runId = ++sequence;
+    overlay.dataset.loaderFinished = "false";
     overlay.classList.remove("is-complete");
     overlay.classList.add("is-active");
     overlay.setAttribute("aria-hidden","false");
@@ -1161,33 +1164,31 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const overlay = document.getElementById("page-transition");
     if (!title || title.dataset.physicsFallBuilt) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const textNode = [...title.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
     if (!textNode) return;
 
-    const letters = [...textNode.textContent.trim()].map((character, index) => {
-      const element = document.createElement("span");
-      element.className = "fall-letter";
-      element.textContent = character;
-      element.setAttribute("aria-hidden", "true");
-      return element;
+    const letters = [...textNode.textContent.trim()].map(character => {
+      const letter = document.createElement("span");
+      letter.className = "fall-letter";
+      letter.textContent = character;
+      letter.setAttribute("aria-hidden", "true");
+      return letter;
     });
-
     const fragment = document.createDocumentFragment();
     letters.forEach(letter => fragment.appendChild(letter));
     textNode.replaceWith(fragment);
     title.setAttribute("aria-label", "KAELITH 69");
     title.dataset.physicsFallBuilt = "true";
 
-    if (reducedMotion) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const states = letters.map((element, index) => {
       const state = {
         element,
-        y: -(window.innerHeight + 300 + index * 18),
+        y: -(window.innerHeight + 320 + index * 16),
         velocity: 0,
-        angle: (index % 2 ? -1 : 1) * (7 + index % 3 * 2),
-        angularVelocity: (index % 2 ? 1 : -1) * (28 + index * 3),
+        angle: (index % 2 ? -1 : 1) * (8 + index % 3 * 2),
+        spin: (index % 2 ? 1 : -1) * (32 + index * 3),
         delay: index * 0.055,
         settled: false
       };
@@ -1196,85 +1197,66 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     });
 
     let started = false;
-    let fallbackTimer = 0;
-
     const launch = () => {
       if (started) return;
       started = true;
-      window.clearTimeout(fallbackTimer);
-
       const gravity = 3000;
-      const bounce = 0.30;
-      const spinDamping = 0.68;
-      let previousTime = 0;
+      const restitution = 0.30;
+      let previous = 0;
 
-      const animate = time => {
-        if (!previousTime) previousTime = time;
-        const dt = Math.min((time - previousTime) / 1000, 0.025);
-        previousTime = time;
-        let stillMoving = false;
+      const frame = time => {
+        if (!previous) previous = time;
+        const dt = Math.min((time - previous) / 1000, 0.025);
+        previous = time;
+        let moving = false;
 
-        for (const state of states) {
-          if (state.settled) continue;
+        states.forEach(state => {
+          if (state.settled) return;
           if (state.delay > 0) {
             state.delay = Math.max(0, state.delay - dt);
-            stillMoving = true;
-            continue;
+            moving = true;
+            return;
           }
 
           state.velocity += gravity * dt;
           state.y += state.velocity * dt;
-          state.angle += state.angularVelocity * dt;
+          state.angle += state.spin * dt;
 
           if (state.y >= 0) {
             state.y = 0;
             if (state.velocity > 100) {
-              state.velocity = -state.velocity * bounce;
-              state.angularVelocity *= spinDamping;
+              state.velocity = -state.velocity * restitution;
+              state.spin *= 0.68;
               state.angle *= 0.42;
             } else {
               state.velocity = 0;
-              state.angularVelocity = 0;
+              state.spin = 0;
               state.angle = 0;
               state.settled = true;
             }
           }
 
           state.element.style.transform = `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
-          if (!state.settled) stillMoving = true;
-        }
+          if (!state.settled) moving = true;
+        });
 
-        if (stillMoving) requestAnimationFrame(animate);
+        if (moving) requestAnimationFrame(frame);
         else states.forEach(({element}) => {
           element.style.transform = "none";
           element.style.willChange = "auto";
         });
       };
-
-      requestAnimationFrame(animate);
+      requestAnimationFrame(frame);
     };
 
-    const maybeLaunch = () => {
-      const pageLoaded = document.readyState === "complete";
-      const loaderFinished = !overlay || !overlay.classList.contains("is-active");
-      if (!pageLoaded || !loaderFinished || started) return;
+    const onLoaderFinished = () => {
+      if (overlay && overlay.classList.contains("is-active")) return;
       requestAnimationFrame(() => requestAnimationFrame(launch));
     };
 
-    // Listen for the loader's actual fade completion instead of polling visibility.
-    if (overlay) {
-      overlay.addEventListener("transitionend", event => {
-        if (event.target === overlay && event.propertyName === "opacity") maybeLaunch();
-      });
-    }
-    window.addEventListener("load", maybeLaunch, { once: true });
-    window.addEventListener("pageshow", maybeLaunch);
-    maybeLaunch();
-
-    // Fallback for browsers that do not emit transitionend when the overlay is already hidden.
-    fallbackTimer = window.setTimeout(() => {
-      if ((!overlay || !overlay.classList.contains("is-active")) && document.readyState === "complete") maybeLaunch();
-    }, 500);
+    // The explicit flag covers fast navigation where the loader finished before this script ran.
+    if (!overlay || overlay.dataset.loaderFinished === "true") onLoaderFinished();
+    else window.addEventListener("kaelith:loader-finished", onLoaderFinished, { once: true });
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
