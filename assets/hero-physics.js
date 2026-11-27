@@ -143,16 +143,12 @@
     maskCtx.fillText(state.character, state.width / 2, baseline, state.width);
 
     const pixels = maskCtx.getImageData(0, 0, mask.width, mask.height).data;
-    let minX = mask.width;
     let minY = mask.height;
-    let maxX = -1;
     let maxY = -1;
 
     for (let y = 0; y < mask.height; y++) {
       for (let x = 0; x < mask.width; x++) {
         if (pixels[(y * mask.width + x) * 4 + 3] < 32) continue;
-        if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
         if (y < minY) minY = y;
         if (y > maxY) maxY = y;
       }
@@ -168,7 +164,6 @@
 
     state.mask = mask;
     state.maskDpr = dpr;
-    state.maskBounds = { minX: minX / dpr, maxX: maxX / dpr };
     return mask;
   };
 
@@ -721,6 +716,7 @@
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   setCanvasSize();
+  for (const state of states) makeMask(state);
 
   if (reducedMotion) {
     for (const state of states) {
