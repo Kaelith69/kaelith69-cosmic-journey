@@ -1792,16 +1792,20 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   }
 
   if ("IntersectionObserver" in window) {
+    const earlyTriggerDistance = Math.round(window.innerHeight * 0.75);
     const sectionObserver = new IntersectionObserver(entries => {
       for (const entry of entries) {
-        if (entry.isIntersecting && entry.intersectionRatio >= .12) {
+        if (entry.isIntersecting) {
           isVisible = true;
           sectionObserver.disconnect();
           maybeStart();
           break;
         }
       }
-    }, {threshold:[.12,.25]});
+    }, {
+      rootMargin: "0px 0px " + earlyTriggerDistance + "px 0px",
+      threshold: 0
+    });
     sectionObserver.observe(section);
   } else {
     isVisible = true;
