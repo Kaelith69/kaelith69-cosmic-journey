@@ -1247,14 +1247,30 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     };
 
     let observer = null;
-    if (overlay && overlay.classList.contains("is-active")) {
+    let waitingFrame = 0;
+    const waitUntilPageIsVisible = () => {
+      if (started) return;
+      const pageReady = document.readyState === "complete";
+      const loaderGone = !overlay || getComputedStyle(overlay).visibility === "hidden";
+      if (!pageReady || !loaderGone) {
+        waitingFrame = requestAnimationFrame(waitUntilPageIsVisible);
+        return;
+      }
+      if (observer) observer.disconnect();
+      // Let the loader's final visibility transition and the first painted page frame finish.
+      requestAnimationFrame(() => requestAnimationFrame(launch));
+    };
+
+    if (overlay) {
       observer = new MutationObserver(() => {
-        if (!overlay.classList.contains("is-active")) launch();
+        if (!overlay.classList.contains("is-active")) waitUntilPageIsVisible();
       });
       observer.observe(overlay, { attributes: true, attributeFilter: ["class"] });
-      window.setTimeout(launch, 2800);
-    } else {
-      launch();
+    }
+    if (document.readyState === "complete" && (!overlay || getComputedStyle(overlay).visibility === "hidden")) {
+      waitUntilPageIsVisible();
+    } else if (!overlay || !overlay.classList.contains("is-active")) {
+      waitUntilPageIsVisible();
     }
   };
 
