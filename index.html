@@ -36,12 +36,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .hero{min-height:850px;height:100svh;max-height:1100px;position:relative;display:flex;align-items:center;padding:120px var(--gutter) 80px;overflow:hidden;isolation:isolate;background:var(--cobalt)}
 .hero::before{content:"";position:absolute;z-index:-2;width:min(69vw,920px);aspect-ratio:1;border-radius:50%;background:var(--blue);right:-17%;top:8%;clip-path:circle(50%); }
 .hero::after{content:"";position:absolute;z-index:-1;width:min(51vw,680px);aspect-ratio:1;border:2px solid var(--white);border-radius:50%;right:-7%;top:18%;box-shadow:0 0 0 22px transparent,0 0 0 24px rgba(23,23,23,.18);animation:orbit 70s linear infinite;pointer-events:none}
-.hero-content{
-  width:100%;
-  position:relative;
-  isolation:isolate;
-  z-index:2;
-}
 .hero h1{font:900 clamp(92px,18.5vw,270px)/.72 var(--display);letter-spacing:-.02em;margin:0;text-transform:uppercase;position:relative;z-index:1}
 .hero-content{
   width:100%;
@@ -62,9 +56,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:block;
   width:max-content;
   white-space:nowrap;
-  perspective:3200px;
-  perspective-origin:50% 50%;
-  transform-style:preserve-3d;
 }
 .hero h1>span:not(.hero-word){
   display:block;
@@ -103,6 +94,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
+  transform:translateZ(6px);
   backface-visibility:visible;
 }
 @media(max-width:760px){
@@ -1226,7 +1218,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     body.appendChild(face);
     unit.appendChild(body);
     word.appendChild(unit);
-    return {unit,body,face,character};
+    return {body,face,character};
   });
 
   sourceText.replaceWith(word);
@@ -1345,7 +1337,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   ];
 
   const heroRect=hero.getBoundingClientRect();
-  const states=glyphs.map(({unit,body,face,character},index)=>{
+  const states=glyphs.map(({body,face,character},index)=>{
     const rect=face.getBoundingClientRect();
     const width=Math.max(1,rect.width);
     const height=Math.max(1,rect.height);
@@ -1358,7 +1350,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const invLocal=inertia.map(value=>1/value);
     const initialSign=index%2===0?1:-1;
     const state={
-      unit,body,face,character,
+      body,face,character,
       width,height,mask:makeGlyphMask(face,character,width,height,dpr),
       baseX:rect.left-heroRect.left+width/2,
       baseY:rect.top-heroRect.top+height/2,
@@ -1473,7 +1465,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     ctx.clearRect(0,0,heroWidth,heroHeight);
     softCtx.clearRect(0,0,heroWidth,heroHeight);
     const grid=window.innerWidth<600?3:4;
-    let averageBlur=1.8;
+    let averageAltitude=0;
 
     for(const state of states){
       const altitude=clamp(state.p[2]/light.z,0,0.92);
@@ -1488,11 +1480,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           z:light.z
         },sampleAlpha,grid);
       });
-      averageBlur+=altitude*2.8;
+      averageAltitude+=altitude;
     }
 
     ctx.save();
-    ctx.filter=`blur(${Math.min(8,averageBlur/states.length).toFixed(2)}px)`;
+    const averageBlur=1.2+(averageAltitude/states.length)*5.5;
+    ctx.filter=`blur(${Math.min(8,averageBlur).toFixed(2)}px)`;
     ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
     ctx.restore();
   };
@@ -1500,17 +1493,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const renderBody=state=>{
     const degrees=180/Math.PI;
     state.body.style.transform=
-      `perspective(3200px) translate3d(${state.p[0].toFixed(2)}px,${state.p[1].toFixed(2)}px,${state.p[2].toFixed(2)}px) rotateZ(${(state.rz*degrees).toFixed(3)}deg) rotateY(${(state.ry*degrees).toFixed(3)}deg) rotateX(${(state.rx*degrees).toFixed(3)}deg)`;
+      `translate3d(${state.p[0].toFixed(2)}px,${state.p[1].toFixed(2)}px,${state.p[2].toFixed(2)}px) rotateZ(${(state.rz*degrees).toFixed(3)}deg) rotateY(${(state.ry*degrees).toFixed(3)}deg) rotateX(${(state.rx*degrees).toFixed(3)}deg)`;
   };
 
-  const rotatePoint=(state,rotation,local)=>{
-    const rotated=transformVector(rotation,local);
-    return [
-      state.p[0]+rotated[0],
-      state.p[1]+rotated[1],
-      state.p[2]+rotated[2]
-    ];
-  };
+  states.forEach(renderBody);
+  drawShadows();
 
   const supportContacts=state=>{
     const rotation=rotationMatrix(state);
@@ -1557,13 +1544,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
         const rotation=rotationMatrix(state);
         const inverseWorld=inverseInertiaWorld(rotation,state.invLocal);
-        const angularMomentum=state.inertia;
         state.omega=state.omega.map(value=>value*Math.exp(-0.06*dt));
         state.rx+=state.omega[0]*dt;
         state.ry+=state.omega[1]*dt;
         state.rz+=state.omega[2]*dt;
 
-        let contact=supportContacts(state);
+        const contact=supportContacts(state);
         const lowest=state.p[2]+contact.minimum;
         state.grounded=lowest<=0.4;
 
@@ -1624,7 +1610,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         const orientation=Math.hypot(state.rx,state.ry,state.rz);
         const speed=Math.hypot(...state.v);
         const spin=Math.hypot(...state.omega);
-        const contact=supportContacts(state);
         if(
           state.grounded &&
           level<0.8 &&
