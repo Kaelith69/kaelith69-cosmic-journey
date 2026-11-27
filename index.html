@@ -1160,56 +1160,68 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const title = document.querySelector(".hero h1");
     const overlay = document.getElementById("page-transition");
     if (!title || title.dataset.physicsFallBuilt) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const textNode = [...title.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
     if (!textNode) return;
 
     const letters = [...textNode.textContent.trim()].map((letter, index) => {
-      const span = document.createElement("span");
-      span.className = "fall-letter";
-      span.textContent = letter;
-      span.setAttribute("aria-hidden", "true");
-      span.dataset.fallIndex = String(index);
-      return span;
+      const element = document.createElement("span");
+      element.className = "fall-letter";
+      element.textContent = letter;
+      element.setAttribute("aria-hidden", "true");
+      return element;
     });
+
     const fragment = document.createDocumentFragment();
-    letters.forEach(letter => fragment.appendChild(letter));
+    letters.forEach(element => fragment.appendChild(element));
     textNode.replaceWith(fragment);
     title.setAttribute("aria-label", "KAELITH 69");
     title.dataset.physicsFallBuilt = "true";
 
+    if (reduceMotion) return;
+
+    // Place every glyph above its final position immediately, while the loader is still covering the page.
+    const states = letters.map((element, index) => {
+      const state = {
+        element,
+        y: -(window.innerHeight + 260 + (index % 3) * 45),
+        velocity: 0,
+        angle: (index % 2 ? 1 : -1) * (5 + (index % 3) * 2),
+        angularVelocity: (index % 2 ? -1 : 1) * (18 + (index % 4) * 5),
+        delay: index * 0.045,
+        settled: false
+      };
+      element.style.transform = "translate3d(0," + state.y + "px,0) rotate(" + state.angle + "deg)";
+      return state;
+    });
+
     let started = false;
+    let observer = null;
+    let waitingFrame = 0;
+
     const launch = () => {
       if (started) return;
       started = true;
       if (observer) observer.disconnect();
+      if (waitingFrame) cancelAnimationFrame(waitingFrame);
 
-      const gravity = 2600;
-      const restitution = 0.34;
-      const friction = 0.76;
-      const states = letters.map((element, index) => ({
-        element,
-        y: -(window.innerHeight * 0.9 + 140 + Math.random() * 180),
-        velocity: 0,
-        angle: (Math.random() - 0.5) * 24,
-        angularVelocity: (Math.random() - 0.5) * 150,
-        delay: index * 0.075,
-        settled: false
-      }));
-
+      const gravity = 3000;
+      const restitution = 0.28;
+      const angularDamping = 0.72;
       let previous = 0;
-      const frame = timestamp => {
+
+      const tick = timestamp => {
         if (!previous) previous = timestamp;
-        const dt = Math.min((timestamp - previous) / 1000, 0.032);
+        const dt = Math.min((timestamp - previous) / 1000, 0.025);
         previous = timestamp;
-        let active = false;
+        let moving = false;
 
         states.forEach(state => {
           if (state.settled) return;
           if (state.delay > 0) {
-            state.delay -= dt;
-            active = true;
+            state.delay = Math.max(0, state.delay - dt);
+            moving = true;
             return;
           }
 
@@ -1219,58 +1231,54 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
           if (state.y >= 0) {
             state.y = 0;
-            if (Math.abs(state.velocity) > 95) {
+            if (state.velocity > 110) {
               state.velocity = -state.velocity * restitution;
-              state.angularVelocity *= friction;
-              state.angle *= 0.58;
+              state.angularVelocity *= angularDamping;
+              state.angle *= 0.45;
             } else {
               state.velocity = 0;
               state.angularVelocity = 0;
               state.angle = 0;
               state.settled = true;
             }
-          } else {
-            state.angularVelocity *= Math.pow(0.985, dt * 60);
           }
 
           state.element.style.transform = "translate3d(0," + state.y.toFixed(2) + "px,0) rotate(" + state.angle.toFixed(2) + "deg)";
-          if (!state.settled) active = true;
+          if (!state.settled) moving = true;
         });
 
-        if (active) requestAnimationFrame(frame);
-        else letters.forEach(element => {
-          element.style.transform = "translate3d(0,0,0) rotate(0deg)";
-          element.style.willChange = "auto";
+        if (moving) requestAnimationFrame(tick);
+        else states.forEach(state => {
+          state.element.style.transform = "none";
+          state.element.style.willChange = "auto";
         });
       };
-      requestAnimationFrame(frame);
+
+      requestAnimationFrame(tick);
     };
 
-    let observer = null;
-    let waitingFrame = 0;
-    const waitUntilPageIsVisible = () => {
+    const waitForVisiblePage = () => {
       if (started) return;
       const pageReady = document.readyState === "complete";
-      const loaderGone = !overlay || getComputedStyle(overlay).visibility === "hidden";
-      if (!pageReady || !loaderGone) {
-        waitingFrame = requestAnimationFrame(waitUntilPageIsVisible);
+      const loaderHidden = !overlay || getComputedStyle(overlay).visibility === "hidden";
+      if (!pageReady || !loaderHidden) {
+        waitingFrame = requestAnimationFrame(waitForVisiblePage);
         return;
       }
-      if (observer) observer.disconnect();
-      // Let the loader's final visibility transition and the first painted page frame finish.
       requestAnimationFrame(() => requestAnimationFrame(launch));
     };
 
-    if (overlay) {
+    if (overlay && overlay.classList.contains("is-active")) {
       observer = new MutationObserver(() => {
-        if (!overlay.classList.contains("is-active")) waitUntilPageIsVisible();
+        if (!overlay.classList.contains("is-active")) waitForVisiblePage();
       });
       observer.observe(overlay, { attributes: true, attributeFilter: ["class"] });
+    } else {
+      waitForVisiblePage();
     }
+
     if (document.readyState === "complete" && (!overlay || getComputedStyle(overlay).visibility === "hidden")) {
-      waitUntilPageIsVisible();
-    } else if (!overlay || !overlay.classList.contains("is-active")) {
-      waitUntilPageIsVisible();
+      waitForVisiblePage();
     }
   };
 
