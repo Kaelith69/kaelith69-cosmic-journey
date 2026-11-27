@@ -1038,7 +1038,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:inline-block;
   opacity:0;
   animation:hero-char-enter .78s cubic-bezier(.2,.8,.2,1) forwards;
-  animation-delay:calc(var(--char-index,0) * 58ms + 100ms);
+  animation-delay:var(--char-delay,100ms);
   will-change:transform,opacity;
 }
 .hero h1 .hero-number{
@@ -1140,6 +1140,40 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .motion-ready .reveal-on-scroll{opacity:1!important;transform:none!important;transition:none!important}
   .home-intro h2 span::after{animation:none!important;transform:scaleX(1)}
   .focus-tile{transform:none!important;transition:none!important}
+}
+
+
+/* Keep the animated word and number spans isolated from the legacy number selector */
+.hero h1>.hero-char{
+  display:inline-block;
+  width:auto;
+  margin:0;
+  color:inherit;
+  -webkit-text-stroke:0;
+  text-shadow:none;
+  filter:none;
+}
+.hero h1>.hero-number{
+  display:block;
+  width:max-content;
+  margin-left:clamp(26px,11vw,170px);
+  color:var(--cyan);
+  -webkit-text-stroke:2px var(--navy);
+  paint-order:stroke fill;
+}
+.hero h1>.hero-number .hero-digit{
+  display:inline-block;
+  width:auto;
+  margin:0;
+  color:inherit;
+  -webkit-text-stroke:inherit;
+  text-shadow:none;
+}
+@media(max-width:760px){
+  .hero h1>.hero-number{
+    margin-left:7vw;
+    -webkit-text-stroke:1.5px var(--navy);
+  }
 }
 
 </style>
@@ -1304,7 +1338,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         const span = document.createElement("span");
         span.className = "hero-char";
         span.textContent = letter;
-        span.style.setProperty("--char-index",index);
+        span.style.setProperty("--char-delay",(100 + index * 58) + "ms");
         span.setAttribute("aria-hidden","true");
         fragment.appendChild(span);
       });
