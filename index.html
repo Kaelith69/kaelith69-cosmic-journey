@@ -966,6 +966,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-map-links b{grid-column:3;grid-row:1/3;font-size:24px}
 .home-outro{background:#D9F04A}
 @media(max-width:760px){.home-facts{grid-template-columns:1fr;gap:15px}.home-facts div{display:grid;grid-template-columns:36px 1fr;align-items:center}.home-facts span{max-width:none}.home-practice,.home-map{grid-template-columns:1fr;gap:36px}.home-map-links a{grid-template-columns:32px 1fr auto}}
+
+/* Minimal homepage content */
+.home-intro{grid-template-columns:.8fr 1.2fr}
+.home-intro-copy p{max-width:620px}
+.home-focus{padding-top:clamp(72px,8vw,110px);padding-bottom:clamp(72px,8vw,110px)}
+.home-focus-head{margin-bottom:34px}
+.home-focus-head h2{font:900 clamp(48px,7vw,90px)/.84 var(--display);text-transform:uppercase;margin:0}
+.focus-tile{min-height:230px}
+.focus-tile h3{font-size:clamp(26px,3vw,38px)}
+.focus-tile p{max-width:280px}
+@media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-tile{min-height:190px}}
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -990,43 +1001,24 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <div class="hero-disc" aria-hidden="true"></div>
 <h1 id="hero-title">KAELITH<span>69</span></h1>
 <div class="hero-bottom">
-<p>Independent software, digital experiments and things built out of curiosity</p>
-<a class="hero-link" href="work.html"> <span class="hero-link-label">Explore selected work</span><span class="hero-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v16m-7-7 7 7 7-7" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg></span></a>
+<p>Independent software, digital experiments and things built out of curiosity.</p>
+<a class="hero-link" href="work.html"><span class="hero-link-label">Explore selected work</span><span class="hero-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v16m-7-7 7 7 7-7" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg></span></a>
 </div>
 </div>
 </section>
-
 <section class="home-intro" aria-labelledby="home-intro-title">
-<div><span class="home-kicker">01 / Profile</span><h2 id="home-intro-title">Computer<br>science.<br><span>In practice.</span></h2></div>
+<div><h2 id="home-intro-title">Computer<br>science.<br><span>In practice.</span></h2></div>
 <div class="home-intro-copy">
-<p>I am a computer science student focused on building for the web, exploring application development and understanding the systems behind the screen.</p>
-<p class="small-copy">This portfolio documents that process: projects I have built, technologies I am learning and experiments that turn technical curiosity into something people can use. I care about clear interfaces, thoughtful implementation and understanding why a solution works, not just getting it to run.</p>
-<div class="home-facts" aria-label="Portfolio focus"><div><strong>01</strong><span>Frontend development</span></div><div><strong>02</strong><span>Application development</span></div><div><strong>03</strong><span>Programming and problem solving</span></div></div>
-</div></section>
+<p>I am a computer science student interested in building useful software, thoughtful interfaces and understanding the systems behind them.</p>
+</div>
+</section>
 <section class="home-focus" aria-labelledby="home-focus-title">
-<div class="home-focus-head"><div><span class="home-kicker">02 / Technical focus</span><h2 id="home-focus-title">The tools<br>and the work.</h2></div><p>A practical snapshot of the technologies I work with and the kinds of problems I want to solve. These are active learning areas, not claims of mastery.</p></div>
+<div class="home-focus-head"><h2 id="home-focus-title">What I<br>work with.</h2></div>
 <div class="focus-grid">
-<article class="focus-tile"><span class="tile-index">01 / FRONTEND</span><div><h3>Build the<br>interface.</h3><p>HTML, CSS, JavaScript and React. Responsive layouts, component based UI and accessible interactions.</p><div class="tile-stack">HTML / CSS / JAVASCRIPT / REACT</div></div></article>
-<article class="focus-tile"><span class="tile-index">02 / APPLICATIONS</span><div><h3>Make it<br>useful.</h3><p>Flutter and Firebase for mobile application interfaces, authentication and connected app experiences.</p><div class="tile-stack">FLUTTER / DART / FIREBASE</div></div></article>
-<article class="focus-tile"><span class="tile-index">03 / PROGRAMMING</span><div><h3>Understand<br>the system.</h3><p>Python, Java and C. Strengthening programming fundamentals, problem solving and software logic.</p><div class="tile-stack">PYTHON / JAVA / C</div></div></article>
-</div></section>
-<section class="home-practice" aria-labelledby="home-practice-title">
-<div class="home-practice-heading"><span class="home-kicker">03 / How I approach a project</span><h2 id="home-practice-title">From question<br>to working thing.</h2></div>
-<div class="practice-steps">
-<article><span>01</span><div><h3>Understand the problem</h3><p>Work out what needs to happen, who it is for and what a successful result should look like.</p></div></article>
-<article><span>02</span><div><h3>Build a clear first version</h3><p>Choose a suitable stack, break the work into manageable parts and get the core flow working.</p></div></article>
-<article><span>03</span><div><h3>Test and refine</h3><p>Check edge cases, improve the interface and revisit decisions that make the software harder to use or maintain.</p></div></article>
-</div></section>
-<section class="home-map" aria-labelledby="home-map-title">
-<div><span class="home-kicker">04 / Explore this portfolio</span><h2 id="home-map-title">Find your<br>way around.</h2></div>
-<div class="home-map-links">
-<a href="work.html"><span>01</span><strong>Work</strong><small>Browse the live repository collection</small><b>↗</b></a>
-<a href="about.html"><span>02</span><strong>About</strong><small>Read about my background and toolkit</small><b>↗</b></a>
-<a href="contact.html"><span>03</span><strong>Contact</strong><small>Get in touch or discuss a collaboration</small><b>↗</b></a>
-</div></section>
-<section class="home-outro" aria-labelledby="home-outro-title">
-  <div><span class="home-kicker">03 / Keep exploring</span><h2 id="home-outro-title">The next idea<br>starts <span>here.</span></h2></div>
-  <a class="hero-link" href="work.html"><span class="hero-link-label">Browse the projects</span><span class="hero-link-icon" aria-hidden="true">↗</span></a>
+<article class="focus-tile"><div><h3>Web development</h3><p>Responsive interfaces and frontend applications.</p><div class="tile-stack">HTML / CSS / JAVASCRIPT / REACT</div></div></article>
+<article class="focus-tile"><div><h3>Application development</h3><p>Mobile apps and connected application experiences.</p><div class="tile-stack">FLUTTER / DART / FIREBASE</div></div></article>
+<article class="focus-tile"><div><h3>Programming</h3><p>Software fundamentals and problem solving.</p><div class="tile-stack">PYTHON / JAVA / C</div></div></article>
+</div>
 </section>
 </main>
 <footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
