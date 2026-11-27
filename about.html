@@ -909,6 +909,35 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @keyframes loading-record-spin{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
 @media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
 
+
+/* Expanded about page */
+.about{min-height:620px}
+.about-story,.about-toolkit,.about-principles{padding:clamp(82px,10vw,138px) var(--gutter);position:relative}
+.about-story{background:var(--navy);color:var(--white);display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(34px,8vw,110px)}
+.about-story h2,.about-toolkit h2,.about-principles h2{font:900 clamp(48px,7.5vw,100px)/.84 var(--display);text-transform:uppercase;margin:16px 0 0}
+.about-story h2 span{color:var(--cyan)}
+.about-story-copy{max-width:700px}
+.about-story-copy p{font-size:clamp(17px,1.8vw,22px);line-height:1.75;margin:0 0 22px}
+.about-story-copy p:last-child{font-size:14px;color:var(--pale)}
+.about-toolkit{background:var(--blue);color:var(--white)}
+.about-toolkit-head{display:flex;justify-content:space-between;align-items:end;gap:28px}
+.about-toolkit-head p{max-width:360px;font-size:14px;line-height:1.7}
+.toolkit-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:48px}
+.toolkit-item{border:1px solid rgba(255,255,255,.55);padding:22px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between}
+.toolkit-item strong{font:900 clamp(19px,2.5vw,30px)/.95 var(--display);text-transform:uppercase}
+.toolkit-item span{font:800 10px var(--body);letter-spacing:.1em;color:var(--lime)}
+.about-principles{background:var(--lime);color:var(--navy)}
+.principle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;margin-top:46px}
+.principle-grid article{border-top:2px solid var(--navy);padding-top:18px}
+.principle-grid h3{font:900 clamp(25px,3vw,38px)/.9 var(--display);text-transform:uppercase;margin:0 0 14px}
+.principle-grid p{font-size:13px;line-height:1.75;margin:0;max-width:330px}
+@media(max-width:760px){
+ .about-story{grid-template-columns:1fr;gap:34px}
+ .about-toolkit-head{align-items:flex-start;flex-direction:column}
+ .toolkit-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .principle-grid{grid-template-columns:1fr;gap:26px}
+}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -931,6 +960,36 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <section class="about" id="about" aria-labelledby="about-title">
 <h2 id="about-title">Made to<br><span>explore.</span></h2>
 <div class="about-copy"><p>I build web experiences, AI applications, developer tools and mobile software. Each project starts with an idea worth exploring</p></div>
+</section>
+
+<section class="about-story" aria-labelledby="about-story-title">
+  <div><span class="page-kicker">01 / The person behind the pixels</span><h2 id="about-story-title">Curious by<br><span>default.</span></h2></div>
+  <div class="about-story-copy">
+    <p>I am a computer science student interested in how software works, how people interact with it and how technical ideas become useful experiences.</p>
+    <p>My interests move between frontend development, mobile applications, programming languages, artificial intelligence and creative technology. I enjoy understanding the system beneath the interface just as much as shaping the interface itself.</p>
+    <p>This site is a work in progress by design. It grows alongside the projects, skills and questions that keep me exploring.</p>
+  </div>
+</section>
+<section class="about-toolkit" aria-labelledby="about-toolkit-title">
+  <div class="about-toolkit-head"><div><span class="page-kicker">02 / Tools and technologies</span><h2 id="about-toolkit-title">The toolkit.</h2></div><p>A practical mix of technologies I have worked with and continue to develop.</p></div>
+  <div class="toolkit-list">
+    <div class="toolkit-item"><strong>HTML / CSS</strong><span>WEB</span></div>
+    <div class="toolkit-item"><strong>JavaScript</strong><span>WEB</span></div>
+    <div class="toolkit-item"><strong>React</strong><span>FRONTEND</span></div>
+    <div class="toolkit-item"><strong>Python</strong><span>PROGRAMMING</span></div>
+    <div class="toolkit-item"><strong>Flutter</strong><span>MOBILE</span></div>
+    <div class="toolkit-item"><strong>Java</strong><span>PROGRAMMING</span></div>
+    <div class="toolkit-item"><strong>C</strong><span>PROGRAMMING</span></div>
+    <div class="toolkit-item"><strong>Firebase</strong><span>BACKEND SERVICES</span></div>
+  </div>
+</section>
+<section class="about-principles" aria-labelledby="about-principles-title">
+  <span class="page-kicker">03 / How I approach things</span><h2 id="about-principles-title">A few principles.</h2>
+  <div class="principle-grid">
+    <article><h3>Stay curious.</h3><p>Ask why something works, look beyond the first solution and keep learning outside familiar territory.</p></article>
+    <article><h3>Build to understand.</h3><p>Turn concepts into small working projects. Practical experiments make abstract ideas easier to reason about.</p></article>
+    <article><h3>Care about details.</h3><p>Good software is more than a working feature. Clarity, accessibility, performance and thoughtful interaction matter.</p></article>
+  </div>
 </section>
 </main>
 <footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
