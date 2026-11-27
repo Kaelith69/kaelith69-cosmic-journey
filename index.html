@@ -909,6 +909,37 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @keyframes loading-record-spin{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
 @media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
 
+
+/* Expanded home page */
+.hero{height:auto;min-height:min(900px,100svh);max-height:none}
+.home-intro,.home-focus,.home-outro{position:relative;padding:clamp(88px,11vw,150px) var(--gutter);overflow:hidden}
+.home-intro{background:var(--navy);color:var(--white);display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(36px,8vw,120px);align-items:start}
+.home-kicker,.page-kicker{font:800 11px/1.4 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.home-intro h2,.home-focus h2,.home-outro h2{font:900 clamp(54px,8.5vw,116px)/.82 var(--display);letter-spacing:-.02em;text-transform:uppercase;margin:18px 0 0}
+.home-intro h2 span,.home-outro h2 span{color:var(--lime)}
+.home-intro-copy{max-width:680px}
+.home-intro-copy p{font-size:clamp(19px,2.2vw,29px);line-height:1.48;margin:0 0 24px}
+.home-intro-copy .small-copy{font-size:15px;line-height:1.8;color:var(--pale);max-width:560px}
+.home-focus{background:var(--cobalt);color:var(--navy)}
+.home-focus-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:54px}
+.home-focus-head p{max-width:360px;line-height:1.7;font-size:14px}
+.focus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.focus-tile{min-height:300px;padding:26px;background:var(--blue);color:var(--white);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.focus-tile:nth-child(2){background:var(--cyan);color:var(--navy)}
+.focus-tile:nth-child(3){background:var(--lime);color:var(--navy)}
+.focus-tile .tile-index{font:800 11px var(--body);letter-spacing:.1em}
+.focus-tile h3{font:900 clamp(32px,4vw,54px)/.86 var(--display);text-transform:uppercase;margin:30px 0 12px}
+.focus-tile p{font-size:13px;line-height:1.65;max-width:330px;margin:0}
+.home-outro{background:var(--magenta);color:var(--navy);display:flex;justify-content:space-between;align-items:end;gap:32px}
+.home-outro h2{max-width:760px}
+.home-outro .hero-link{flex:none}
+@media(max-width:760px){
+ .home-intro{grid-template-columns:1fr;gap:38px}
+ .home-focus-head,.home-outro{align-items:flex-start;flex-direction:column}
+ .focus-grid{grid-template-columns:1fr}
+ .focus-tile{min-height:230px}
+}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -937,6 +968,26 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <a class="hero-link" href="work.html"> <span class="hero-link-label">Explore selected work</span><span class="hero-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5v16m-7-7 7 7 7-7" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" stroke-linejoin="miter"/></svg></span></a>
 </div>
 </div>
+</section>
+
+<section class="home-intro" aria-labelledby="home-intro-title">
+  <div><span class="home-kicker">01 / A little about this space</span><h2 id="home-intro-title">Ideas into<br><span>interfaces.</span></h2></div>
+  <div class="home-intro-copy">
+    <p>A personal corner for software, experiments and the things that happen when curiosity meets a keyboard.</p>
+    <p class="small-copy">I explore the web, mobile development, programming and creative technology. Some ideas become useful tools. Others become experiments. Every project is a chance to understand something more deeply and make it real.</p>
+  </div>
+</section>
+<section class="home-focus" aria-labelledby="home-focus-title">
+  <div class="home-focus-head"><div><span class="home-kicker">02 / Areas of exploration</span><h2 id="home-focus-title">What I<br>build with.</h2></div><p>A growing set of interests, tools and disciplines. The work changes as I learn, test ideas and discover better ways to build.</p></div>
+  <div class="focus-grid">
+    <article class="focus-tile"><span class="tile-index">01 / WEB</span><div><h3>Web<br>experiences</h3><p>Interfaces, frontend systems and experiments with modern web technologies.</p></div></article>
+    <article class="focus-tile"><span class="tile-index">02 / SOFTWARE</span><div><h3>Apps &<br>tools</h3><p>Mobile applications, practical utilities and software shaped around a clear purpose.</p></div></article>
+    <article class="focus-tile"><span class="tile-index">03 / CURIOSITY</span><div><h3>Creative<br>computing</h3><p>Visual experiments, automation, AI applications and ideas that cross disciplines.</p></div></article>
+  </div>
+</section>
+<section class="home-outro" aria-labelledby="home-outro-title">
+  <div><span class="home-kicker">03 / Keep exploring</span><h2 id="home-outro-title">The next idea<br>starts <span>here.</span></h2></div>
+  <a class="hero-link" href="work.html"><span class="hero-link-label">Browse the projects</span><span class="hero-link-icon" aria-hidden="true">↗</span></a>
 </section>
 </main>
 <footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
