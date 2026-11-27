@@ -1226,8 +1226,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const restitution=0.20;
   const airAngularDamping=1.25;
   const contactAngularDamping=9.5;
-  const groundScale=0.62;
-  const groundSkew=0.055;
+  const groundScale=0.52;
+  const groundSkew=0.025;
   const fallHeight=clamp(hero.clientHeight*0.64,380,620);
 
   let heroWidth=0;
@@ -1257,17 +1257,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   // and Z is height above the horizontal floor at Z = 0.
   const light={
     x:wordRect.left-heroRect.left+wordRect.width/2,
-    y:-420,
-    z:Math.max(1500,fallHeight+maxGlyphHeight+850)
+    y:-850,
+    z:Math.max(4800,fallHeight+maxGlyphHeight+3200)
   };
-  const areaRadiusX=22;
-  const areaRadiusY=18;
-  const areaLights=[
-    {x:-areaRadiusX,y:-areaRadiusY},
-    {x: areaRadiusX,y:-areaRadiusY},
-    {x:-areaRadiusX,y: areaRadiusY},
-    {x: areaRadiusX,y: areaRadiusY}
-  ];
+  const areaRadiusX=36;
+  const areaRadiusY=30;
+  const areaLights=[];
+  for(const offsetY of [-1,0,1]){
+    for(const offsetX of [-1,0,1]){
+      areaLights.push({x:offsetX*areaRadiusX,y:offsetY*areaRadiusY});
+    }
+  }
 
   const makeGlyphMask=(face,character,width,height)=>{
     const mask=document.createElement("canvas");
@@ -1416,23 +1416,26 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     ctx.clearRect(0,0,heroWidth,heroHeight);
     softCtx.clearRect(0,0,heroWidth,heroHeight);
     const mesh=window.innerWidth<600?3:4;
+    let meanRelativeHeight=0;
 
     for(const state of states){
-      // A point source gives the crisp umbra.
-      drawGlyphShadow(ctx,state,light,0.48,mesh);
+      // The central point source produces the sharp umbra on the floor.
+      drawGlyphShadow(ctx,state,light,0.42,mesh);
 
-      // Four nearby sources create the physically expanding area light penumbra.
+      // Nine samples of one finite area light create a continuous penumbra.
       for(const sample of areaLights){
         drawGlyphShadow(softCtx,state,{
           x:light.x+sample.x,
           y:light.y+sample.y,
           z:light.z
-        },0.105,mesh);
+        },0.045,mesh);
       }
+      meanRelativeHeight+=(state.altitude+state.height)/light.z;
     }
 
     ctx.save();
-    ctx.filter="blur(0.8px)";
+    ctx.globalAlpha=0.72;
+    ctx.filter=`blur(${(0.45+meanRelativeHeight/states.length*1.1).toFixed(2)}px)`;
     ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
     ctx.restore();
   };
