@@ -57,18 +57,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   width:max-content;
   white-space:nowrap;
 }
-.hero h1>span:not(.hero-word){
-  display:block;
-  position:relative;
-  width:max-content;
-  color:var(--cyan);
-  margin-left:clamp(26px,11vw,170px);
-  -webkit-text-stroke:2px var(--navy);
-  paint-order:stroke fill;
-  text-shadow:5px 5px 0 var(--navy),10px 10px 0 var(--blue),14px 14px 0 var(--magenta);
-  filter:drop-shadow(5px 5px 0 rgba(23,23,23,.12));
-  z-index:2;
-}
 .hero h1 .fall-unit{
   position:relative;
   display:inline-block;
@@ -81,21 +69,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:inline-block;
   margin:0;
   padding:0;
-  transform-origin:50% 50%;
-  transform-style:preserve-3d;
-  backface-visibility:visible;
+  transform-origin:50% 100%;
   will-change:transform;
 }
 .hero h1 .fall-letter{
-  position:relative;
   display:inline-block;
   margin:0;
   padding:0;
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
-  transform:translateZ(6px);
-  backface-visibility:visible;
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1239,17 +1222,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   }
 
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-  const reduceVector=(velocity,amount)=>{
-    const speed=Math.hypot(velocity[0],velocity[1]);
-    if(speed<=amount||speed===0) return [0,0];
-    const factor=(speed-amount)/speed;
-    return [velocity[0]*factor,velocity[1]*factor];
-  };
+  const gravity=2700;
+  const restitution=0.20;
+  const airAngularDamping=1.25;
+  const contactAngularDamping=9.5;
+  const groundScale=0.62;
+  const groundSkew=0.055;
+  const fallHeight=clamp(hero.clientHeight*0.64,380,620);
 
   let heroWidth=0;
   let heroHeight=0;
   let dpr=1;
-  const resizeCanvas=()=>{
+  const resizeCanvases=()=>{
     const rect=hero.getBoundingClientRect();
     heroWidth=rect.width;
     heroHeight=rect.height;
@@ -1263,249 +1247,282 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     ctx.setTransform(dpr,0,0,dpr,0,0);
     softCtx.setTransform(dpr,0,0,dpr,0,0);
   };
-  resizeCanvas();
-
-  const gravity=2800;
-  const restitution=0.22;
-  const friction=0.92;
-  const thickness=12;
-  const flightTime=0.62;
-  const fallDistance=clamp(heroHeight*0.72,480,760);
-  const fallHeight=0.5*gravity*flightTime*flightTime;
-
-  // Point light above and to the upper left. Rays intersect the page at z = 0.
-  const light={
-    x:-heroWidth*0.12,
-    y:-heroHeight*0.50,
-    z:Math.max(1900,heroHeight*2.5,fallHeight*3.6)
-  };
-  const lightRadius=22;
-  const areaLights=[
-    [-lightRadius,-lightRadius*0.7],
-    [ lightRadius,-lightRadius*0.7],
-    [-lightRadius, lightRadius*0.7],
-    [ lightRadius, lightRadius*0.7]
-  ];
+  resizeCanvases();
 
   const heroRect=hero.getBoundingClientRect();
+  const wordRect=word.getBoundingClientRect();
+  const maxGlyphHeight=Math.max(...glyphs.map(({face})=>face.getBoundingClientRect().height));
+
+  // World axes: X runs across the word, Y runs from the letters toward the viewer,
+  // and Z is height above the horizontal floor at Z = 0.
+  const light={
+    x:wordRect.left-heroRect.left+wordRect.width/2,
+    y:-420,
+    z:Math.max(1500,fallHeight+maxGlyphHeight+850)
+  };
+  const areaRadiusX=22;
+  const areaRadiusY=18;
+  const areaLights=[
+    {x:-areaRadiusX,y:-areaRadiusY},
+    {x: areaRadiusX,y:-areaRadiusY},
+    {x:-areaRadiusX,y: areaRadiusY},
+    {x: areaRadiusX,y: areaRadiusY}
+  ];
+
+  const makeGlyphMask=(face,character,width,height)=>{
+    const mask=document.createElement("canvas");
+    mask.width=Math.max(1,Math.ceil(width*dpr));
+    mask.height=Math.max(1,Math.ceil(height*dpr));
+    const maskCtx=mask.getContext("2d");
+    const style=getComputedStyle(face);
+
+    maskCtx.setTransform(dpr,0,0,dpr,0,0);
+    maskCtx.fillStyle="#171717";
+    maskCtx.font=style.font;
+    maskCtx.textAlign="center";
+    maskCtx.textBaseline="alphabetic";
+    if("letterSpacing" in maskCtx) maskCtx.letterSpacing=style.letterSpacing;
+
+    const metrics=maskCtx.measureText(character);
+    const ascent=metrics.actualBoundingBoxAscent||parseFloat(style.fontSize)*0.78;
+    const descent=metrics.actualBoundingBoxDescent||parseFloat(style.fontSize)*0.12;
+    const baseline=(height-ascent-descent)/2+ascent;
+    maskCtx.fillText(character,width/2,baseline,width);
+    return mask;
+  };
+
+  const heroOrigin=hero.getBoundingClientRect();
   const states=glyphs.map(({body,face,character},index)=>{
     const rect=face.getBoundingClientRect();
     const width=Math.max(1,rect.width);
     const height=Math.max(1,rect.height);
-    const mass=Math.max(0.3,width*height*thickness/50000);
-    const inertia=mass*(width*width+height*height)/12;
-    const mask=document.createElement("canvas");
-    mask.width=Math.max(1,Math.ceil(width*dpr));
-    mask.height=Math.max(1,Math.ceil(height*dpr));
-
-    const maskCtx=mask.getContext("2d");
-    const style=getComputedStyle(face);
-    maskCtx.setTransform(dpr,0,0,dpr,0,0);
-    maskCtx.fillStyle="#000";
-    maskCtx.textAlign="center";
-    maskCtx.textBaseline="middle";
-    maskCtx.font=`${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    if("letterSpacing" in maskCtx) maskCtx.letterSpacing=style.letterSpacing;
-    maskCtx.fillText(character,width/2,height/2,width);
-
     const sign=index%2===0?1:-1;
+
     const state={
       body,
       width,
       height,
-      mask,
-      baseX:rect.left-heroRect.left+width/2,
-      baseY:rect.top-heroRect.top+height/2,
-      mass,
-      inertia,
-      p:[0,-fallDistance,thickness/2+fallHeight],
-      v:[0,fallDistance/flightTime,0],
-      angle:sign*(0.012+(index%3)*0.002),
-      angularVelocity:sign*(0.015+(index%4)*0.003),
+      mask:makeGlyphMask(face,character,width,height),
+      centerX:rect.left-heroOrigin.left+width/2,
+      baselineY:rect.bottom-heroOrigin.top,
+      altitude:fallHeight,
+      verticalVelocity:0,
+      angle:sign*(0.035+(index%3)*0.012),
+      angularVelocity:-sign*(0.12+(index%4)*0.025),
       delay:index*0.055,
       grounded:false,
       settled:false
     };
 
-    body.style.transformOrigin="50% 50%";
+    body.style.transformOrigin="50% 100%";
+    body.style.transform=`translate3d(0,${-state.altitude}px,0) rotate(${(state.angle*180/Math.PI).toFixed(3)}deg)`;
     return state;
   });
 
-  // Exact point-light projection of each glyph's alpha silhouette onto the page.
-  const projectedPosition=(state,source)=>{
-    const objectZ=state.p[2]+thickness/2;
-    const denominator=Math.max(1,source.z-objectZ);
-    const rayScale=source.z/denominator;
-    const angle=state.angle;
-    const objectX=state.baseX+state.p[0];
-    const objectY=state.baseY+state.p[1];
+  // A point light at L casts each 3D glyph point P onto the floor Z = 0:
+  // Q = L + t(P - L), where t = Lz / (Lz - Pz).
+  // The negative light depth makes the floor intersection positive, toward the viewer.
+  const projectPointToFloor=(state,x,y,source)=>{
+    const localX=x-state.width/2;
+    const localZ=state.height-y;
+    const cosine=Math.cos(state.angle);
+    const sine=Math.sin(state.angle);
+
+    const pointX=state.centerX+cosine*localX+sine*localZ;
+    const pointY=0;
+    const pointZ=state.altitude-sine*localX+cosine*localZ;
+    const denominator=source.z-pointZ;
+
+    if(denominator<=1) return null;
+
+    const rayT=source.z/denominator;
+    const floorX=source.x+rayT*(pointX-source.x);
+    const floorY=source.y+rayT*(pointY-source.y);
 
     return {
-      x:source.x+rayScale*(objectX-source.x),
-      y:source.y+rayScale*(objectY-source.y),
-      scale:rayScale,
-      angle
+      x:floorX+floorY*groundSkew,
+      y:state.baselineY+floorY*groundScale
     };
   };
 
-  const drawOneShadow=(target,state,source,alpha)=>{
-    const projection=projectedPosition(state,source);
+  const drawMappedTriangle=(target,mask,width,height,source,destination,alpha)=>{
+    const sx1=source[1].x-source[0].x;
+    const sy1=source[1].y-source[0].y;
+    const sx2=source[2].x-source[0].x;
+    const sy2=source[2].y-source[0].y;
+    const dx1=destination[1].x-destination[0].x;
+    const dy1=destination[1].y-destination[0].y;
+    const dx2=destination[2].x-destination[0].x;
+    const dy2=destination[2].y-destination[0].y;
+    const determinant=sx1*sy2-sx2*sy1;
+    if(Math.abs(determinant)<1e-8) return;
+
+    const a=(dx1*sy2-dx2*sy1)/determinant;
+    const c=(sx1*dx2-sx2*dx1)/determinant;
+    const b=(dy1*sy2-dy2*sy1)/determinant;
+    const d=(sx1*dy2-sx2*dy1)/determinant;
+    const e=destination[0].x-a*source[0].x-c*source[0].y;
+    const f=destination[0].y-b*source[0].x-d*source[0].y;
+
     target.save();
     target.globalAlpha=alpha;
-    target.translate(projection.x,projection.y);
-    target.rotate(projection.angle);
-    target.scale(projection.scale,projection.scale);
-    target.drawImage(
-      state.mask,
-      0,0,state.mask.width,state.mask.height,
-      -state.width/2,-state.height/2,state.width,state.height
-    );
+    target.beginPath();
+    target.moveTo(destination[0].x,destination[0].y);
+    target.lineTo(destination[1].x,destination[1].y);
+    target.lineTo(destination[2].x,destination[2].y);
+    target.closePath();
+    target.clip();
+    target.transform(a,b,c,d,e,f);
+    target.drawImage(mask,0,0,mask.width,mask.height,0,0,width,height);
     target.restore();
+  };
+
+  const drawGlyphShadow=(target,state,source,alpha,grid)=>{
+    const projected=[];
+    for(let row=0;row<=grid;row++){
+      projected[row]=[];
+      const y=state.height*row/grid;
+      for(let col=0;col<=grid;col++){
+        const x=state.width*col/grid;
+        projected[row][col]=projectPointToFloor(state,x,y,source);
+      }
+    }
+
+    for(let row=0;row<grid;row++){
+      for(let col=0;col<grid;col++){
+        const x0=state.width*col/grid;
+        const x1=state.width*(col+1)/grid;
+        const y0=state.height*row/grid;
+        const y1=state.height*(row+1)/grid;
+        const s00={x:x0,y:y0};
+        const s10={x:x1,y:y0};
+        const s01={x:x0,y:y1};
+        const s11={x:x1,y:y1};
+        const d00=projected[row][col];
+        const d10=projected[row][col+1];
+        const d01=projected[row+1][col];
+        const d11=projected[row+1][col+1];
+        if(!d00||!d10||!d01||!d11) continue;
+
+        drawMappedTriangle(target,state.mask,state.width,state.height,
+          [s00,s10,s11],[d00,d10,d11],alpha);
+        drawMappedTriangle(target,state.mask,state.width,state.height,
+          [s00,s11,s01],[d00,d11,d01],alpha);
+      }
+    }
   };
 
   const drawShadows=()=>{
     ctx.clearRect(0,0,heroWidth,heroHeight);
     softCtx.clearRect(0,0,heroWidth,heroHeight);
-    let meanHeight=0;
+    const mesh=window.innerWidth<600?3:4;
 
     for(const state of states){
-      const height=Math.max(0,state.p[2]-thickness/2);
-      const altitude=clamp(height/light.z,0,0.9);
-      const hardAlpha=clamp(0.58-altitude*0.22+state.impact*0.12,0.20,0.68);
-      drawOneShadow(ctx,state,light,hardAlpha);
+      // A point source gives the crisp umbra.
+      drawGlyphShadow(ctx,state,light,0.48,mesh);
 
-      const softAlpha=(0.22-altitude*0.07)/areaLights.length;
-      areaLights.forEach(([dx,dy])=>{
-        drawOneShadow(softCtx,state,{
-          x:light.x+dx,
-          y:light.y+dy,
+      // Four nearby sources create the physically expanding area light penumbra.
+      for(const sample of areaLights){
+        drawGlyphShadow(softCtx,state,{
+          x:light.x+sample.x,
+          y:light.y+sample.y,
           z:light.z
-        },softAlpha);
-      });
-      meanHeight+=altitude;
+        },0.105,mesh);
+      }
     }
 
     ctx.save();
-    ctx.filter=`blur(${(0.8+meanHeight/states.length*2.6).toFixed(2)}px)`;
-    ctx.drawImage(
-      softCanvas,
-      0,0,softCanvas.width,softCanvas.height,
-      0,0,heroWidth,heroHeight
-    );
+    ctx.filter="blur(0.8px)";
+    ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
     ctx.restore();
   };
 
-  const renderBody=state=>{
+  const renderGlyph=(state)=>{
     state.body.style.transform=
-      `translate3d(${state.p[0].toFixed(2)}px,${state.p[1].toFixed(2)}px,${state.p[2].toFixed(2)}px) rotateZ(${(state.angle*180/Math.PI).toFixed(3)}deg)`;
+      `translate3d(0,${(-state.altitude).toFixed(2)}px,0) rotate(${(state.angle*180/Math.PI).toFixed(3)}deg)`;
   };
 
-  states.forEach(renderBody);
+  // The letters and their floor shadows are already in their starting positions
+  // while the loading overlay is visible.
+  states.forEach(renderGlyph);
   drawShadows();
 
   let started=false;
   const startFall=()=>{
     if(started) return;
     started=true;
-    let previous=0;
+    let previousTime=0;
 
-    const tick=time=>{
-      if(!previous) previous=time;
-      const dt=Math.min((time-previous)/1000,0.016);
-      previous=time;
+    const frame=time=>{
+      if(!previousTime) previousTime=time;
+      const dt=Math.min((time-previousTime)/1000,0.016);
+      previousTime=time;
       let active=false;
 
       for(const state of states){
         if(state.settled) continue;
+
         if(state.delay>0){
           state.delay=Math.max(0,state.delay-dt);
           active=true;
           continue;
         }
 
-        // Ballistic travel across the page plane while gravity pulls each plate down.
-        state.v[2]-=gravity*dt;
-        state.p[0]+=state.v[0]*dt;
-        state.p[1]+=state.v[1]*dt;
-        state.p[2]+=state.v[2]*dt;
-        state.angle+=state.angularVelocity*dt;
+        // Vertical rigid body motion under gravity.
+        state.verticalVelocity-=gravity*dt;
+        state.altitude+=state.verticalVelocity*dt;
 
-        const floorHeight=thickness/2;
-        state.grounded=state.p[2]<=floorHeight+0.25;
-
-        if(state.p[2]<floorHeight){
-          state.p[2]=floorHeight;
-
-          if(state.v[2]<0){
-            const normalImpulse=-(1+restitution)*state.mass*state.v[2];
-            state.v[2]+=normalImpulse/state.mass;
-
-            // Coulomb friction limits the tangential impact impulse.
-            const horizontalSpeed=Math.hypot(state.v[0],state.v[1]);
-            const maximumFriction=friction*normalImpulse;
-            const frictionImpulse=Math.min(state.mass*horizontalSpeed,maximumFriction);
-            if(horizontalSpeed>0){
-              const ratio=frictionImpulse/(state.mass*horizontalSpeed);
-              state.v[0]*=1-ratio;
-              state.v[1]*=1-ratio;
+        const inContact=state.altitude<=0;
+        if(inContact){
+          state.altitude=0;
+          if(state.verticalVelocity<0){
+            const impactSpeed=-state.verticalVelocity;
+            if(impactSpeed>22){
+              state.verticalVelocity=impactSpeed*restitution;
+              state.angularVelocity*=0.42;
+            }else{
+              state.verticalVelocity=0;
             }
-
-            // Distributed surface friction also removes spin about the floor normal.
-            const effectiveRadius=Math.hypot(state.width/2,state.height/2)*0.55;
-            const rotationalImpulse=friction*normalImpulse*effectiveRadius;
-            const angularChange=Math.min(
-              Math.abs(state.angularVelocity),
-              rotationalImpulse/state.inertia
-            );
-            state.angularVelocity-=Math.sign(state.angularVelocity)*angularChange;
           }
         }
 
-        if(state.grounded&&state.v[2]<25){
-          state.v[2]=0;
-          const horizontal=reduceVector([state.v[0],state.v[1]],friction*gravity*dt);
-          state.v[0]=horizontal[0];
-          state.v[1]=horizontal[1];
+        // Angular damping in flight and stronger torsional damping at contact.
+        const angularStiffness=inContact?34:2.2;
+        const angularDamping=inContact?10:1.35;
+        state.angularVelocity+=
+          (-angularStiffness*state.angle-angularDamping*state.angularVelocity)*dt;
+        state.angle+=state.angularVelocity*dt;
+        state.grounded=inContact&&state.verticalVelocity===0;
 
-          const radius=Math.max(10,Math.hypot(state.width/2,state.height/2)*0.55);
-          const angularDeceleration=friction*gravity*radius/state.inertia;
-          state.angularVelocity=Math.sign(state.angularVelocity)*
-            Math.max(0,Math.abs(state.angularVelocity)-angularDeceleration*dt);
-        }
-
-        renderBody(state);
+        renderGlyph(state);
         active=true;
       }
 
+      // Draw after physics updates so the shadow is never one frame behind the body.
+      drawShadows();
+
       for(const state of states){
         if(state.settled) continue;
-        const horizontalSpeed=Math.hypot(state.v[0],state.v[1]);
         if(
           state.grounded&&
-          Math.abs(state.v[2])<3&&
-          horizontalSpeed<3&&
-          Math.abs(state.angularVelocity)<0.02&&
-          Math.abs(state.angle)<0.045&&
-          Math.abs(state.p[0])<1.2&&
-          Math.abs(state.p[1])<12
+          Math.abs(state.angle)<0.008&&
+          Math.abs(state.angularVelocity)<0.018
         ){
-          state.p=[0,0,thickness/2];
-          state.v=[0,0,0];
+          state.altitude=0;
+          state.verticalVelocity=0;
           state.angle=0;
           state.angularVelocity=0;
           state.settled=true;
-          state.body.style.transform=`translateZ(${(thickness/2).toFixed(2)}px)`;
+          renderGlyph(state);
         }
         if(!state.settled) active=true;
       }
 
-      drawShadows();
-
-      if(active) requestAnimationFrame(tick);
+      if(active) requestAnimationFrame(frame);
       else states.forEach(state=>{state.body.style.willChange="auto";});
     };
 
-    requestAnimationFrame(tick);
+    requestAnimationFrame(frame);
   };
 
   let startRequested=false;
