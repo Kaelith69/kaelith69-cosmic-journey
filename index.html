@@ -36,12 +36,35 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .hero{min-height:850px;height:100svh;max-height:1100px;position:relative;display:flex;align-items:center;padding:120px var(--gutter) 80px;overflow:hidden;isolation:isolate;background:var(--cobalt)}
 .hero::before{content:"";position:absolute;z-index:-2;width:min(69vw,920px);aspect-ratio:1;border-radius:50%;background:var(--blue);right:-17%;top:8%;clip-path:circle(50%); }
 .hero::after{content:"";position:absolute;z-index:-1;width:min(51vw,680px);aspect-ratio:1;border:2px solid var(--white);border-radius:50%;right:-7%;top:18%;box-shadow:0 0 0 22px transparent,0 0 0 24px rgba(23,23,23,.18);animation:orbit 70s linear infinite;pointer-events:none}
-.hero-content{width:100%;position:relative;isolation:isolate}
+.hero-content{
+  width:100%;
+  position:relative;
+  isolation:isolate;
+  z-index:2;
+}
 .hero h1{font:900 clamp(92px,18.5vw,270px)/.72 var(--display);letter-spacing:-.02em;margin:0;text-transform:uppercase;position:relative;z-index:1}
+.hero-content{
+  width:100%;
+  position:relative;
+  isolation:isolate;
+  z-index:2;
+}
+.hero-physics-shadow{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  display:block;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
 .hero h1>.hero-word{
   display:block;
   width:max-content;
   white-space:nowrap;
+  perspective:3200px;
+  perspective-origin:50% 50%;
+  transform-style:preserve-3d;
 }
 .hero h1>span:not(.hero-word){
   display:block;
@@ -61,27 +84,26 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   margin:0;
   padding:0;
   vertical-align:baseline;
-  isolation:isolate;
 }
 .hero h1 .fall-object{
   position:relative;
-  z-index:1;
   display:inline-block;
   margin:0;
   padding:0;
-  transform-origin:50% 100%;
-  filter:
-    drop-shadow(var(--cast-x,7px) var(--cast-y,10px) var(--cast-hard-blur,.08px) rgba(23,23,23,var(--cast-hard-alpha,.62)))
-    drop-shadow(var(--cast-soft-x,8px) var(--cast-soft-y,11px) var(--cast-soft-blur,1.8px) rgba(23,23,23,var(--cast-soft-alpha,.14)));
-  will-change:transform,filter;
+  transform-origin:50% 50%;
+  transform-style:preserve-3d;
+  backface-visibility:visible;
+  will-change:transform;
 }
 .hero h1 .fall-letter{
+  position:relative;
   display:inline-block;
   margin:0;
   padding:0;
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
+  backface-visibility:visible;
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1177,8 +1199,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <script>
 (() => {
   const heading = document.querySelector(".hero h1");
+  const hero = document.querySelector(".hero");
   const loader = document.getElementById("page-transition");
-  if (!heading || heading.dataset.physicsFallReady) return;
+  if (!heading || !hero || heading.dataset.physicsFallReady) return;
 
   const sourceText = [...heading.childNodes].find(node =>
     node.nodeType === Node.TEXT_NODE && node.textContent.trim()
@@ -1203,240 +1226,440 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     body.appendChild(face);
     unit.appendChild(body);
     word.appendChild(unit);
-
-    return {body};
+    return {unit,body,face,character};
   });
 
   sourceText.replaceWith(word);
-  heading.setAttribute("aria-label", "KAELITH 69");
+  heading.setAttribute("aria-label","KAELITH 69");
   heading.dataset.physicsFallReady = "true";
 
-  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const gravity = 2800;
-  const restitution = 0.24;
-  const friction = 0.52;
-  const fallDistance = Math.max(window.innerHeight * 0.9, 720);
+  const canvas = document.createElement("canvas");
+  canvas.className = "hero-physics-shadow";
+  canvas.setAttribute("aria-hidden","true");
+  hero.insertBefore(canvas,hero.firstChild);
 
-  // One fixed page-space light direction. Inverse rotation keeps its shadow
-  // vector stable in the scene while the glyph itself rotates.
-  const lightDirection = {x:0.52, y:0.85};
+  const softCanvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const softCtx = softCanvas.getContext("2d");
+  if (!ctx || !softCtx) {
+    canvas.remove();
+    return;
+  }
 
-  const states = glyphs.map(({body}, index) => {
-    const width = Math.max(1, body.offsetWidth);
-    const height = Math.max(1, body.offsetHeight);
-    const mass = Math.max(0.35, width * height / 15000);
-    const inertia = mass * (width * width + height * height) / 12;
+  const clamp = (value,min,max) => Math.max(min,Math.min(max,value));
+  const add = (a,b) => [a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+  const scale = (a,k) => [a[0]*k,a[1]*k,a[2]*k];
+  const dot = (a,b) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const cross = (a,b) => [
+    a[1]*b[2]-a[2]*b[1],
+    a[2]*b[0]-a[0]*b[2],
+    a[0]*b[1]-a[1]*b[0]
+  ];
 
-    const state = {
-      body,
-      width,
-      height,
-      mass,
-      inertia,
-      x:0,
-      y:-(fallDistance + 90 + index * 22),
-      vx:0,
-      vy:0,
-      angle:(index % 2 ? -1 : 1) * (0.07 + (index % 3) * 0.018),
-      angularVelocity:(index % 2 ? 1 : -1) * (0.42 + (index % 4) * 0.09),
-      delay:index * 0.055,
-      impact:0,
+  const rotationMatrix = state => {
+    const cx=Math.cos(state.rx), sx=Math.sin(state.rx);
+    const cy=Math.cos(state.ry), sy=Math.sin(state.ry);
+    const cz=Math.cos(state.rz), sz=Math.sin(state.rz);
+    return [
+      [cz*cy, cz*sy*sx-sz*cx, cz*sy*cx+sz*sx],
+      [sz*cy, sz*sy*sx+cz*cx, sz*sy*cx-cz*sx],
+      [-sy, cy*sx, cy*cx]
+    ];
+  };
+
+  const transformVector = (matrix,v) => [
+    matrix[0][0]*v[0]+matrix[0][1]*v[1]+matrix[0][2]*v[2],
+    matrix[1][0]*v[0]+matrix[1][1]*v[1]+matrix[1][2]*v[2],
+    matrix[2][0]*v[0]+matrix[2][1]*v[1]+matrix[2][2]*v[2]
+  ];
+
+  const inverseInertiaWorld = (rotation,inverseLocal) => {
+    const out=[[0,0,0],[0,0,0],[0,0,0]];
+    for(let row=0;row<3;row++){
+      for(let col=0;col<3;col++){
+        for(let axis=0;axis<3;axis++){
+          out[row][col]+=rotation[row][axis]*inverseLocal[axis]*rotation[col][axis];
+        }
+      }
+    }
+    return out;
+  };
+
+  const applyInverseTensor = (tensor,v) => [
+    dot(tensor[0],v),dot(tensor[1],v),dot(tensor[2],v)
+  ];
+
+  const makeGlyphMask = (face,character,width,height,dpr) => {
+    const mask=document.createElement("canvas");
+    mask.width=Math.max(1,Math.ceil(width*dpr));
+    mask.height=Math.max(1,Math.ceil(height*dpr));
+    const maskCtx=mask.getContext("2d");
+    const style=getComputedStyle(face);
+
+    maskCtx.setTransform(dpr,0,0,dpr,0,0);
+    maskCtx.clearRect(0,0,width,height);
+    maskCtx.fillStyle="#000";
+    maskCtx.textAlign="center";
+    maskCtx.textBaseline="middle";
+    maskCtx.font=`${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    if("letterSpacing" in maskCtx) maskCtx.letterSpacing=style.letterSpacing;
+    maskCtx.fillText(character,width/2,height/2,width);
+    return mask;
+  };
+
+  let heroWidth=0,heroHeight=0,dpr=1;
+  const resizeCanvas=()=>{
+    const rect=hero.getBoundingClientRect();
+    heroWidth=rect.width;
+    heroHeight=rect.height;
+    dpr=Math.min(2,window.devicePixelRatio||1);
+    canvas.width=Math.max(1,Math.round(heroWidth*dpr));
+    canvas.height=Math.max(1,Math.round(heroHeight*dpr));
+    softCanvas.width=canvas.width;
+    softCanvas.height=canvas.height;
+    canvas.style.width=`${heroWidth}px`;
+    canvas.style.height=`${heroHeight}px`;
+    softCtx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  };
+  resizeCanvas();
+
+  const thickness=12;
+  const gravity=2800;
+  const restitution=0.22;
+  const friction=0.92;
+  const flightTime=0.62;
+  const fallDistance=clamp(heroHeight*0.72,480,760);
+  const fallHeight=0.5*gravity*flightTime*flightTime;
+  const light={
+    x:heroWidth*0.14,
+    y:heroHeight*0.10,
+    z:Math.max(2100,fallHeight*3.6)
+  };
+  const lightRadius=26;
+  const areaLights=[
+    [-lightRadius,-lightRadius*0.7],
+    [ lightRadius,-lightRadius*0.7],
+    [-lightRadius, lightRadius*0.7],
+    [ lightRadius, lightRadius*0.7]
+  ];
+
+  const heroRect=hero.getBoundingClientRect();
+  const states=glyphs.map(({unit,body,face,character},index)=>{
+    const rect=face.getBoundingClientRect();
+    const width=Math.max(1,rect.width);
+    const height=Math.max(1,rect.height);
+    const mass=Math.max(0.3,width*height*thickness/50000);
+    const inertia=[
+      mass*(height*height+thickness*thickness)/12,
+      mass*(width*width+thickness*thickness)/12,
+      mass*(width*width+height*height)/12
+    ];
+    const invLocal=inertia.map(value=>1/value);
+    const initialSign=index%2===0?1:-1;
+    const state={
+      unit,body,face,character,
+      width,height,mask:makeGlyphMask(face,character,width,height,dpr),
+      baseX:rect.left-heroRect.left+width/2,
+      baseY:rect.top-heroRect.top+height/2,
+      mass,inertia,invLocal,
+      p:[0,-fallDistance,thickness/2+fallHeight],
+      v:[0,fallDistance/flightTime,0],
+      rx:initialSign*(0.075+(index%3)*0.018),
+      ry:-initialSign*(0.055+(index%4)*0.012),
+      rz:initialSign*(0.035+(index%2)*0.018),
+      omega:[
+        initialSign*(0.28+(index%3)*0.055),
+        -initialSign*(0.34+(index%4)*0.045),
+        initialSign*(0.14+(index%2)*0.07)
+      ],
+      delay:index*0.055,
       grounded:false,
+      impact:0,
       settled:false
     };
 
-    body.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}rad)`;
+    const rotation=rotationMatrix(state);
+    let minZ=Infinity;
+    for(const x of [-width/2,width/2]){
+      for(const y of [-height/2,height/2]){
+        for(const z of [-thickness/2,thickness/2]){
+          minZ=Math.min(minZ,transformVector(rotation,[x,y,z])[2]);
+        }
+      }
+    }
+    state.p[2]=thickness/2+fallHeight-minZ;
+    body.style.transformOrigin="50% 50%";
     return state;
   });
 
-  const updateShadow = state => {
-    const height = clamp(-state.y, 0, fallDistance);
-    const altitude = height / fallDistance;
-    const speed = clamp(Math.abs(state.vy) / 1500, 0, 1);
-    const impact = clamp(state.impact, 0, 1);
-
-    // A flat glyph casts its own alpha silhouette onto the page plane.
-    // Height increases the light travel distance, offset and penumbra.
-    const shadowDistance = height * 0.091;
-    const worldOffsetX = 5 + shadowDistance * lightDirection.x;
-    const worldOffsetY = 7 + shadowDistance * lightDirection.y;
-    const cosine = Math.cos(state.angle);
-    const sine = Math.sin(state.angle);
-
-    // Convert the fixed world light vector into the glyph's local coordinates.
-    const localOffsetX = cosine * worldOffsetX + sine * worldOffsetY;
-    const localOffsetY = -sine * worldOffsetX + cosine * worldOffsetY;
-
-    const hardAlpha = clamp(0.66 - altitude * 0.38 + impact * 0.12, 0.20, 0.76);
-    const softAlpha = clamp(0.13 + altitude * 0.07 + impact * 0.035, 0.08, 0.24);
-    const hardBlur = Math.max(0.04, 0.16 - altitude * 0.10 - impact * 0.06);
-    const softBlur = 1.5 + altitude * 5.8 + speed * 0.65;
-
-    state.body.style.setProperty("--cast-x", `${localOffsetX.toFixed(2)}px`);
-    state.body.style.setProperty("--cast-y", `${localOffsetY.toFixed(2)}px`);
-    state.body.style.setProperty("--cast-soft-x", `${(localOffsetX + cosine * 1.5 + sine * 1.5).toFixed(2)}px`);
-    state.body.style.setProperty("--cast-soft-y", `${(localOffsetY - sine * 1.5 + cosine * 1.5).toFixed(2)}px`);
-    state.body.style.setProperty("--cast-hard-alpha", hardAlpha.toFixed(3));
-    state.body.style.setProperty("--cast-soft-alpha", softAlpha.toFixed(3));
-    state.body.style.setProperty("--cast-hard-blur", `${hardBlur.toFixed(2)}px`);
-    state.body.style.setProperty("--cast-soft-blur", `${softBlur.toFixed(2)}px`);
-  };
-
-  const supportPoint = state => {
-    const cosine = Math.cos(state.angle);
-    const sine = Math.sin(state.angle);
-    const leftBottom = {
-      x:cosine * -state.width / 2,
-      y:sine * -state.width / 2
-    };
-    const rightBottom = {
-      x:cosine * state.width / 2,
-      y:sine * state.width / 2
-    };
-
-    if (Math.abs(leftBottom.y - rightBottom.y) < 2) {
-      return {
-        x:(leftBottom.x + rightBottom.x) / 2,
-        y:(leftBottom.y + rightBottom.y) / 2
-      };
-    }
-
-    const corners = [
-      [-state.width / 2,-state.height],
-      [state.width / 2,-state.height],
-      [-state.width / 2,0],
-      [state.width / 2,0]
+  const projectPointToGround=(state,rotation,x,y,source)=>{
+    const local=[x-state.width/2,y-state.height/2,thickness/2];
+    const rotated=transformVector(rotation,local);
+    const point=[
+      state.baseX+state.p[0]+rotated[0],
+      state.baseY+state.p[1]+rotated[1],
+      state.p[2]+rotated[2]
     ];
-    let support = null;
-
-    for (const [localX,localY] of corners) {
-      const point = {
-        x:cosine * localX - sine * localY,
-        y:sine * localX + cosine * localY
-      };
-      if (!support || point.y > support.y) support = point;
-    }
-    return support;
+    const ray=source.z/Math.max(1,source.z-point[2]);
+    return {
+      x:source.x+ray*(point[0]-source.x),
+      y:source.y+ray*(point[1]-source.y)
+    };
   };
 
-  states.forEach(updateShadow);
+  const affineTriangle=(target,image,logicalWidth,logicalHeight,source,dest,alpha)=>{
+    const sx1=source[1].x-source[0].x;
+    const sy1=source[1].y-source[0].y;
+    const sx2=source[2].x-source[0].x;
+    const sy2=source[2].y-source[0].y;
+    const dx1=dest[1].x-dest[0].x;
+    const dy1=dest[1].y-dest[0].y;
+    const dx2=dest[2].x-dest[0].x;
+    const dy2=dest[2].y-dest[0].y;
+    const determinant=sx1*sy2-sx2*sy1;
+    if(Math.abs(determinant)<1e-8) return;
 
-  let started = false;
-  const startFall = () => {
-    if (started) return;
-    started = true;
-    let previousTime = 0;
+    const a=(dx1*sy2-dx2*sy1)/determinant;
+    const c=(sx1*dx2-sx2*dx1)/determinant;
+    const b=(dy1*sy2-dy2*sy1)/determinant;
+    const d=(sx1*dy2-sx2*dy1)/determinant;
+    const e=dest[0].x-a*source[0].x-c*source[0].y;
+    const f=dest[0].y-b*source[0].x-d*source[0].y;
 
-    const tick = time => {
-      if (!previousTime) previousTime = time;
-      const dt = Math.min((time - previousTime) / 1000, 0.016);
-      previousTime = time;
-      let moving = false;
+    target.save();
+    target.globalAlpha=alpha;
+    target.beginPath();
+    target.moveTo(dest[0].x,dest[0].y);
+    target.lineTo(dest[1].x,dest[1].y);
+    target.lineTo(dest[2].x,dest[2].y);
+    target.closePath();
+    target.clip();
+    target.transform(a,b,c,d,e,f);
+    target.drawImage(image,0,0,image.width,image.height,0,0,logicalWidth,logicalHeight);
+    target.restore();
+  };
 
-      for (const state of states) {
-        if (state.settled) continue;
+  const drawProjectedGlyph=(target,state,source,alpha,grid)=>{
+    const rotation=rotationMatrix(state);
+    const points=[];
+    for(let row=0;row<=grid;row++){
+      points[row]=[];
+      const y=state.height*row/grid;
+      for(let col=0;col<=grid;col++){
+        const x=state.width*col/grid;
+        points[row][col]=projectPointToGround(state,rotation,x,y,source);
+      }
+    }
 
-        if (state.delay > 0) {
-          state.delay = Math.max(0, state.delay - dt);
-          moving = true;
+    for(let row=0;row<grid;row++){
+      for(let col=0;col<grid;col++){
+        const x0=state.width*col/grid;
+        const x1=state.width*(col+1)/grid;
+        const y0=state.height*row/grid;
+        const y1=state.height*(row+1)/grid;
+        const s00={x:x0,y:y0},s10={x:x1,y:y0};
+        const s01={x:x0,y:y1},s11={x:x1,y:y1};
+        const d00=points[row][col],d10=points[row][col+1];
+        const d01=points[row+1][col],d11=points[row+1][col+1];
+
+        affineTriangle(target,state.mask,state.width,state.height,[s00,s10,s11],[d00,d10,d11],alpha);
+        affineTriangle(target,state.mask,state.width,state.height,[s00,s11,s01],[d00,d11,d01],alpha);
+      }
+    }
+  };
+
+  const drawShadows=()=>{
+    ctx.clearRect(0,0,heroWidth,heroHeight);
+    softCtx.clearRect(0,0,heroWidth,heroHeight);
+    const grid=window.innerWidth<600?3:4;
+    let averageBlur=1.8;
+
+    for(const state of states){
+      const altitude=clamp(state.p[2]/light.z,0,0.92);
+      const contactAlpha=clamp(0.48-altitude*0.24+state.impact*0.08,0.18,0.56);
+      drawProjectedGlyph(ctx,state,light,contactAlpha,grid);
+
+      const sampleAlpha=0.18/areaLights.length;
+      areaLights.forEach(([offsetX,offsetY])=>{
+        drawProjectedGlyph(softCtx,state,{
+          x:light.x+offsetX,
+          y:light.y+offsetY,
+          z:light.z
+        },sampleAlpha,grid);
+      });
+      averageBlur+=altitude*2.8;
+    }
+
+    ctx.save();
+    ctx.filter=`blur(${Math.min(8,averageBlur/states.length).toFixed(2)}px)`;
+    ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
+    ctx.restore();
+  };
+
+  const renderBody=state=>{
+    const degrees=180/Math.PI;
+    state.body.style.transform=
+      `perspective(3200px) translate3d(${state.p[0].toFixed(2)}px,${state.p[1].toFixed(2)}px,${state.p[2].toFixed(2)}px) rotateZ(${(state.rz*degrees).toFixed(3)}deg) rotateY(${(state.ry*degrees).toFixed(3)}deg) rotateX(${(state.rx*degrees).toFixed(3)}deg)`;
+  };
+
+  const rotatePoint=(state,rotation,local)=>{
+    const rotated=transformVector(rotation,local);
+    return [
+      state.p[0]+rotated[0],
+      state.p[1]+rotated[1],
+      state.p[2]+rotated[2]
+    ];
+  };
+
+  const supportContacts=state=>{
+    const rotation=rotationMatrix(state);
+    const corners=[];
+    let minimum=Infinity;
+    for(const x of [-state.width/2,state.width/2]){
+      for(const y of [-state.height/2,state.height/2]){
+        for(const z of [-thickness/2,thickness/2]){
+          const r=transformVector(rotation,[x,y,z]);
+          if(r[2]<minimum) minimum=r[2];
+          corners.push(r);
+        }
+      }
+    }
+    const contacts=corners.filter(point=>point[2]<=minimum+1.1);
+    const count=contacts.length;
+    const r=contacts.reduce((sum,point)=>add(sum,point),[0,0,0]).map(value=>value/count);
+    return {minimum,r,rotation};
+  };
+
+  const startFall=()=>{
+    if(startFall.started) return;
+    startFall.started=true;
+    let previous=0;
+
+    const tick=time=>{
+      if(!previous) previous=time;
+      const dt=Math.min((time-previous)/1000,0.016);
+      previous=time;
+      let active=false;
+
+      for(const state of states){
+        if(state.settled) continue;
+        if(state.delay>0){
+          state.delay=Math.max(0,state.delay-dt);
+          active=true;
           continue;
         }
 
-        state.vy += gravity * dt;
-        state.vx += (-state.x * 24 - state.vx * 7) * dt;
+        state.v[2]-=gravity*dt;
+        state.p[0]+=state.v[0]*dt;
+        state.p[1]+=state.v[1]*dt;
+        state.p[2]+=state.v[2]*dt;
 
-        const nearFloor = state.y > -90;
-        const stiffness = state.grounded ? 52 : nearFloor ? 32 : 1.4;
-        const angularDamping = state.grounded ? 15 : nearFloor ? 12 : 1.1;
-        state.angularVelocity +=
-          (-state.angle * stiffness - state.angularVelocity * angularDamping) * dt;
+        const rotation=rotationMatrix(state);
+        const inverseWorld=inverseInertiaWorld(rotation,state.invLocal);
+        const angularMomentum=state.inertia;
+        state.omega=state.omega.map(value=>value*Math.exp(-0.06*dt));
+        state.rx+=state.omega[0]*dt;
+        state.ry+=state.omega[1]*dt;
+        state.rz+=state.omega[2]*dt;
 
-        state.y += state.vy * dt;
-        state.x += state.vx * dt;
-        state.angle += state.angularVelocity * dt;
+        let contact=supportContacts(state);
+        const lowest=state.p[2]+contact.minimum;
+        state.grounded=lowest<=0.4;
 
-        state.grounded = false;
-        const support = supportPoint(state);
-        const penetration = state.y + support.y;
+        if(lowest<0){
+          state.p[2]-=lowest;
+          const r=contact.r;
+          const contactVelocity=add(state.v,cross(state.omega,r));
 
-        if (penetration > 0) {
-          state.y -= penetration;
-          const contactX = support.x;
-          const contactY = support.y;
-          const contactVY = state.vy + state.angularVelocity * contactX;
+          if(contactVelocity[2]<0){
+            const rCrossNormal=cross(r,[0,0,1]);
+            const normalDenominator=1/state.mass+
+              dot(rCrossNormal,applyInverseTensor(inverseWorld,rCrossNormal));
+            const normalImpulse=-(1+restitution)*contactVelocity[2]/normalDenominator;
+            const normalVector=[0,0,normalImpulse];
+            state.v=add(state.v,scale(normalVector,1/state.mass));
+            state.omega=add(state.omega,applyInverseTensor(inverseWorld,cross(r,normalVector)));
 
-          if (contactVY > 0) {
-            if (contactVY < 55 && Math.abs(state.angle) < 0.08) {
-              state.vy = 0;
-              state.vx *= 0.85;
-              state.angularVelocity *= 0.75;
-            } else {
-              const normalDenominator = 1 / state.mass +
-                contactX * contactX / state.inertia;
-              const normalImpulse = (1 + restitution) * contactVY / normalDenominator;
-              state.vy -= normalImpulse / state.mass;
-              state.angularVelocity -= contactX * normalImpulse / state.inertia;
+            const afterNormal=add(state.v,cross(state.omega,r));
+            const rCrossX=cross(r,[1,0,0]);
+            const rCrossY=cross(r,[0,1,0]);
+            const kxx=1/state.mass+dot(rCrossX,applyInverseTensor(inverseWorld,rCrossX));
+            const kyy=1/state.mass+dot(rCrossY,applyInverseTensor(inverseWorld,rCrossY));
+            const kxy=dot(rCrossX,applyInverseTensor(inverseWorld,rCrossY));
+            const determinant=Math.max(1e-9,kxx*kyy-kxy*kxy);
 
-              const tangentVelocity = state.vx - state.angularVelocity * contactY;
-              const tangentDenominator = 1 / state.mass +
-                contactY * contactY / state.inertia;
-              const tangentImpulse = clamp(
-                -tangentVelocity / tangentDenominator,
-                -friction * normalImpulse,
-                friction * normalImpulse
-              );
-              state.vx += tangentImpulse / state.mass;
-              state.angularVelocity -= contactY * tangentImpulse / state.inertia;
-              state.impact = clamp(normalImpulse / (state.mass * 900), 0, 1);
+            let impulseX=(-afterNormal[0]*kyy+kxy*afterNormal[1])/determinant;
+            let impulseY=(kxy*afterNormal[0]-kxx*afterNormal[1])/determinant;
+            const tangentMagnitude=Math.hypot(impulseX,impulseY);
+            const frictionLimit=friction*normalImpulse;
+            if(tangentMagnitude>frictionLimit&&tangentMagnitude>0){
+              const ratio=frictionLimit/tangentMagnitude;
+              impulseX*=ratio;
+              impulseY*=ratio;
             }
-            state.grounded = true;
+
+            const tangentImpulse=[impulseX,impulseY,0];
+            state.v=add(state.v,scale(tangentImpulse,1/state.mass));
+            state.omega=add(state.omega,applyInverseTensor(inverseWorld,cross(r,tangentImpulse)));
+            state.impact=clamp(normalImpulse/(state.mass*1200),0,1);
           }
+
+          // Ground reaction acting at the support region rotates a tilted plate flat.
+          const supportTorque=cross(contact.r,[0,0,state.mass*gravity]);
+          state.omega=add(state.omega,scale(applyInverseTensor(inverseWorld,supportTorque),dt));
+          state.omega=state.omega.map(value=>value*Math.exp(-3.8*dt));
         }
 
-        state.impact *= Math.exp(-5.5 * dt);
-        state.body.style.transform =
-          `translate3d(${state.x.toFixed(2)}px,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(4)}rad)`;
-        updateShadow(state);
-
-        if (
-          state.grounded &&
-          Math.abs(state.vy) < 12 &&
-          Math.abs(state.vx) < 1.8 &&
-          Math.abs(state.angularVelocity) < 0.04 &&
-          Math.abs(state.angle) < 0.014 &&
-          Math.abs(state.x) < 0.6
-        ) {
-          state.x = 0;
-          state.y = 0;
-          state.vx = 0;
-          state.vy = 0;
-          state.angle = 0;
-          state.angularVelocity = 0;
-          state.settled = true;
-          state.body.style.transform = "none";
-          updateShadow(state);
-        }
-
-        if (!state.settled) moving = true;
+        state.impact*=Math.exp(-5.2*dt);
+        renderBody(state);
+        active=true;
       }
 
-      if (moving) requestAnimationFrame(tick);
-      else states.forEach(state => { state.body.style.willChange = "auto"; });
+      drawShadows();
+
+      for(const state of states){
+        if(state.settled) continue;
+        const level=Math.abs(state.p[2]-thickness/2);
+        const orientation=Math.hypot(state.rx,state.ry,state.rz);
+        const speed=Math.hypot(...state.v);
+        const spin=Math.hypot(...state.omega);
+        const contact=supportContacts(state);
+        if(
+          state.grounded &&
+          level<0.8 &&
+          speed<12 &&
+          spin<0.035 &&
+          orientation<0.018 &&
+          Math.abs(state.p[0])<1.2 &&
+          Math.abs(state.p[1])<3
+        ){
+          state.p=[0,0,thickness/2];
+          state.v=[0,0,0];
+          state.omega=[0,0,0];
+          state.rx=state.ry=state.rz=0;
+          state.settled=true;
+          state.body.style.transform=`translateZ(${(thickness/2).toFixed(2)}px)`;
+        }
+        if(!state.settled) active=true;
+      }
+
+      if(active) requestAnimationFrame(tick);
+      else states.forEach(state=>{state.body.style.willChange="auto";});
     };
 
     requestAnimationFrame(tick);
   };
 
-  window.startKaelithFall = () => {
-    if (loader && loader.dataset.loaderFinished !== "true") return;
-    window.setTimeout(() => {
-      requestAnimationFrame(() => requestAnimationFrame(startFall));
-    }, 260);
+  let startRequested=false;
+  window.startKaelithFall=()=>{
+    if(loader&&loader.dataset.loaderFinished!=="true") return;
+    if(startRequested) return;
+    startRequested=true;
+    window.setTimeout(()=>requestAnimationFrame(()=>requestAnimationFrame(startFall)),260);
   };
 
-  if (!loader || loader.dataset.loaderFinished === "true") {
-    window.startKaelithFall();
-  }
+  if(!loader||loader.dataset.loaderFinished==="true") window.startKaelithFall();
 })();
 </script>
 
