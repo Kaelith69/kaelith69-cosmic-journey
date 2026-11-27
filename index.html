@@ -1666,9 +1666,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   let armed = false;
   let revealed = false;
 
-  const animateElement = (element, from, to, duration, easing) => {
+  const animateElement = (element, from, to, duration, easing, delay = 0) => {
     const animation = element.animate([from, to], {
       duration,
+      delay,
       easing,
       fill: "both"
     });
@@ -1683,19 +1684,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const playReveal = async () => {
     if (revealed) return;
     revealed = true;
-    section.classList.add("focus-revealed");
 
     const easing = "cubic-bezier(.22,1,.36,1)";
-    const headingPromises = headingLines.map((line, index) =>
+    await Promise.all(headingLines.map((line, index) =>
       animateElement(
         line,
         { transform: "translateY(110%)" },
         { transform: "translateY(0)" },
         650,
-        easing
-      ).then(() => new Promise(resolve => window.setTimeout(resolve, index === 0 ? 90 : 0)))
-    );
-    await Promise.all(headingPromises);
+        easing,
+        index * 90
+      )
+    ));
 
     const isStackedLayout = window.matchMedia("(max-width:760px)").matches;
     const cardStarts = [
@@ -1708,10 +1708,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         : "translate3d(calc(-100% - 14px),0,0)"
     ];
 
+    // Play each card only after the previous one has reached its position.
+    // This makes orange emerge from beneath blue and lime from beneath orange.
     for (let index = 0; index < cards.length; index++) {
-      const card = cards[index];
       await animateElement(
-        card,
+        cards[index],
         { opacity: 0, transform: cardStarts[index] },
         { opacity: 1, transform: "translate3d(0,0,0)" },
         720,
@@ -1724,7 +1725,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     }
 
     section.classList.remove("focus-motion-ready");
-    section.classList.add("focus-interactive");
+    section.classList.add("focus-revealed", "focus-interactive");
   };
 
   const observeGrid = () => {
@@ -1789,11 +1790,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       attributeFilter: ["class", "data-loader-finished"]
     });
   };
-
-  if (reducedMotion) {
-    showWithoutMotion();
-    return;
-  }
 
   armAfterLoader();
 })();
