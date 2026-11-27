@@ -1056,6 +1056,105 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}}
 
 
+
+/* Home focus cards */
+.home-focus{
+  position:relative;overflow:hidden;
+  padding:clamp(88px,10vw,142px) var(--gutter) clamp(100px,11vw,154px);
+  background:var(--cobalt);color:var(--navy);isolation:isolate;
+}
+.home-focus::before{
+  content:"";position:absolute;z-index:-1;width:clamp(250px,37vw,520px);aspect-ratio:1;
+  top:-22%;right:-13%;border:2px solid rgba(23,23,23,.14);border-radius:50%;
+  box-shadow:0 0 0 22px rgba(23,23,23,.035),0 0 0 44px rgba(23,23,23,.025);pointer-events:none;
+}
+.home-focus-head{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.46fr);
+  align-items:end;gap:30px 6vw;margin-bottom:clamp(48px,7vw,88px);
+}
+.home-focus-kicker{
+  grid-column:1/-1;margin:0 0 -10px;font:800 11px/1.4 var(--body);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);
+}
+.home-focus-title{
+  margin:0;max-width:1000px;font:900 clamp(64px,10.7vw,148px)/.78 var(--display);
+  letter-spacing:-.025em;text-transform:uppercase;
+}
+.home-focus-title span{color:var(--blue)}
+.home-focus-intro{
+  max-width:360px;margin:0 0 4px;font-size:14px;line-height:1.65;
+  font-weight:600;color:rgba(23,23,23,.76);
+}
+.home-focus-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
+  gap:clamp(14px,1.8vw,26px);position:relative;isolation:isolate;
+}
+.home-focus-card{
+  --card-bg:var(--blue);--card-fg:var(--white);
+  position:relative;z-index:1;min-width:0;min-height:clamp(330px,31vw,430px);
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:clamp(22px,2.7vw,38px);overflow:hidden;border:2px solid var(--navy);
+  background:var(--card-bg);color:var(--card-fg);box-shadow:9px 9px 0 var(--navy);
+  transform-origin:50% 50%;translate:0 0;
+  transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
+  backface-visibility:hidden;
+}
+.home-focus-card::before{
+  content:"";position:absolute;width:clamp(130px,17vw,230px);aspect-ratio:1;
+  right:-17%;bottom:-27%;border:2px solid currentColor;border-radius:50%;
+  opacity:.18;pointer-events:none;
+}
+.home-focus-card::after{
+  content:"";position:absolute;width:clamp(72px,9vw,118px);aspect-ratio:1;
+  right:-5%;bottom:-12%;border:2px solid currentColor;border-radius:50%;
+  opacity:.2;pointer-events:none;
+}
+.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);z-index:3}
+.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);z-index:2}
+.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);z-index:1}
+.home-focus-card-top{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-bottom:17px;border-bottom:1px solid currentColor;
+  font:800 10px/1.3 var(--body);letter-spacing:.13em;text-transform:uppercase;
+}
+.home-focus-card-top span:last-child{font:900 22px/1 var(--body);letter-spacing:0}
+.home-focus-card h3{
+  position:relative;z-index:1;margin:clamp(34px,4vw,54px) 0 17px;max-width:440px;
+  font:900 clamp(39px,4.45vw,64px)/.88 var(--display);letter-spacing:-.015em;
+  text-transform:uppercase;overflow-wrap:anywhere;
+}
+.home-focus-card p{
+  position:relative;z-index:1;max-width:390px;margin:0 0 28px;
+  font-size:14px;line-height:1.65;font-weight:600;
+}
+.home-focus-tags{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
+.home-focus-tags span{
+  display:inline-flex;align-items:center;min-height:27px;padding:5px 9px;
+  border:1px solid currentColor;font:800 9px/1.2 var(--body);
+  letter-spacing:.055em;text-transform:uppercase;
+}
+.home-focus-card:focus-visible{outline:4px solid var(--magenta);outline-offset:7px}
+@media(hover:hover) and (pointer:fine){
+  .home-focus-card:hover{translate:-5px -5px;box-shadow:14px 14px 0 var(--navy)}
+}
+@media(max-width:900px){
+  .home-focus-head{grid-template-columns:1fr;gap:22px}
+  .home-focus-kicker{margin-bottom:-5px}
+  .home-focus-intro{max-width:520px}
+  .home-focus-grid{grid-template-columns:1fr;gap:18px}
+  .home-focus-card{min-height:310px;padding:clamp(24px,5vw,38px)}
+  .home-focus-card h3{font-size:clamp(46px,8vw,72px);margin-top:34px}
+  .home-focus-card p{max-width:560px}
+}
+@media(max-width:600px){
+  .home-focus{padding-top:82px;padding-bottom:92px}
+  .home-focus-title{font-size:clamp(56px,13.4vw,84px);line-height:.82}
+  .home-focus-head{margin-bottom:44px}
+  .home-focus-card{min-height:300px;box-shadow:7px 7px 0 var(--navy)}
+  .home-focus-card h3{font-size:clamp(43px,11vw,62px)}
+}
+@media(prefers-reduced-motion:reduce){.home-focus-card{transition:none}}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -1094,6 +1193,35 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <div class="home-intro-copy">
 <p>I am a computer science student interested in building useful software, thoughtful interfaces and understanding the systems behind them.</p>
 </div>
+</section>
+
+
+<section class="home-focus" id="toolkit" aria-labelledby="home-focus-title">
+  <div class="home-focus-head">
+    <p class="home-focus-kicker">Tools, practice and principles</p>
+    <h2 class="home-focus-title" id="home-focus-title">What I <span>work with.</span></h2>
+    <p class="home-focus-intro">A few of the areas I enjoy exploring, building in and getting better at.</p>
+  </div>
+  <div class="home-focus-grid">
+    <article class="home-focus-card" aria-labelledby="home-focus-web">
+      <div class="home-focus-card-top"><span>01 / Build for the web</span><span aria-hidden="true">↗</span></div>
+      <h3 id="home-focus-web">Web<br>development</h3>
+      <p>Creating responsive websites and thoughtful interfaces, with attention to structure, usability and the details that make a product feel polished.</p>
+      <div class="home-focus-tags" aria-label="Related technologies"><span>HTML and CSS</span><span>JavaScript</span><span>React</span></div>
+    </article>
+    <article class="home-focus-card" aria-labelledby="home-focus-apps">
+      <div class="home-focus-card-top"><span>02 / Build for people</span><span aria-hidden="true">↗</span></div>
+      <h3 id="home-focus-apps">Application<br>development</h3>
+      <p>Turning ideas into useful applications, from interface and interaction design to the logic and services working behind the screen.</p>
+      <div class="home-focus-tags" aria-label="Related technologies"><span>Flutter</span><span>Dart</span><span>Firebase</span></div>
+    </article>
+    <article class="home-focus-card" aria-labelledby="home-focus-foundations">
+      <div class="home-focus-card-top"><span>03 / Understand the systems</span><span aria-hidden="true">↗</span></div>
+      <h3 id="home-focus-foundations">Software<br>fundamentals</h3>
+      <p>Strengthening the foundations behind good software through programming, problem solving, data structures and computer science concepts.</p>
+      <div class="home-focus-tags" aria-label="Related technologies and concepts"><span>Python</span><span>C</span><span>Data structures</span></div>
+    </article>
+  </div>
 </section>
 
 </main>
@@ -1549,5 +1677,137 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 })();
 </script>
 
+
+
+<script>
+(() => {
+  const section = document.querySelector(".home-focus");
+  if (!section) return;
+
+  const heading = section.querySelector(".home-focus-title");
+  const cards = Array.from(section.querySelectorAll(".home-focus-card"));
+  const loader = document.getElementById("page-transition");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (!heading || cards.length !== 3 || !Element.prototype.animate || reducedMotion.matches) return;
+
+  let isVisible = false;
+  let loaderReady = !loader || loader.dataset.loaderFinished === "true";
+  let hasStarted = false;
+
+  const play = (element, frames, options, finalTransform) => new Promise(resolve => {
+    const animation = element.animate(frames, Object.assign({fill:"both"}, options));
+    animation.addEventListener("finish", () => {
+      if (finalTransform !== undefined) element.style.transform = finalTransform;
+      animation.cancel();
+      resolve();
+    }, {once:true});
+    animation.addEventListener("cancel", resolve, {once:true});
+  });
+
+  const move = (element, from, to, duration, delay) => play(
+    element,
+    [{transform:from},{transform:to}],
+    {duration:duration,delay:delay,easing:"cubic-bezier(.2,.78,.22,1)"},
+    to
+  );
+
+  const translate = (x, y, scale) =>
+    "translate3d(" + x.toFixed(2) + "px," + y.toFixed(2) + "px,0) scale(" + scale + ")";
+
+  const clearTransforms = () => {
+    cards.forEach(card => {
+      card.style.transform = "none";
+      card.style.zIndex = "";
+    });
+  };
+
+  const runDesktopSequence = async () => {
+    const stageRect = section.querySelector(".home-focus-grid").getBoundingClientRect();
+    const rects = cards.map(card => card.getBoundingClientRect());
+    const anchor = rects[0];
+
+    const orangeBaseX = anchor.left - rects[1].left;
+    const orangeBaseY = anchor.top - rects[1].top;
+    const limeBaseX = anchor.left - rects[2].left;
+    const limeBaseY = anchor.top - rects[2].top;
+
+    const blueStart = translate(-Math.max(160, stageRect.width * .48), 18, .96);
+    const orangeStart = translate(orangeBaseX + 7, orangeBaseY + 34, .98);
+    const orangeReveal = translate(orangeBaseX + 29, orangeBaseY + 17, 1);
+    const limeStart = translate(limeBaseX + 34, limeBaseY + 57, .97);
+    const limeReveal = translate(limeBaseX + 61, limeBaseY + 34, 1);
+
+    cards[0].style.zIndex = "3";
+    cards[1].style.zIndex = "2";
+    cards[2].style.zIndex = "1";
+    cards[0].style.transform = blueStart;
+    cards[1].style.transform = orangeStart;
+    cards[2].style.transform = limeStart;
+
+    await move(heading, "translate3d(0,30px,0)", "translate3d(0,0,0)", 640, 0);
+    heading.style.transform = "none";
+    await move(cards[0], blueStart, "none", 640, 0);
+    await move(cards[1], orangeStart, orangeReveal, 570, 70);
+    await move(cards[2], limeStart, limeReveal, 570, 70);
+
+    await Promise.all([
+      move(cards[0], "none", "none", 560, 0),
+      move(cards[1], orangeReveal, "none", 760, 0),
+      move(cards[2], limeReveal, "none", 760, 110)
+    ]);
+    clearTransforms();
+  };
+
+  const runMobileSequence = async () => {
+    await play(
+      heading,
+      [{transform:"translate3d(0,26px,0)",opacity:.72},{transform:"translate3d(0,0,0)",opacity:1}],
+      {duration:560,easing:"cubic-bezier(.2,.78,.22,1)"}
+    );
+    for (let i = 0; i < cards.length; i += 1) {
+      await play(
+        cards[i],
+        [{transform:"translate3d(0,24px,0)",opacity:.82},{transform:"translate3d(0,0,0)",opacity:1}],
+        {duration:480,delay:65,easing:"cubic-bezier(.2,.78,.22,1)"}
+      );
+    }
+  };
+
+  const maybeStart = () => {
+    if (!isVisible || !loaderReady || hasStarted) return;
+    hasStarted = true;
+    if (window.matchMedia("(max-width: 900px)").matches) runMobileSequence();
+    else runDesktopSequence();
+  };
+
+  if (loader && !loaderReady && "MutationObserver" in window) {
+    const loaderObserver = new MutationObserver(() => {
+      if (loader.dataset.loaderFinished === "true") {
+        loaderReady = true;
+        loaderObserver.disconnect();
+        maybeStart();
+      }
+    });
+    loaderObserver.observe(loader, {attributes:true,attributeFilter:["data-loader-finished"]});
+  }
+
+  if ("IntersectionObserver" in window) {
+    const sectionObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && entry.intersectionRatio >= .12) {
+          isVisible = true;
+          sectionObserver.disconnect();
+          maybeStart();
+          break;
+        }
+      }
+    }, {threshold:[.12,.25]});
+    sectionObserver.observe(section);
+  } else {
+    isVisible = true;
+    maybeStart();
+  }
+})();
+</script>
 
 </body></html>
