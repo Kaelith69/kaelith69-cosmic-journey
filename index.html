@@ -1677,16 +1677,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!grid || grid.querySelectorAll(".home-focus-card").length !== 3) return;
 
   let revealed = false;
-  let observer = null;
 
   const revealCards = () => {
     if (revealed) return;
     revealed = true;
 
-    if (observer) observer.disconnect();
     window.removeEventListener("scroll", checkPosition);
-    document.removeEventListener("scroll", checkPosition);
     window.removeEventListener("resize", checkPosition);
+    window.removeEventListener("pageshow", checkPosition);
 
     section.classList.remove("is-pending");
     section.classList.add("is-revealed");
@@ -1694,30 +1692,21 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
   const checkPosition = () => {
     if (revealed) return;
-    const gridRect = grid.getBoundingClientRect();
 
-    if (gridRect.top <= window.innerHeight * 0.88 && gridRect.bottom > 0) {
-      revealCards();
-    }
+    const gridTop = grid.getBoundingClientRect().top;
+    const triggerLine = window.innerHeight * 0.88;
+
+    // Do not require the grid to remain visible. A fast scroll can pass it
+    // completely between events; it must still reveal rather than stay hidden.
+    if (gridTop <= triggerLine) revealCards();
   };
 
   try {
-    section.classList.add("is-pending");
     window.addEventListener("scroll", checkPosition, { passive:true });
-    document.addEventListener("scroll", checkPosition, { passive:true });
     window.addEventListener("resize", checkPosition, { passive:true });
+    window.addEventListener("pageshow", checkPosition);
 
-    if ("IntersectionObserver" in window) {
-      observer = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) revealCards();
-      }, {
-        root:null,
-        rootMargin:"0px 0px -12% 0px",
-        threshold:0.01
-      });
-      observer.observe(grid);
-    }
-
+    section.classList.add("is-pending");
     checkPosition();
   } catch (_) {
     revealCards();
