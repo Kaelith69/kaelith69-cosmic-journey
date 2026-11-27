@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#F1EBDD">
 <meta name="description" content="Independent software, digital experiments and things built out of curiosity">
-<script>document.documentElement.classList.add("js");</script>
 <title>KAELITH69</title>
 <style>
 :root{
@@ -1080,7 +1079,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   padding:clamp(22px,2.7vw,38px);overflow:hidden;border:2px solid var(--navy);
   background:var(--card-bg);color:var(--card-fg);box-shadow:9px 9px 0 var(--navy);
   transform-origin:50% 50%;translate:0 0;
-  transition:opacity .65s ease,transform .82s cubic-bezier(.2,.78,.22,1),translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
+  transition:opacity .65s ease,transform .82s cubic-bezier(.2,.78,.22,1),translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1),visibility 0s;
   backface-visibility:hidden;
 }
 .home-focus-card::before{
@@ -1096,13 +1095,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);--reveal-delay:0ms;z-index:3}
 .home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);--reveal-delay:140ms;z-index:2}
 .home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);--reveal-delay:280ms;z-index:1}
-.js .home-focus:not(.is-revealed) .home-focus-card{opacity:0;pointer-events:none}
-.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(1){transform:translate3d(-76px,24px,0) scale(.985)}
-.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(2){transform:translate3d(0,56px,0) scale(.985)}
-.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(3){transform:translate3d(76px,24px,0) scale(.985)}
+.home-focus.is-pending .home-focus-card{
+  visibility:hidden;opacity:0;pointer-events:none;
+}
+.home-focus.is-pending .home-focus-card:nth-child(1){transform:translate3d(-76px,24px,0) scale(.985)}
+.home-focus.is-pending .home-focus-card:nth-child(2){transform:translate3d(0,56px,0) scale(.985)}
+.home-focus.is-pending .home-focus-card:nth-child(3){transform:translate3d(76px,24px,0) scale(.985)}
 .home-focus.is-revealed .home-focus-card{
-  opacity:1;transform:translate3d(0,0,0);
-  transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0s,0s;
+  visibility:visible;opacity:1;transform:translate3d(0,0,0);
+  pointer-events:auto;
+  transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0s,0s,0s;
 }
 .home-focus-card-top{
   width:100%;display:flex;align-items:center;justify-content:flex-end;
@@ -1123,8 +1125,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 }
 @media(prefers-reduced-motion:reduce){
   .home-focus-card{transition:none}
-  .js .home-focus:not(.is-revealed) .home-focus-card{transform:none}
-  .home-focus.is-revealed .home-focus-card{opacity:1;transform:none}
+  .home-focus.is-pending .home-focus-card{transform:none}
+  .home-focus.is-revealed .home-focus-card{visibility:visible;opacity:1;transform:none}
 }
 
 </style>
@@ -1168,7 +1170,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 </section>
 
 
-<section class="home-focus" id="toolkit" aria-hidden="true">
+<section class="home-focus is-pending" id="toolkit" aria-hidden="true">
   <div class="home-focus-grid">
     <article class="home-focus-card">
       <div class="home-focus-card-top"><span aria-hidden="true">↗</span></div>
@@ -1639,29 +1641,52 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 <script>
 (() => {
-  const section = document.querySelector(".home-focus");
+  const section = document.querySelector(".home-focus.is-pending");
   if (!section) return;
 
-  if (!("IntersectionObserver" in window)) {
+  let lastScrollY = window.scrollY;
+  let hasScrolledDown = false;
+  let revealed = false;
+
+  const reveal = () => {
+    if (revealed) return;
+    revealed = true;
+    section.classList.remove("is-pending");
     section.classList.add("is-revealed");
-    return;
-  }
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("wheel", onWheel);
+    window.removeEventListener("touchmove", onTouchMove);
+  };
 
-  const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        section.classList.add("is-revealed");
-        observer.disconnect();
-        break;
-      }
-    }
-  }, {
-    root: null,
-    rootMargin: "0px",
-    threshold: 0.08
-  });
+  const sectionReached = () => {
+    const rect = section.getBoundingClientRect();
+    return rect.top <= window.innerHeight * 0.82 && rect.bottom > 0;
+  };
 
-  observer.observe(section);
+  const checkReveal = () => {
+    if (hasScrolledDown && sectionReached()) reveal();
+  };
+
+  const onScroll = () => {
+    const currentY = window.scrollY;
+    if (currentY > lastScrollY + 1) hasScrolledDown = true;
+    if (currentY !== lastScrollY) lastScrollY = currentY;
+    checkReveal();
+  };
+
+  const onWheel = event => {
+    if (event.deltaY > 0) hasScrolledDown = true;
+    checkReveal();
+  };
+
+  const onTouchMove = () => {
+    hasScrolledDown = true;
+    checkReveal();
+  };
+
+  window.addEventListener("scroll", onScroll, {passive:true});
+  window.addEventListener("wheel", onWheel, {passive:true});
+  window.addEventListener("touchmove", onTouchMove, {passive:true});
 })();</script>
 
 </body></html>
