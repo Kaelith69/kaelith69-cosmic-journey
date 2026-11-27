@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#F1EBDD">
 <meta name="description" content="Independent software, digital experiments and things built out of curiosity">
+<script>document.documentElement.classList.add("js");</script>
 <title>KAELITH69</title>
 <style>
 :root{
@@ -1079,7 +1080,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   padding:clamp(22px,2.7vw,38px);overflow:hidden;border:2px solid var(--navy);
   background:var(--card-bg);color:var(--card-fg);box-shadow:9px 9px 0 var(--navy);
   transform-origin:50% 50%;translate:0 0;
-  transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
+  transition:opacity .65s ease,transform .82s cubic-bezier(.2,.78,.22,1),translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
   backface-visibility:hidden;
 }
 .home-focus-card::before{
@@ -1092,9 +1093,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   right:-5%;bottom:-12%;border:2px solid currentColor;border-radius:50%;
   opacity:.2;pointer-events:none;
 }
-.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);z-index:3}
-.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);z-index:2}
-.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);z-index:1}
+.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);--reveal-delay:0ms;z-index:3}
+.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);--reveal-delay:140ms;z-index:2}
+.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);--reveal-delay:280ms;z-index:1}
+.js .home-focus:not(.is-revealed) .home-focus-card{opacity:0;pointer-events:none}
+.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(1){transform:translate3d(-76px,24px,0) scale(.985)}
+.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(2){transform:translate3d(0,56px,0) scale(.985)}
+.js .home-focus:not(.is-revealed) .home-focus-card:nth-child(3){transform:translate3d(76px,24px,0) scale(.985)}
+.home-focus.is-revealed .home-focus-card{
+  opacity:1;transform:translate3d(0,0,0);
+  transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0s,0s;
+}
 .home-focus-card-top{
   width:100%;display:flex;align-items:center;justify-content:flex-end;
   padding-bottom:17px;border-bottom:1px solid currentColor;
@@ -1112,7 +1121,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .home-focus{padding-top:82px;padding-bottom:92px}
   .home-focus-card{min-height:300px;box-shadow:7px 7px 0 var(--navy)}
 }
-@media(prefers-reduced-motion:reduce){.home-focus-card{transition:none}}
+@media(prefers-reduced-motion:reduce){
+  .home-focus-card{transition:none}
+  .js .home-focus:not(.is-revealed) .home-focus-card{transform:none}
+  .home-focus.is-revealed .home-focus-card{opacity:1;transform:none}
+}
 
 </style>
 </head><body>
@@ -1629,126 +1642,30 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const section = document.querySelector(".home-focus");
   if (!section) return;
 
-  const cards = Array.from(section.querySelectorAll(".home-focus-card"));
-  const loader = document.getElementById("page-transition");
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (cards.length !== 3 || !Element.prototype.animate || reducedMotion.matches) return;
+  const reveal = () => {
+    section.classList.add("is-revealed");
+    observer.disconnect();
+  };
 
-  let isVisible = false;
-  let loaderReady = !loader || loader.dataset.loaderFinished === "true";
-  let hasStarted = false;
+  if (!("IntersectionObserver" in window)) {
+    reveal();
+    return;
+  }
 
-  const play = (element, frames, options, finalTransform) => new Promise(resolve => {
-    const animation = element.animate(frames, Object.assign({fill:"both"}, options));
-    animation.addEventListener("finish", () => {
-      if (finalTransform !== undefined) element.style.transform = finalTransform;
-      animation.cancel();
-      resolve();
-    }, {once:true});
-    animation.addEventListener("cancel", resolve, {once:true});
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        reveal();
+        break;
+      }
+    }
+  }, {
+    root: null,
+    rootMargin: "0px",
+    threshold: 0.08
   });
 
-  const move = (element, from, to, duration, delay) => play(
-    element,
-    [{transform:from},{transform:to}],
-    {duration:duration,delay:delay,easing:"cubic-bezier(.2,.78,.22,1)"},
-    to
-  );
-
-  const translate = (x, y, scale) =>
-    "translate3d(" + x.toFixed(2) + "px," + y.toFixed(2) + "px,0) scale(" + scale + ")";
-
-  const clearTransforms = () => {
-    cards.forEach(card => {
-      card.style.transform = "none";
-      card.style.zIndex = "";
-    });
-  };
-
-  const runDesktopSequence = async () => {
-    const stageRect = section.querySelector(".home-focus-grid").getBoundingClientRect();
-    const rects = cards.map(card => card.getBoundingClientRect());
-    const anchor = rects[0];
-
-    const orangeBaseX = anchor.left - rects[1].left;
-    const orangeBaseY = anchor.top - rects[1].top;
-    const limeBaseX = anchor.left - rects[2].left;
-    const limeBaseY = anchor.top - rects[2].top;
-
-    const blueStart = translate(-Math.max(160, stageRect.width * .48), 18, .96);
-    const orangeStart = translate(orangeBaseX + 7, orangeBaseY + 34, .98);
-    const orangeReveal = translate(orangeBaseX + 29, orangeBaseY + 17, 1);
-    const limeStart = translate(limeBaseX + 34, limeBaseY + 57, .97);
-    const limeReveal = translate(limeBaseX + 61, limeBaseY + 34, 1);
-
-    cards[0].style.zIndex = "3";
-    cards[1].style.zIndex = "2";
-    cards[2].style.zIndex = "1";
-    cards[0].style.transform = blueStart;
-    cards[1].style.transform = orangeStart;
-    cards[2].style.transform = limeStart;
-
-    await move(cards[0], blueStart, "none", 640, 0);
-    await move(cards[1], orangeStart, orangeReveal, 570, 70);
-    await move(cards[2], limeStart, limeReveal, 570, 70);
-
-    await Promise.all([
-      move(cards[0], "none", "none", 560, 0),
-      move(cards[1], orangeReveal, "none", 760, 0),
-      move(cards[2], limeReveal, "none", 760, 110)
-    ]);
-    clearTransforms();
-  };
-
-  const runMobileSequence = async () => {
-    for (let i = 0; i < cards.length; i += 1) {
-      await play(
-        cards[i],
-        [{transform:"translate3d(0,24px,0)",opacity:.82},{transform:"translate3d(0,0,0)",opacity:1}],
-        {duration:480,delay:65,easing:"cubic-bezier(.2,.78,.22,1)"}
-      );
-    }
-  };
-
-  const maybeStart = () => {
-    if (!isVisible || !loaderReady || hasStarted) return;
-    hasStarted = true;
-    if (window.matchMedia("(max-width: 900px)").matches) runMobileSequence();
-    else runDesktopSequence();
-  };
-
-  if (loader && !loaderReady && "MutationObserver" in window) {
-    const loaderObserver = new MutationObserver(() => {
-      if (loader.dataset.loaderFinished === "true") {
-        loaderReady = true;
-        loaderObserver.disconnect();
-        maybeStart();
-      }
-    });
-    loaderObserver.observe(loader, {attributes:true,attributeFilter:["data-loader-finished"]});
-  }
-
-  if ("IntersectionObserver" in window) {
-    const earlyTriggerDistance = Math.round(window.innerHeight * 0.75);
-    const sectionObserver = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          isVisible = true;
-          sectionObserver.disconnect();
-          maybeStart();
-          break;
-        }
-      }
-    }, {
-      rootMargin: "0px 0px " + earlyTriggerDistance + "px 0px",
-      threshold: 0
-    });
-    sectionObserver.observe(section);
-  } else {
-    isVisible = true;
-    maybeStart();
-  }
-})();
-</script>
+  observer.observe(section);
+})();</script>
 
 </body></html>
