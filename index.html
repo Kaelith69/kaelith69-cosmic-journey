@@ -1666,6 +1666,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const section = document.querySelector(".home-focus.is-pending");
   if (!section) return;
 
+  const cardGrid = section.querySelector(".home-focus-grid");
+  if (!cardGrid) return;
+
   const scrollingElement = document.scrollingElement || document.documentElement;
   let previousScrollTop = scrollingElement.scrollTop;
   let framePending = false;
@@ -1676,13 +1679,13 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     if (revealed) return;
 
     const currentScrollTop = scrollingElement.scrollTop;
-    const movedDown = currentScrollTop > previousScrollTop + 1;
+    const movedDown = currentScrollTop > previousScrollTop + 0.01;
     previousScrollTop = currentScrollTop;
     if (!movedDown) return;
 
-    const sectionRect = section.getBoundingClientRect();
-    const triggerLine = window.innerHeight * 0.82;
-    if (sectionRect.top > triggerLine || sectionRect.bottom <= 0) return;
+    const gridRect = cardGrid.getBoundingClientRect();
+    const triggerLine = window.innerHeight * 0.88;
+    if (gridRect.top > triggerLine || gridRect.bottom <= 0) return;
 
     revealed = true;
     section.classList.remove("is-pending");
