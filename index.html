@@ -940,6 +940,32 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .focus-tile{min-height:230px}
 }
 
+
+/* Home page: concrete profile, stack, process and navigation */
+.home-intro h2{font-size:clamp(52px,7.8vw,104px)}
+.home-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:36px;border-top:1px solid rgba(241,235,221,.28);padding-top:18px}
+.home-facts div{display:flex;flex-direction:column;gap:10px}
+.home-facts strong{font:900 26px/.9 var(--display);color:var(--lime)}
+.home-facts span{font-size:11px;line-height:1.45;color:var(--pale);max-width:130px}
+.tile-stack{margin-top:20px;padding-top:12px;border-top:1px solid currentColor;font:800 9px/1.6 var(--body);letter-spacing:.06em}
+.home-practice{background:#171717;color:#F1EBDD;padding:clamp(84px,10vw,138px) var(--gutter);display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(34px,8vw,110px)}
+.home-practice h2,.home-map h2{font:900 clamp(50px,7vw,94px)/.84 var(--display);text-transform:uppercase;margin:18px 0 0}
+.practice-steps{border-top:1px solid rgba(241,235,221,.35)}
+.practice-steps article{display:grid;grid-template-columns:48px 1fr;gap:18px;padding:23px 0;border-bottom:1px solid rgba(241,235,221,.35)}
+.practice-steps article>span{font:900 18px var(--display);color:#D9F04A}
+.practice-steps h3{font:900 clamp(21px,2.5vw,29px)/1 var(--display);text-transform:uppercase;margin:0 0 9px}
+.practice-steps p{font-size:13px;line-height:1.7;color:#C8C2B5;max-width:480px;margin:0}
+.home-map{background:#244BFF;color:#F1EBDD;padding:clamp(84px,10vw,138px) var(--gutter);display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(34px,8vw,110px)}
+.home-map .home-kicker{color:#D9F04A}
+.home-map-links{border-top:1px solid rgba(241,235,221,.55)}
+.home-map-links a{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:14px;padding:21px 0;border-bottom:1px solid rgba(241,235,221,.55);transition:padding .2s}
+.home-map-links a:hover{padding-left:10px}
+.home-map-links a>span{font:900 13px var(--body);color:#D9F04A}
+.home-map-links strong{font:900 clamp(25px,3vw,38px)/.9 var(--display);text-transform:uppercase}
+.home-map-links small{grid-column:2;font-size:12px;line-height:1.5;opacity:.85}
+.home-map-links b{grid-column:3;grid-row:1/3;font-size:24px}
+.home-outro{background:#D9F04A}
+@media(max-width:760px){.home-facts{grid-template-columns:1fr;gap:15px}.home-facts div{display:grid;grid-template-columns:36px 1fr;align-items:center}.home-facts span{max-width:none}.home-practice,.home-map{grid-template-columns:1fr;gap:36px}.home-map-links a{grid-template-columns:32px 1fr auto}}
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -971,20 +997,33 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 </section>
 
 <section class="home-intro" aria-labelledby="home-intro-title">
-  <div><span class="home-kicker">01 / A little about this space</span><h2 id="home-intro-title">Ideas into<br><span>interfaces.</span></h2></div>
-  <div class="home-intro-copy">
-    <p>A personal corner for software, experiments and the things that happen when curiosity meets a keyboard.</p>
-    <p class="small-copy">I explore the web, mobile development, programming and creative technology. Some ideas become useful tools. Others become experiments. Every project is a chance to understand something more deeply and make it real.</p>
-  </div>
-</section>
+<div><span class="home-kicker">01 / Profile</span><h2 id="home-intro-title">Computer<br>science.<br><span>In practice.</span></h2></div>
+<div class="home-intro-copy">
+<p>I am a computer science student focused on building for the web, exploring application development and understanding the systems behind the screen.</p>
+<p class="small-copy">This portfolio documents that process: projects I have built, technologies I am learning and experiments that turn technical curiosity into something people can use. I care about clear interfaces, thoughtful implementation and understanding why a solution works, not just getting it to run.</p>
+<div class="home-facts" aria-label="Portfolio focus"><div><strong>01</strong><span>Frontend development</span></div><div><strong>02</strong><span>Application development</span></div><div><strong>03</strong><span>Programming and problem solving</span></div></div>
+</div></section>
 <section class="home-focus" aria-labelledby="home-focus-title">
-  <div class="home-focus-head"><div><span class="home-kicker">02 / Areas of exploration</span><h2 id="home-focus-title">What I<br>build with.</h2></div><p>A growing set of interests, tools and disciplines. The work changes as I learn, test ideas and discover better ways to build.</p></div>
-  <div class="focus-grid">
-    <article class="focus-tile"><span class="tile-index">01 / WEB</span><div><h3>Web<br>experiences</h3><p>Interfaces, frontend systems and experiments with modern web technologies.</p></div></article>
-    <article class="focus-tile"><span class="tile-index">02 / SOFTWARE</span><div><h3>Apps &<br>tools</h3><p>Mobile applications, practical utilities and software shaped around a clear purpose.</p></div></article>
-    <article class="focus-tile"><span class="tile-index">03 / CURIOSITY</span><div><h3>Creative<br>computing</h3><p>Visual experiments, automation, AI applications and ideas that cross disciplines.</p></div></article>
-  </div>
-</section>
+<div class="home-focus-head"><div><span class="home-kicker">02 / Technical focus</span><h2 id="home-focus-title">The tools<br>and the work.</h2></div><p>A practical snapshot of the technologies I work with and the kinds of problems I want to solve. These are active learning areas, not claims of mastery.</p></div>
+<div class="focus-grid">
+<article class="focus-tile"><span class="tile-index">01 / FRONTEND</span><div><h3>Build the<br>interface.</h3><p>HTML, CSS, JavaScript and React. Responsive layouts, component based UI and accessible interactions.</p><div class="tile-stack">HTML / CSS / JAVASCRIPT / REACT</div></div></article>
+<article class="focus-tile"><span class="tile-index">02 / APPLICATIONS</span><div><h3>Make it<br>useful.</h3><p>Flutter and Firebase for mobile application interfaces, authentication and connected app experiences.</p><div class="tile-stack">FLUTTER / DART / FIREBASE</div></div></article>
+<article class="focus-tile"><span class="tile-index">03 / PROGRAMMING</span><div><h3>Understand<br>the system.</h3><p>Python, Java and C. Strengthening programming fundamentals, problem solving and software logic.</p><div class="tile-stack">PYTHON / JAVA / C</div></div></article>
+</div></section>
+<section class="home-practice" aria-labelledby="home-practice-title">
+<div class="home-practice-heading"><span class="home-kicker">03 / How I approach a project</span><h2 id="home-practice-title">From question<br>to working thing.</h2></div>
+<div class="practice-steps">
+<article><span>01</span><div><h3>Understand the problem</h3><p>Work out what needs to happen, who it is for and what a successful result should look like.</p></div></article>
+<article><span>02</span><div><h3>Build a clear first version</h3><p>Choose a suitable stack, break the work into manageable parts and get the core flow working.</p></div></article>
+<article><span>03</span><div><h3>Test and refine</h3><p>Check edge cases, improve the interface and revisit decisions that make the software harder to use or maintain.</p></div></article>
+</div></section>
+<section class="home-map" aria-labelledby="home-map-title">
+<div><span class="home-kicker">04 / Explore this portfolio</span><h2 id="home-map-title">Find your<br>way around.</h2></div>
+<div class="home-map-links">
+<a href="work.html"><span>01</span><strong>Work</strong><small>Browse the live repository collection</small><b>↗</b></a>
+<a href="about.html"><span>02</span><strong>About</strong><small>Read about my background and toolkit</small><b>↗</b></a>
+<a href="contact.html"><span>03</span><strong>Contact</strong><small>Get in touch or discuss a collaboration</small><b>↗</b></a>
+</div></section>
 <section class="home-outro" aria-labelledby="home-outro-title">
   <div><span class="home-kicker">03 / Keep exploring</span><h2 id="home-outro-title">The next idea<br>starts <span>here.</span></h2></div>
   <a class="hero-link" href="work.html"><span class="hero-link-label">Browse the projects</span><span class="hero-link-icon" aria-hidden="true">↗</span></a>
