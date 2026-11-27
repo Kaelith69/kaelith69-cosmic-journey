@@ -43,24 +43,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   width:max-content;
   white-space:nowrap;
 }
-.hero h1>span:not(.hero-word){
-  display:block;
-  position:relative;
-  width:max-content;
-  color:var(--cyan);
-  margin-left:clamp(26px,11vw,170px);
-  -webkit-text-stroke:2px var(--navy);
-  paint-order:stroke fill;
-  text-shadow:5px 5px 0 var(--navy),10px 10px 0 var(--blue),14px 14px 0 var(--magenta);
-  filter:drop-shadow(5px 5px 0 rgba(23,23,23,.12));
-}
-.hero h1>.hero-word{
-  display:block;
-  width:max-content;
-  white-space:nowrap;
-  perspective:1400px;
-  perspective-origin:50% 58%;
-}
 .hero h1 .fall-unit{
   position:relative;
   display:inline-block;
@@ -75,20 +57,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:inline-block;
   margin:0;
   padding:0;
-  transform-origin:50% 100% 0;
-  transform-style:preserve-3d;
+  transform-origin:50% 100%;
   will-change:transform;
 }
 .hero h1 .fall-letter{
-  position:relative;
   display:inline-block;
   margin:0;
   padding:0;
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
-  transform:translateZ(4px);
-  backface-visibility:hidden;
 }
 .hero h1 .fall-ground-shadow{
   position:absolute;
@@ -119,20 +97,21 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .hero h1 .fall-cast-hard{
   z-index:1;
   color:#171717;
-  opacity:var(--cast-hard-opacity,.62);
-  filter:blur(var(--cast-hard-blur,.08px));
+  opacity:var(--cast-hard-opacity,.31);
+  filter:blur(var(--cast-hard-blur,.1px));
 }
 .hero h1 .fall-cast-soft{
   z-index:0;
   color:#171717;
-  opacity:var(--cast-soft-opacity,.18);
-  filter:blur(var(--cast-soft-blur,1.2px));
+  opacity:var(--cast-soft-opacity,.11);
+  filter:blur(var(--cast-soft-blur,2.4px));
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
     -webkit-text-stroke:1.5px var(--navy);
     text-shadow:4px 4px 0 var(--navy),8px 8px 0 var(--blue),11px 11px 0 var(--magenta);
-  }
+    z-index:2;
+}
 }
 .hero-disc{position:absolute;width:clamp(150px,22vw,320px);aspect-ratio:1;border-radius:50%;background:var(--magenta);right:clamp(3%,12vw,180px);top:50%;transform:translateY(-42%);mix-blend-mode:normal;z-index:-1}
 .hero-disc::before{content:"";position:absolute;inset:13%;border:2px solid var(--navy);border-radius:50%}
@@ -1270,139 +1249,75 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   heading.dataset.physicsFallReady = "true";
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const cross = (a, b) => [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0]
-  ];
-  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-  const scale = (a, value) => [a[0] * value, a[1] * value, a[2] * value];
-
-  const multiplyQuaternion = (a, b) => [
-    a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
-    a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
-    a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
-    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]
-  ];
-
-  const normalizeQuaternion = q => {
-    const length = Math.hypot(...q) || 1;
-    return q.map(value => value / length);
-  };
-
-  const quaternionFromEuler = (x, y, z) => {
-    const cx = Math.cos(x / 2), sx = Math.sin(x / 2);
-    const cy = Math.cos(y / 2), sy = Math.sin(y / 2);
-    const cz = Math.cos(z / 2), sz = Math.sin(z / 2);
-    return normalizeQuaternion([
-      sx * cy * cz - cx * sy * sz,
-      cx * sy * cz + sx * cy * sz,
-      cx * cy * sz - sx * sy * cz,
-      cx * cy * cz + sx * sy * sz
-    ]);
-  };
-
-  const rotationMatrix = q => {
-    const [x, y, z, w] = q;
-    return [
-      [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
-      [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
-      [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]
-    ];
-  };
-
-  const transformVector = (matrix, vector) => [
-    dot(matrix[0], vector),
-    dot(matrix[1], vector),
-    dot(matrix[2], vector)
-  ];
-
-  const worldTensor = (rotation, diagonal) => {
-    const tensor = [[0,0,0],[0,0,0],[0,0,0]];
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        for (let axis = 0; axis < 3; axis++) {
-          tensor[row][col] += rotation[row][axis] * diagonal[axis] * rotation[col][axis];
-        }
-      }
-    }
-    return tensor;
-  };
-
-  const quaternionError = q => {
-    const oriented = q[3] < 0 ? q.map(value => -value) : q;
-    const vectorLength = Math.hypot(oriented[0], oriented[1], oriented[2]);
-    if (vectorLength < 1e-8) return [0,0,0];
-    const angle = 2 * Math.atan2(vectorLength, clamp(oriented[3], -1, 1));
-    return [
-      oriented[0] / vectorLength * angle,
-      oriented[1] / vectorLength * angle,
-      oriented[2] / vectorLength * angle
-    ];
-  };
-
   const gravity = 2800;
-  const restitution = 0.22;
-  const friction = 0.58;
-  const bodyThickness = 8;
+  const restitution = 0.24;
+  const friction = 0.52;
 
-  // A fixed point light above and to the upper left of the word.
-  // The finite light position creates perspective shadow divergence.
-  const light = {
-    x: -window.innerWidth * 0.18,
-    depth: -520,
-    height: 2200
-  };
-  const groundPerspective = 0.30;
+  // A finite point light above and to the upper left of the word.
+  // The floor is foreshortened into the page beneath the letters.
+  const lightX = -window.innerWidth * 0.24;
+  const lightDepth = -window.innerHeight * 0.95;
+  const lightHeight = window.innerHeight * 1.5;
+  const floorProjection = 0.36;
   const fallDistance = Math.max(window.innerHeight * 0.9, 720);
 
+  // Each glyph is its own rigid body with its own mass and rotational inertia.
   const states = glyphs.map(({body, softShadow, hardShadow}, index) => {
     const width = Math.max(1, body.offsetWidth);
     const height = Math.max(1, body.offsetHeight);
-    const mass = Math.max(0.45, width * height * bodyThickness / 52000);
-    const inertia = [
-      mass * (height * height + bodyThickness * bodyThickness) / 12,
-      mass * (width * width + height * height) / 12,
-      mass * (width * width + bodyThickness * bodyThickness) / 12
-    ];
-    const inverseInertia = inertia.map(value => 1 / value);
-    const baseX = body.getBoundingClientRect().left;
-    const sign = index % 2 ? -1 : 1;
+    const mass = Math.max(0.35, width * height / 15000);
+    const inertia = mass * (width * width + height * height) / 12;
 
-    return {
+    const state = {
       body, softShadow, hardShadow,
-      width, height, baseX, mass, inertia, inverseInertia,
+      width, height, mass, inertia,
+      baseX: body.getBoundingClientRect().left,
       x: 0,
-      depth: 0,
-      z: height / 2 + fallDistance + 100 + index * 22,
+      y: -(fallDistance + 90 + index * 22),
       vx: 0,
       vy: 0,
-      vz: 0,
-      q: quaternionFromEuler(
-        sign * (0.07 + index % 3 * 0.018),
-        -sign * (0.045 + index % 4 * 0.012),
-        sign * (0.05 + index % 2 * 0.025)
-      ),
-      omega: [
-        sign * (0.20 + index % 3 * 0.045),
-        -sign * (0.34 + index % 4 * 0.065),
-        sign * (0.13 + index % 2 * 0.04)
-      ],
+      angle: (index % 2 ? -1 : 1) * (0.07 + (index % 3) * 0.018),
+      angularVelocity: (index % 2 ? 1 : -1) * (0.42 + (index % 4) * 0.09),
       delay: index * 0.055,
       impact: 0,
       grounded: false,
       settled: false
     };
+
+    body.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}rad)`;
+    return state;
   });
 
-  // Solve a planar projective transform from the four projected glyph corners.
+  // Map an arbitrary point on a rotated letter onto the floor using point-light rays.
+  const projectToFloor = (state, x, y) => {
+    const localX = x - state.width / 2;
+    const localY = state.height - y;
+    const cosine = Math.cos(state.angle);
+    const sine = Math.sin(state.angle);
+
+    const worldX = state.baseX + state.x + state.width / 2 +
+      cosine * localX - sine * localY;
+    const worldHeight = Math.max(0.25,
+      -state.y + sine * localX + cosine * localY
+    );
+
+    const rayScale = lightHeight / Math.max(1, lightHeight - worldHeight);
+    const floorX = lightX + rayScale * (worldX - lightX);
+    const floorDepth = lightDepth * (1 - rayScale);
+
+    return {
+      x: floorX - state.baseX,
+      y: state.height + floorDepth * floorProjection
+    };
+  };
+
+  // Solve the eight unknowns of a planar projective transform from four corners.
   const solveHomography = points => {
     const rows = [];
-    for (const {x, y, u, v} of points) {
+    points.forEach(({x, y, u, v}) => {
       rows.push([x,y,1,0,0,0,-u*x,-u*y,u]);
       rows.push([0,0,0,x,y,1,-v*x,-v*y,v]);
-    }
+    });
 
     for (let column = 0; column < 8; column++) {
       let pivot = column;
@@ -1424,28 +1339,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return rows.map(row => row[8]);
   };
 
-  const projectGlyphPoint = (state, rotation, x, y) => {
-    // The glyph plane is the front face of a thin 3D plate.
-    const local = [x - state.width / 2, bodyThickness / 2, state.height / 2 - y];
-    const rotated = transformVector(rotation, local);
-    const worldX = state.baseX + state.x + rotated[0];
-    const worldDepth = state.depth + rotated[1];
-    const worldHeight = state.z + rotated[2];
-
-    // Point-light ray from the source through the glyph to the floor plane z = 0.
-    const denominator = light.height - worldHeight;
-    const rayScale = light.height / Math.max(1, denominator);
-    const floorX = light.x + rayScale * (worldX - light.x);
-    const floorDepth = light.depth + rayScale * (worldDepth - light.depth);
-
-    return {
-      x: floorX - state.baseX,
-      y: state.height + floorDepth * groundPerspective,
-      rayScale
-    };
-  };
-
-  const updateShadow = (state, rotation) => {
+  const updateShadow = state => {
     const corners = [
       [0,0],
       [state.width,0],
@@ -1453,63 +1347,49 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       [0,state.height]
     ];
     const points = corners.map(([x,y]) => {
-      const projected = projectGlyphPoint(state, rotation, x, y);
+      const projected = projectToFloor(state,x,y);
       return {x,y,u:projected.x,v:projected.y};
     });
     const h = solveHomography(points);
 
     if (h) {
+      // CSS matrix3d expresses the full projective map, not a repeated offset.
       const matrix = `matrix3d(${h[0]},${h[3]},0,${h[6]},${h[1]},${h[4]},0,${h[7]},0,0,1,0,${h[2]},${h[5]},0,1)`;
       state.hardShadow.style.transform = matrix;
       state.softShadow.style.transform = matrix;
     }
 
-    const centre = projectGlyphPoint(state, rotation, state.width / 2, state.height / 2);
-    const sourceDistance = Math.max(0, centre.rayScale - 1);
-    const altitude = clamp((state.z - state.height / 2) / fallDistance, 0, 1);
+    const altitude = clamp(-state.y / fallDistance, 0, 1);
+    const speed = clamp(Math.abs(state.vy) / 1500, 0, 1);
     const impact = clamp(state.impact, 0, 1);
 
-    // A crisp core plus a finite area light penumbra.
-    state.hardShadow.style.opacity = (0.62 - altitude * 0.20 + impact * 0.16).toFixed(3);
-    state.hardShadow.style.filter = `blur(${(0.08 + sourceDistance * 0.22).toFixed(2)}px)`;
-    state.softShadow.style.opacity = (0.12 + altitude * 0.12 + impact * 0.06).toFixed(3);
-    state.softShadow.style.filter = `blur(${(1.1 + sourceDistance * 4.2).toFixed(2)}px)`;
+    // The hard silhouette stays defined; the separate penumbra widens with height.
+    state.hardShadow.style.opacity = (0.31 - altitude * 0.10 + impact * 0.13).toFixed(3);
+    state.hardShadow.style.filter = `blur(${(0.10 + altitude * 0.40).toFixed(2)}px)`;
+    state.softShadow.style.opacity = (0.11 + altitude * 0.08 + impact * 0.05).toFixed(3);
+    state.softShadow.style.filter = `blur(${(2.4 + altitude * 1.5 + speed * 0.35).toFixed(2)}px)`;
   };
 
-  const supportCorners = state => {
-    const halfWidth = state.width / 2;
-    const halfDepth = bodyThickness / 2;
-    const halfHeight = state.height / 2;
-    const corners = [];
-    for (const x of [-halfWidth, halfWidth]) {
-      for (const y of [-halfDepth, halfDepth]) {
-        for (const z of [-halfHeight, halfHeight]) corners.push([x,y,z]);
-      }
-    }
-    return corners;
-  };
-
-  const applyImpulse = (state, inverseWorldInertia, r, impulse) => {
-    state.vx += impulse[0] / state.mass;
-    state.vy += impulse[1] / state.mass;
-    state.vz += impulse[2] / state.mass;
-    const angularImpulse = transformVector(inverseWorldInertia, cross(r, impulse));
-    state.omega = add(state.omega, angularImpulse);
-  };
-
-  const renderBody = (state, rotation) => {
-    const pivotX = state.x - rotation[0][2] * state.height / 2;
-    const pivotDepth = state.depth - rotation[1][2] * state.height / 2;
-    const pivotHeight = state.z - rotation[2][2] * state.height / 2;
-
-    // Convert world axes (X, depth, height) into CSS axes (X, down, toward camera).
-    const values = [
-      rotation[0][0], -rotation[2][0], rotation[1][0], 0,
-      -rotation[0][2], rotation[2][2], -rotation[1][2], 0,
-      rotation[0][1], -rotation[2][1], rotation[1][1], 0,
-      pivotX, -pivotHeight, pivotDepth, 1
+  // Rectangle support points keep each letter's collision stable while it rotates.
+  const supportPoint = state => {
+    const cosine = Math.cos(state.angle);
+    const sine = Math.sin(state.angle);
+    const corners = [
+      [-state.width / 2,-state.height],
+      [ state.width / 2,-state.height],
+      [-state.width / 2,0],
+      [ state.width / 2,0]
     ];
-    state.body.style.transform = `matrix3d(${values.join(",")})`;
+
+    let support = null;
+    for (const [localX,localY] of corners) {
+      const point = {
+        x: cosine * localX - sine * localY,
+        y: sine * localX + cosine * localY
+      };
+      if (!support || point.y > support.y) support = point;
+    }
+    return support;
   };
 
   let started = false;
@@ -1520,126 +1400,88 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
     const tick = time => {
       if (!previousTime) previousTime = time;
-      const dt = Math.min((time - previousTime) / 1000, 0.016);
+      const dt = Math.min((time - previousTime) / 1000, 0.02);
       previousTime = time;
       let moving = false;
 
       for (const state of states) {
         if (state.settled) continue;
+
         if (state.delay > 0) {
           state.delay = Math.max(0, state.delay - dt);
           moving = true;
           continue;
         }
 
-        const rotation = rotationMatrix(state.q);
-        const inverseWorldInertia = worldTensor(rotation, state.inverseInertia);
-        const worldInertia = worldTensor(rotation, state.inertia);
+        state.vy += gravity * dt;
+        state.vx += (-state.x * 24 - state.vx * 7) * dt;
 
-        // Gravity and weak planar alignment keep each letter near its intended slot.
-        state.vz -= gravity * dt;
-        state.vx += (-state.x * 9 - state.vx * 4) * dt;
-        state.vy += (-state.depth * 9 - state.vy * 4) * dt;
+        const stiffness = state.grounded ? 48 : 1.4;
+        const angularDamping = state.grounded ? 12 : 1.1;
+        state.angularVelocity +=
+          (-state.angle * stiffness - state.angularVelocity * angularDamping) * dt;
 
-        // Damped rotational spring returns the glyph to its upright rest pose.
-        const error = quaternionError(state.q);
-        const stiffness = state.grounded ? 54 : 0.8;
-        const damping = state.grounded ? 13 : 0.9;
-        const angularMomentum = transformVector(worldInertia, state.omega);
-        const gyroscopic = cross(state.omega, angularMomentum);
-        const torque = error.map((value, axis) => -stiffness * value - damping * state.omega[axis] - gyroscopic[axis]);
-        state.omega = add(state.omega, scale(transformVector(inverseWorldInertia, torque), dt));
-
+        state.y += state.vy * dt;
         state.x += state.vx * dt;
-        state.depth += state.vy * dt;
-        state.z += state.vz * dt;
-
-        const qDerivative = multiplyQuaternion(
-          [state.omega[0],state.omega[1],state.omega[2],0],
-          state.q
-        );
-        state.q = normalizeQuaternion(state.q.map((value, index) => value + 0.5 * qDerivative[index] * dt));
-
-        const currentRotation = rotationMatrix(state.q);
-        const currentInverseInertia = worldTensor(currentRotation, state.inverseInertia);
-        let support = null;
-
-        for (const localCorner of supportCorners(state)) {
-          const r = transformVector(currentRotation, localCorner);
-          const height = state.z + r[2];
-          if (!support || height < support.height) support = {r,height};
-        }
+        state.angle += state.angularVelocity * dt;
 
         state.grounded = false;
-        if (support && support.height < 0.35) {
-          if (support.height < 0) state.z -= support.height;
+        const support = supportPoint(state);
+        const penetration = state.y + support.y;
 
-          const r = support.r;
-          const contactVelocity = add(
-            [state.vx,state.vy,state.vz],
-            cross(state.omega,r)
-          );
+        if (penetration > 0) {
+          state.y -= penetration;
 
-          if (contactVelocity[2] < 0) {
-            const rCrossNormal = cross(r,[0,0,1]);
-            const normalDenominator = 1 / state.mass + dot(rCrossNormal,transformVector(currentInverseInertia,rCrossNormal));
-            const normalImpulse = -(1 + restitution) * contactVelocity[2] / normalDenominator;
-            applyImpulse(state,currentInverseInertia,r,[0,0,normalImpulse]);
+          const contactX = support.x;
+          const contactY = support.y;
+          const contactVX = state.vx - state.angularVelocity * contactY;
+          const contactVY = state.vy + state.angularVelocity * contactX;
 
-            // Two dimensional Coulomb friction at the floor contact point.
-            const velocityAfterNormal = add(
-              [state.vx,state.vy,state.vz],
-              cross(state.omega,r)
+          if (contactVY > 0) {
+            const normalDenominator = 1 / state.mass +
+              contactX * contactX / state.inertia;
+            const normalImpulse = (1 + restitution) * contactVY / normalDenominator;
+
+            state.vy -= normalImpulse / state.mass;
+            state.angularVelocity -= contactX * normalImpulse / state.inertia;
+
+            const tangentDenominator = 1 / state.mass +
+              contactY * contactY / state.inertia;
+            const tangentImpulse = clamp(
+              -contactVX / tangentDenominator,
+              -friction * normalImpulse,
+              friction * normalImpulse
             );
-            const rCrossX = cross(r,[1,0,0]);
-            const rCrossY = cross(r,[0,1,0]);
-            const kxx = 1 / state.mass + dot(rCrossX,transformVector(currentInverseInertia,rCrossX));
-            const kyy = 1 / state.mass + dot(rCrossY,transformVector(currentInverseInertia,rCrossY));
-            const kxy = dot(rCrossX,transformVector(currentInverseInertia,rCrossY));
-            const determinant = Math.max(1e-9,kxx * kyy - kxy * kxy);
-
-            let impulseX = (-velocityAfterNormal[0] * kyy + kxy * velocityAfterNormal[1]) / determinant;
-            let impulseY = (kxy * velocityAfterNormal[0] - kxx * velocityAfterNormal[1]) / determinant;
-            const tangentMagnitude = Math.hypot(impulseX,impulseY);
-            const frictionLimit = friction * normalImpulse;
-            if (tangentMagnitude > frictionLimit && tangentMagnitude > 0) {
-              const factor = frictionLimit / tangentMagnitude;
-              impulseX *= factor;
-              impulseY *= factor;
-            }
-            applyImpulse(state,currentInverseInertia,r,[impulseX,impulseY,0]);
-            state.impact = clamp(normalImpulse / (state.mass * 900),0,1);
+            state.vx += tangentImpulse / state.mass;
+            state.angularVelocity -= contactY * tangentImpulse / state.inertia;
+            state.impact = clamp(normalImpulse / (state.mass * 900), 0, 1);
           }
 
           state.grounded = true;
         }
 
-        state.impact *= Math.exp(-5.2 * dt);
+        state.impact *= Math.exp(-5.5 * dt);
+        state.body.style.transform =
+          `translate3d(${state.x.toFixed(2)}px,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(4)}rad)`;
+        updateShadow(state);
 
-        const finalRotation = rotationMatrix(state.q);
-        renderBody(state,finalRotation);
-        updateShadow(state,finalRotation);
-
-        const finalError = quaternionError(state.q);
         if (
           state.grounded &&
-          Math.abs(state.vz) < 8 &&
-          Math.hypot(state.vx,state.vy) < 1.2 &&
-          Math.hypot(...state.omega) < 0.035 &&
-          Math.hypot(...finalError) < 0.012 &&
-          Math.abs(state.x) < 0.5 &&
-          Math.abs(state.depth) < 0.5
+          Math.abs(state.vy) < 10 &&
+          Math.abs(state.vx) < 1.5 &&
+          Math.abs(state.angularVelocity) < 0.035 &&
+          Math.abs(state.angle) < 0.012 &&
+          Math.abs(state.x) < 0.5
         ) {
           state.x = 0;
-          state.depth = 0;
-          state.z = state.height / 2;
-          state.vx = state.vy = state.vz = 0;
-          state.omega = [0,0,0];
-          state.q = [0,0,0,1];
+          state.y = 0;
+          state.vx = 0;
+          state.vy = 0;
+          state.angle = 0;
+          state.angularVelocity = 0;
           state.settled = true;
-          const restingRotation = rotationMatrix(state.q);
           state.body.style.transform = "none";
-          updateShadow(state,restingRotation);
+          updateShadow(state);
         }
 
         if (!state.settled) moving = true;
