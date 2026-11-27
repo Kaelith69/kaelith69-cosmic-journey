@@ -1424,7 +1424,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       const dx=point.x-clipCenter.x;
       const dy=point.y-clipCenter.y;
       const length=Math.hypot(dx,dy)||1;
-      const overlap=0.9;
+      const overlap=3;
       return {
         x:point.x+dx/length*overlap,
         y:point.y+dy/length*overlap
