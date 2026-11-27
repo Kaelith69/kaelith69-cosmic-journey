@@ -1642,20 +1642,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const section = document.querySelector(".home-focus");
   if (!section) return;
 
-  const reveal = () => {
-    section.classList.add("is-revealed");
-    observer.disconnect();
-  };
-
   if (!("IntersectionObserver" in window)) {
-    reveal();
+    section.classList.add("is-revealed");
     return;
   }
 
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
-        reveal();
+        section.classList.add("is-revealed");
+        observer.disconnect();
         break;
       }
     }
