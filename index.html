@@ -1654,6 +1654,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!cardGrid || cards.length !== 3) return;
 
   let revealed = false;
+  let observer = null;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const finishCard = card => {
@@ -1669,32 +1670,32 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     }
 
     card.style.willChange = "transform, opacity";
-    const animation = card.animate(
-      [
-        {opacity:fromOpacity,transform:fromTransform},
-        {opacity:1,transform:"translate3d(0,0,0) scale(1)"}
-      ],
-      {
-        duration,
-        easing:"cubic-bezier(.2,.78,.22,1)",
-        fill:"both"
-      }
-    );
-
+    let animation;
     try {
+      animation = card.animate(
+        [
+          {opacity:fromOpacity,transform:fromTransform},
+          {opacity:1,transform:"translate3d(0,0,0) scale(1)"}
+        ],
+        {
+          duration,
+          easing:"cubic-bezier(.2,.78,.22,1)",
+          fill:"both"
+        }
+      );
       await animation.finished;
     } catch (_) {
-      // A cancelled animation should not leave the card hidden.
+      // A failed or cancelled animation should not leave the card hidden.
     }
 
     finishCard(card);
-    animation.cancel();
+    if (animation) animation.cancel();
   };
 
   const revealCards = async () => {
     if (revealed) return;
     revealed = true;
-    observer.disconnect();
+    if (observer) observer.disconnect();
 
     const rects = cards.map(card => card.getBoundingClientRect());
     const peek = 14;
@@ -1745,11 +1746,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return;
   }
 
-  const observer = new IntersectionObserver(entries => {
+  observer = new IntersectionObserver(entries => {
     if (entries.some(entry => entry.isIntersecting)) revealCards();
   },{
     root:null,
     rootMargin:"0px 0px -12% 0px",
+    threshold:0.01
+  });
+
+  observer.observe(cardGrid);
+})();otMargin:"0px 0px -12% 0px",
     threshold:0.01
   });
 
