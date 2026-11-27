@@ -1084,13 +1084,13 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   padding:clamp(28px,2vw,36px);
   overflow:hidden;background:var(--card-bg);color:var(--card-fg);
   box-shadow:9px 9px 0 var(--navy);
-  transform-origin:50% 50%;translate:0 0;
-  transition:opacity .65s ease,transform .82s cubic-bezier(.2,.78,.22,1),translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1),visibility 0s;
+  transform-origin:50% 50%;
+  transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
   backface-visibility:hidden;
 }
-.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);--reveal-delay:0ms;z-index:3}
-.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);--reveal-delay:140ms;z-index:2}
-.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);--reveal-delay:280ms;z-index:1}
+.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);--slide-x:-84px;--slide-y:24px;--reveal-delay:0ms;z-index:3}
+.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);--slide-x:0px;--slide-y:64px;--reveal-delay:140ms;z-index:2}
+.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);--slide-x:84px;--slide-y:24px;--reveal-delay:280ms;z-index:1}
 .home-focus-card h3{
   position:relative;z-index:1;margin:clamp(24px,2vw,36px) 0 14px;max-width:100%;
   font:900 clamp(32px,3vw,48px)/.88 var(--display);
@@ -1108,13 +1108,20 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus.is-pending .home-focus-card{
   visibility:hidden;opacity:0;pointer-events:none;
 }
-.home-focus.is-pending .home-focus-card:nth-child(1){transform:translate3d(-76px,24px,0) scale(.985)}
-.home-focus.is-pending .home-focus-card:nth-child(2){transform:translate3d(0,56px,0) scale(.985)}
-.home-focus.is-pending .home-focus-card:nth-child(3){transform:translate3d(76px,24px,0) scale(.985)}
 .home-focus.is-revealed .home-focus-card{
-  visibility:visible;opacity:1;transform:translate3d(0,0,0);
-  pointer-events:auto;
-  transition-delay:var(--reveal-delay,0ms),var(--reveal-delay,0ms),0s,0s,0s;
+  visibility:visible;pointer-events:auto;
+  animation:home-focus-card-enter .78s cubic-bezier(.2,.78,.22,1) both;
+  animation-delay:var(--reveal-delay,0ms);
+}
+@keyframes home-focus-card-enter{
+  from{
+    opacity:0;
+    transform:translate3d(var(--slide-x,0px),var(--slide-y,32px),0) scale(.985);
+  }
+  to{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+  }
 }
 .home-focus-card:focus-visible{outline:4px solid var(--magenta);outline-offset:7px}
 @media(hover:hover) and (pointer:fine){
@@ -1132,9 +1139,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .home-focus-card{min-height:280px;box-shadow:7px 7px 0 var(--navy)}
 }
 @media(prefers-reduced-motion:reduce){
-  .home-focus-card{transition:none}
-  .home-focus.is-pending .home-focus-card{transform:none}
-  .home-focus.is-revealed .home-focus-card{visibility:visible;opacity:1;transform:none}
+  .home-focus.is-revealed .home-focus-card{
+    animation:none;visibility:visible;opacity:1;transform:none;
+  }
 }
 
 </style>
@@ -1659,49 +1666,37 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const section = document.querySelector(".home-focus.is-pending");
   if (!section) return;
 
-  let lastScrollY = window.scrollY;
-  let hasScrolledDown = false;
+  const scrollingElement = document.scrollingElement || document.documentElement;
+  let previousScrollTop = scrollingElement.scrollTop;
+  let framePending = false;
   let revealed = false;
 
-  const reveal = () => {
+  const revealIfReached = () => {
+    framePending = false;
     if (revealed) return;
+
+    const currentScrollTop = scrollingElement.scrollTop;
+    const movedDown = currentScrollTop > previousScrollTop + 1;
+    previousScrollTop = currentScrollTop;
+    if (!movedDown) return;
+
+    const sectionRect = section.getBoundingClientRect();
+    const triggerLine = window.innerHeight * 0.82;
+    if (sectionRect.top > triggerLine || sectionRect.bottom <= 0) return;
+
     revealed = true;
     section.classList.remove("is-pending");
     section.classList.add("is-revealed");
     window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("wheel", onWheel);
-    window.removeEventListener("touchmove", onTouchMove);
-  };
-
-  const sectionReached = () => {
-    const rect = section.getBoundingClientRect();
-    return rect.top <= window.innerHeight * 0.82 && rect.bottom > 0;
-  };
-
-  const checkReveal = () => {
-    if (hasScrolledDown && sectionReached()) reveal();
   };
 
   const onScroll = () => {
-    const currentY = window.scrollY;
-    if (currentY > lastScrollY + 1) hasScrolledDown = true;
-    if (currentY !== lastScrollY) lastScrollY = currentY;
-    checkReveal();
-  };
-
-  const onWheel = event => {
-    if (event.deltaY > 0) hasScrolledDown = true;
-    checkReveal();
-  };
-
-  const onTouchMove = () => {
-    hasScrolledDown = true;
-    checkReveal();
+    if (framePending || revealed) return;
+    framePending = true;
+    window.requestAnimationFrame(revealIfReached);
   };
 
   window.addEventListener("scroll", onScroll, {passive:true});
-  window.addEventListener("wheel", onWheel, {passive:true});
-  window.addEventListener("touchmove", onTouchMove, {passive:true});
 })();</script>
 
 </body></html>
