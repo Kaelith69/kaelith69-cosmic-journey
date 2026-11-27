@@ -909,6 +909,32 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @keyframes loading-record-spin{from{transform:translateY(-50%) rotate(0deg)}to{transform:translateY(-50%) rotate(360deg)}}
 @media(max-width:600px){.transition-stage{width:92vw;aspect-ratio:1.2}.vinyl-record{width:72%;left:5%}.record-tonearm{width:35%;right:2%;top:16%}}
 
+
+/* Expanded contact page */
+.contact{min-height:620px}
+.contact-note,.contact-collab,.contact-end{padding:clamp(78px,9vw,126px) var(--gutter);position:relative}
+.contact-note{background:var(--navy);color:var(--white);display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(34px,8vw,110px)}
+.contact-note h2,.contact-collab h2{font:900 clamp(48px,7.5vw,100px)/.84 var(--display);text-transform:uppercase;margin:16px 0 0}
+.contact-note h2 span{color:var(--cyan)}
+.contact-note-copy{max-width:650px}
+.contact-note-copy p{font-size:clamp(18px,2vw,25px);line-height:1.6;margin:0 0 18px}
+.contact-note-copy small{font-size:13px;line-height:1.8;color:var(--pale)}
+.contact-collab{background:var(--blue);color:var(--white)}
+.contact-collab-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:44px;background:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.35)}
+.contact-collab-grid article{background:var(--blue);padding:25px;min-height:190px}
+.contact-collab-grid span{font:800 11px var(--body);color:var(--lime);letter-spacing:.1em}
+.contact-collab-grid h3{font:900 clamp(25px,3vw,38px)/.9 var(--display);text-transform:uppercase;margin:30px 0 12px}
+.contact-collab-grid p{font-size:13px;line-height:1.7;margin:0;max-width:300px}
+.contact-end{background:var(--cyan);color:var(--navy);display:flex;justify-content:space-between;align-items:end;gap:30px}
+.contact-end h2{font:900 clamp(48px,7vw,90px)/.84 var(--display);text-transform:uppercase;margin:15px 0 0}
+.contact-end p{max-width:360px;font-size:14px;line-height:1.7}
+@media(max-width:760px){
+ .contact-note{grid-template-columns:1fr;gap:32px}
+ .contact-collab-grid{grid-template-columns:1fr}
+ .contact-collab-grid article{min-height:150px}
+ .contact-end{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -936,6 +962,23 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <a class="icon-link" href="https://instagram.com/kaelith6.9" target="_blank" rel="noopener noreferrer"><svg class="icon brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.9"/><circle cx="17.6" cy="6.7" r="1.1" fill="currentColor"/></svg>Instagram<svg class="icon out-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="2"/></svg></a>
 </div>
 </div>
+</section>
+
+<section class="contact-note" aria-labelledby="contact-note-title">
+  <div><span class="page-kicker">01 / Open channel</span><h2 id="contact-note-title">Good ideas<br><span>start here.</span></h2></div>
+  <div class="contact-note-copy"><p>Have a project in mind, an interesting problem or an idea worth exploring?</p><small>You can find me through the links above. GitHub is the best place to explore my code and current projects. Instagram is another way to get in touch and follow along.</small></div>
+</section>
+<section class="contact-collab" aria-labelledby="contact-collab-title">
+  <span class="page-kicker">02 / Things worth building</span><h2 id="contact-collab-title">Open to collaboration.</h2>
+  <div class="contact-collab-grid">
+    <article><span>01 / DEVELOPMENT</span><h3>Web & mobile</h3><p>Frontend experiences, application ideas and useful software tools.</p></article>
+    <article><span>02 / EXPERIMENTS</span><h3>Creative tech</h3><p>Small prototypes, AI experiments and projects that explore new approaches.</p></article>
+    <article><span>03 / LEARNING</span><h3>Build together</h3><p>Knowledge sharing, open source contributions and collaborative learning.</p></article>
+  </div>
+</section>
+<section class="contact-end" aria-labelledby="contact-end-title">
+  <div><span class="page-kicker">03 / Until then</span><h2 id="contact-end-title">Keep making<br>things.</h2></div>
+  <p>Explore the project archive to see what I have been working on, or visit GitHub to browse the source repositories.</p>
 </section>
 </main>
 <footer class="footer"><a href="#home">KAELITH69</a><span>© KAELITH69</span></footer>
