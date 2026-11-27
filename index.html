@@ -1585,13 +1585,25 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 <script>
 (() => {
   const restoreHorizontalOrigin = () => {
-    if (window.scrollX !== 0) {
-      window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
-    }
+    const root = document.documentElement;
+    const body = document.body;
+    const top = window.scrollY;
+
+    if (root.scrollLeft !== 0) root.scrollLeft = 0;
+    if (body && body.scrollLeft !== 0) body.scrollLeft = 0;
+    if (window.scrollX !== 0) window.scrollTo({left:0,top,behavior:"auto"});
   };
-  window.addEventListener("pageshow",restoreHorizontalOrigin);
-  window.addEventListener("resize",restoreHorizontalOrigin,{passive:true});
-  restoreHorizontalOrigin();
+
+  const restoreAfterLayout = () => {
+    restoreHorizontalOrigin();
+    requestAnimationFrame(() => requestAnimationFrame(restoreHorizontalOrigin));
+  };
+
+  window.addEventListener("DOMContentLoaded",restoreAfterLayout,{once:true});
+  window.addEventListener("load",restoreAfterLayout,{once:true});
+  window.addEventListener("pageshow",restoreAfterLayout);
+  window.addEventListener("resize",restoreAfterLayout,{passive:true});
+  restoreAfterLayout();
 })();
 </script>
 
