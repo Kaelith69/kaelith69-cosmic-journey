@@ -66,6 +66,10 @@
   const LIGHT_Z = 32.0;
   const LIGHT_WIDTH = 1.8;
   const LIGHT_HEIGHT = 1.0;
+  const FILL_LIGHT_Y = -5.0;
+  const FILL_LIGHT_Z = 4.0;
+  const FILL_LIGHT_POWER = 11.5;
+  const AMBIENT_BRIGHTNESS = 0.72;
   const SAMPLE_COLUMNS = 4;
   const SAMPLE_ROWS = 2;
   const SAMPLE_COUNT = SAMPLE_COLUMNS * SAMPLE_ROWS;
@@ -311,11 +315,23 @@
     state.body.style.transform =
       "matrix(1,0,0," + projectedScaleY.toFixed(6) + ",0," + translateY.toFixed(3) + ")";
 
-    const frontNormalDotFill =
-      0.781 * Math.cos(theta) - 0.625 * Math.sin(theta);
+    // A camera-side fill light uses Lambert's cosine law and inverse-square
+    // attenuation. The rear area key remains responsible for the floor shadow.
+    const lightDY = FILL_LIGHT_Y - state.renderY;
+    const lightDZ = FILL_LIGHT_Z - state.renderZ;
+    const fillDistanceSquared = lightDY * lightDY + lightDZ * lightDZ;
+    const fillDistance = Math.sqrt(Math.max(0.0001, fillDistanceSquared));
+    const lambert = Math.max(
+      0,
+      (-Math.cos(theta) * lightDY - Math.sin(theta) * lightDZ) / fillDistance
+    );
+    const directFill = Math.min(
+      1 - AMBIENT_BRIGHTNESS,
+      FILL_LIGHT_POWER / Math.max(1, fillDistanceSquared) * lambert
+    );
     const faceFacingCamera = Math.cos(CAMERA_PITCH + theta);
     const faceOpacity = clamp((faceFacingCamera + 0.035) / 0.18, 0, 1);
-    const brightness = 0.72 + 0.28 * Math.max(0, frontNormalDotFill);
+    const brightness = AMBIENT_BRIGHTNESS + directFill;
 
     state.face.style.opacity = faceOpacity.toFixed(3);
     state.face.style.filter = "brightness(" + brightness.toFixed(3) + ")";
