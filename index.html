@@ -1270,14 +1270,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     y:-1550,
     z:Math.max(3600,fallHeight+maxGlyphHeight+3000)
   };
-  const areaRadiusX=42;
-  const areaRadiusY=36;
-  const areaLights=[];
-  for(const offsetY of [-1,0,1]){
-    for(const offsetX of [-1,0,1]){
-      areaLights.push({x:offsetX*areaRadiusX,y:offsetY*areaRadiusY});
-    }
-  }
+
 
   const makeGlyphMask=(face,character,width,height)=>{
     const mask=document.createElement("canvas");
@@ -1432,29 +1425,28 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   };
 
   const drawShadows=()=>{
-    ctx.clearRect(0,0,heroWidth,heroHeight);
     softCtx.clearRect(0,0,heroWidth,heroHeight);
-    const mesh=window.innerWidth<600?8:12;
-    let meanRelativeHeight=0;
+    ctx.clearRect(0,0,heroWidth,heroHeight);
+
+    // One point light projection per glyph. The mesh only approximates
+    // perspective across the planar letter, so a small adaptive grid is enough.
+    const mesh=window.innerWidth<600?3:4;
 
     for(const state of states){
-      // The central point source produces the sharp umbra on the floor.
-      drawGlyphShadow(ctx,state,light,0.42,mesh);
-
-      // Nine samples of one finite area light create a continuous penumbra.
-      for(const sample of areaLights){
-        drawGlyphShadow(softCtx,state,{
-          x:light.x+sample.x,
-          y:light.y+sample.y,
-          z:light.z
-        },0.05,mesh);
-      }
-      meanRelativeHeight+=(state.altitude+state.height)/light.z;
+      drawGlyphShadow(softCtx,state,light,1,mesh);
     }
 
+    // Approximate the area light penumbra by blurring the single hard projection.
+    // This avoids nine complete mesh projections for every glyph on every frame.
     ctx.save();
-    ctx.globalAlpha=0.62;
-    ctx.filter=`blur(${(0.65+meanRelativeHeight/states.length*1.45).toFixed(2)}px)`;
+    ctx.globalAlpha=0.30;
+    ctx.filter="blur(5px)";
+    ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
+    ctx.restore();
+
+    // Keep the crisp umbra over the soft penumbra.
+    ctx.save();
+    ctx.globalAlpha=0.48;
     ctx.drawImage(softCanvas,0,0,softCanvas.width,softCanvas.height,0,0,heroWidth,heroHeight);
     ctx.restore();
   };
