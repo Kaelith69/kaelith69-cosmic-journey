@@ -996,6 +996,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .focus-tile h3{font-size:clamp(26px,3vw,38px)}
 .focus-tile p{max-width:280px}
 @media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-tile{min-height:190px}}
+
+/* Physics based hero word landing */
+.hero h1 .fall-letter{
+  display:inline-block;
+  transform-origin:50% 85%;
+  will-change:transform;
+}
+@media(prefers-reduced-motion:reduce){
+  .hero h1 .fall-letter{transform:none!important;will-change:auto}
+}
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -1137,4 +1147,114 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   });
 })();
 </script>
+
+<script>
+(() => {
+  const init = () => {
+    const title = document.querySelector(".hero h1");
+    const overlay = document.getElementById("page-transition");
+    if (!title || title.dataset.physicsFallBuilt) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const textNode = [...title.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (!textNode) return;
+
+    const letters = [...textNode.textContent.trim()].map((letter, index) => {
+      const span = document.createElement("span");
+      span.className = "fall-letter";
+      span.textContent = letter;
+      span.setAttribute("aria-hidden", "true");
+      span.dataset.fallIndex = String(index);
+      return span;
+    });
+    const fragment = document.createDocumentFragment();
+    letters.forEach(letter => fragment.appendChild(letter));
+    textNode.replaceWith(fragment);
+    title.setAttribute("aria-label", "KAELITH 69");
+    title.dataset.physicsFallBuilt = "true";
+
+    let started = false;
+    const launch = () => {
+      if (started) return;
+      started = true;
+      if (observer) observer.disconnect();
+
+      const gravity = 2600;
+      const restitution = 0.34;
+      const friction = 0.76;
+      const states = letters.map((element, index) => ({
+        element,
+        y: -(window.innerHeight * 0.9 + 140 + Math.random() * 180),
+        velocity: 0,
+        angle: (Math.random() - 0.5) * 24,
+        angularVelocity: (Math.random() - 0.5) * 150,
+        delay: index * 0.075,
+        settled: false
+      }));
+
+      let previous = 0;
+      const frame = timestamp => {
+        if (!previous) previous = timestamp;
+        const dt = Math.min((timestamp - previous) / 1000, 0.032);
+        previous = timestamp;
+        let active = false;
+
+        states.forEach(state => {
+          if (state.settled) return;
+          if (state.delay > 0) {
+            state.delay -= dt;
+            active = true;
+            return;
+          }
+
+          state.velocity += gravity * dt;
+          state.y += state.velocity * dt;
+          state.angle += state.angularVelocity * dt;
+
+          if (state.y >= 0) {
+            state.y = 0;
+            if (Math.abs(state.velocity) > 95) {
+              state.velocity = -state.velocity * restitution;
+              state.angularVelocity *= friction;
+              state.angle *= 0.58;
+            } else {
+              state.velocity = 0;
+              state.angularVelocity = 0;
+              state.angle = 0;
+              state.settled = true;
+            }
+          } else {
+            state.angularVelocity *= Math.pow(0.985, dt * 60);
+          }
+
+          state.element.style.transform = "translate3d(0," + state.y.toFixed(2) + "px,0) rotate(" + state.angle.toFixed(2) + "deg)";
+          if (!state.settled) active = true;
+        });
+
+        if (active) requestAnimationFrame(frame);
+        else letters.forEach(element => {
+          element.style.transform = "translate3d(0,0,0) rotate(0deg)";
+          element.style.willChange = "auto";
+        });
+      };
+      requestAnimationFrame(frame);
+    };
+
+    let observer = null;
+    if (overlay && overlay.classList.contains("is-active")) {
+      observer = new MutationObserver(() => {
+        if (!overlay.classList.contains("is-active")) launch();
+      });
+      observer.observe(overlay, { attributes: true, attributeFilter: ["class"] });
+      window.setTimeout(launch, 2800);
+    } else {
+      launch();
+    }
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
+})();
+</script>
+
 </body></html>
