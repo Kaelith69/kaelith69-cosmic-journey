@@ -1665,6 +1665,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!section) return;
 
   const target = section.querySelector(".focus-grid");
+  const loader = document.getElementById("page-transition");
   const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
   if (prefersReducedMotion || !target || !("IntersectionObserver" in window)) {
@@ -1672,23 +1673,49 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return;
   }
 
-  // Give the hidden starting styles a full paint before observing the grid.
-  requestAnimationFrame(() => {
-    section.classList.add("focus-reveal-ready");
+  let armed = false;
+  let revealObserver = null;
 
+  const armReveal = () => {
+    if (armed) return;
+    armed = true;
+
+    // Wait until the page transition overlay is fully dismissed.
     requestAnimationFrame(() => {
-      const observer = new IntersectionObserver(entries => {
-        if (!entries.some(entry => entry.isIntersecting)) return;
-        section.classList.add("is-visible");
-        observer.disconnect();
-      }, {
-        root: null,
-        rootMargin: "0px 0px -80px 0px",
-        threshold: 0.05
-      });
+      section.classList.add("focus-reveal-ready");
 
-      observer.observe(target);
+      requestAnimationFrame(() => {
+        revealObserver = new IntersectionObserver(entries => {
+          if (!entries.some(entry => entry.isIntersecting)) return;
+          section.classList.add("is-visible");
+          revealObserver.disconnect();
+        }, {
+          root: null,
+          rootMargin: "0px 0px -80px 0px",
+          threshold: 0.05
+        });
+
+        revealObserver.observe(target);
+      });
     });
+  };
+
+  if (!loader || (loader.dataset.loaderFinished === "true" && !loader.classList.contains("is-active"))) {
+    armReveal();
+    return;
+  }
+
+  // The site loader initially covers the page. Do not let the section reveal
+  // run invisibly underneath it before the visitor can see the animation.
+  const loaderObserver = new MutationObserver(() => {
+    if (loader.dataset.loaderFinished !== "true" || loader.classList.contains("is-active")) return;
+    loaderObserver.disconnect();
+    armReveal();
+  });
+
+  loaderObserver.observe(loader, {
+    attributes: true,
+    attributeFilter: ["class", "data-loader-finished"]
   });
 })();
 </script>
