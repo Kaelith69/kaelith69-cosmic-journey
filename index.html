@@ -70,7 +70,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   margin:0;
   padding:0;
   transform-origin:50% 100%;
-  will-change:transform;
+  filter:
+    drop-shadow(var(--cast-x,7px) var(--cast-y,10px) var(--cast-hard-blur,.08px) rgba(23,23,23,var(--cast-hard-alpha,.62)))
+    drop-shadow(var(--cast-soft-x,8px) var(--cast-soft-y,11px) var(--cast-soft-blur,1.8px) rgba(23,23,23,var(--cast-soft-alpha,.14)));
+  will-change:transform,filter;
 }
 .hero h1 .fall-letter{
   display:inline-block;
@@ -79,45 +82,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
-}
-.hero h1 .fall-ground-shadow{
-  position:absolute;
-  z-index:0;
-  inset:0;
-  pointer-events:none;
-  overflow:visible;
-}
-.hero h1 .fall-cast-shape{
-  position:absolute;
-  left:0;
-  top:0;
-  display:inline-block;
-  width:100%;
-  height:100%;
-  margin:0;
-  padding:0;
-  white-space:pre;
-  font:inherit;
-  line-height:inherit;
-  letter-spacing:inherit;
-  vertical-align:baseline;
-  text-transform:inherit;
-  text-shadow:none;
-  -webkit-text-stroke:0;
-  transform-origin:0 0;
-  pointer-events:none;
-}
-.hero h1 .fall-cast-hard{
-  z-index:1;
-  color:#171717;
-  opacity:.31;
-  filter:blur(.1px);
-}
-.hero h1 .fall-cast-soft{
-  z-index:0;
-  color:#171717;
-  opacity:.11;
-  filter:blur(2.4px);
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -175,7 +139,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @media(max-width:760px){
  .site-header{height:64px}.nav{gap:16px;font-size:11px}
  .hero{min-height:760px;padding-top:110px}.hero::before{width:100vw;right:-45%;top:18%}.hero::after{width:70vw;right:-23%;top:23%}
- .hero h1{font-size:clamp(82px,20vw,150px)}.hero h1>span:not(.hero-word){margin-left:7vw}
+ .hero h1{font-size:clamp(70px,16.5vw,126px)}.hero h1>span:not(.hero-word){margin-left:7vw}
  .hero-disc{width:34vw;right:8%;top:42%}.hero-bottom{align-items:flex-start;flex-direction:column;margin-top:60px}
  .work{padding-top:100px;padding-bottom:90px}.section-heading{font-size:clamp(76px,17vw,130px);margin-bottom:70px}
  .project{grid-template-columns:1fr 38px;gap:18px;padding:26px 0}.project h3{font-size:clamp(48px,11vw,72px)}.project-copy{grid-column:1;grid-row:2}.project-arrow{grid-column:2;grid-row:1}
@@ -186,7 +150,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 }
 @media(max-width:420px){
  .nav{gap:12px}.nav a{font-size:10px}.nav .nav-contact{padding:10px}
- .hero{min-height:700px}.hero h1{font-size:20vw}.hero-bottom{margin-top:48px}
+ .hero{min-height:700px}.hero h1{font-size:clamp(48px,16.5vw,68px)}.hero-bottom{margin-top:48px}
  .project h3{font-size:48px}.contact h2{font-size:19vw}
  .footer{align-items:flex-start;flex-direction:column}
 }
@@ -1229,34 +1193,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const unit = document.createElement("span");
     unit.className = "fall-unit";
 
-    const shadowPlane = document.createElement("span");
-    shadowPlane.className = "fall-ground-shadow";
-    shadowPlane.setAttribute("aria-hidden", "true");
-
-    const softShadows = Array.from({length:4}, () => {
-      const shadow = document.createElement("span");
-      shadow.className = "fall-cast-shape fall-cast-soft";
-      shadow.textContent = character;
-      return shadow;
-    });
-
-    const hardShadow = document.createElement("span");
-    hardShadow.className = "fall-cast-shape fall-cast-hard";
-    hardShadow.textContent = character;
-    shadowPlane.append(hardShadow, ...softShadows);
-
     const body = document.createElement("span");
     body.className = "fall-object";
 
     const face = document.createElement("span");
     face.className = "fall-letter";
     face.textContent = character;
-    body.appendChild(face);
 
-    unit.append(shadowPlane, body);
+    body.appendChild(face);
+    unit.appendChild(body);
     word.appendChild(unit);
 
-    return {unit, body, hardShadow, softShadows};
+    return {body};
   });
 
   sourceText.replaceWith(word);
@@ -1269,179 +1217,101 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const friction = 0.52;
   const fallDistance = Math.max(window.innerHeight * 0.9, 720);
 
-  const light = {
-    x: -window.innerWidth * 0.24,
-    depth: -window.innerHeight * 0.95,
-    height: Math.max(
-      window.innerHeight * 2.4,
-      fallDistance + heading.getBoundingClientRect().height + 520
-    )
-  };
-  const lightRadiusX = 20;
-  const lightRadiusDepth = 14;
-  const lightSamples = [
-    {x:-lightRadiusX, depth:-lightRadiusDepth},
-    {x: lightRadiusX, depth:-lightRadiusDepth},
-    {x:-lightRadiusX, depth: lightRadiusDepth},
-    {x: lightRadiusX, depth: lightRadiusDepth}
-  ];
-  const floorPerspective = 0.36;
+  // One fixed page-space light direction. Inverse rotation keeps its shadow
+  // vector stable in the scene while the glyph itself rotates.
+  const lightDirection = {x:0.52, y:0.85};
 
-  const states = glyphs.map(({unit, body, hardShadow, softShadows}, index) => {
+  const states = glyphs.map(({body}, index) => {
     const width = Math.max(1, body.offsetWidth);
     const height = Math.max(1, body.offsetHeight);
     const mass = Math.max(0.35, width * height / 15000);
     const inertia = mass * (width * width + height * height) / 12;
-    const baseX = unit.getBoundingClientRect().left;
 
     const state = {
-      body, hardShadow, softShadows,
-      width, height, mass, inertia,
-      baseX,
-      x: 0,
-      y: -(fallDistance + 90 + index * 22),
-      vx: 0,
-      vy: 0,
-      angle: (index % 2 ? -1 : 1) * (0.07 + (index % 3) * 0.018),
-      angularVelocity: (index % 2 ? 1 : -1) * (0.42 + (index % 4) * 0.09),
-      delay: index * 0.055,
-      impact: 0,
-      grounded: false,
-      settled: false
+      body,
+      width,
+      height,
+      mass,
+      inertia,
+      x:0,
+      y:-(fallDistance + 90 + index * 22),
+      vx:0,
+      vy:0,
+      angle:(index % 2 ? -1 : 1) * (0.07 + (index % 3) * 0.018),
+      angularVelocity:(index % 2 ? 1 : -1) * (0.42 + (index % 4) * 0.09),
+      delay:index * 0.055,
+      impact:0,
+      grounded:false,
+      settled:false
     };
 
     body.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}rad)`;
     return state;
   });
 
-  // CSS rotate() is clockwise in screen coordinates. These signs match that transform.
-  const projectToFloor = (state, x, y, source) => {
-    const dx = x - state.width / 2;
-    const localHeight = state.height - y;
+  const updateShadow = state => {
+    const height = clamp(-state.y, 0, fallDistance);
+    const altitude = height / fallDistance;
+    const speed = clamp(Math.abs(state.vy) / 1500, 0, 1);
+    const impact = clamp(state.impact, 0, 1);
+
+    // A flat glyph casts its own alpha silhouette onto the page plane.
+    // Height increases the light travel distance, offset and penumbra.
+    const worldOffsetX = 5 + height * 0.046;
+    const worldOffsetY = 7 + height * 0.078;
     const cosine = Math.cos(state.angle);
     const sine = Math.sin(state.angle);
 
-    const worldX = state.baseX + state.x + state.width / 2 +
-      cosine * dx + sine * localHeight;
-    const worldHeight = Math.max(0,
-      -state.y - sine * dx + cosine * localHeight
-    );
+    // Convert the fixed world light vector into the glyph's local coordinates.
+    const localOffsetX = cosine * worldOffsetX + sine * worldOffsetY;
+    const localOffsetY = -sine * worldOffsetX + cosine * worldOffsetY;
 
-    const denominator = Math.max(1, light.height - worldHeight);
-    const rayScale = light.height / denominator;
-    const floorX = source.x + rayScale * (worldX - source.x);
-    const floorDepth = source.depth * (1 - rayScale);
+    const hardAlpha = clamp(0.66 - altitude * 0.38 + impact * 0.12, 0.20, 0.76);
+    const softAlpha = clamp(0.13 + altitude * 0.07 + impact * 0.035, 0.08, 0.24);
+    const hardBlur = Math.max(0.04, 0.16 - altitude * 0.10 - impact * 0.06);
+    const softBlur = 1.5 + altitude * 5.8 + speed * 0.65;
 
-    return {
-      x: floorX - state.baseX,
-      y: state.height + floorDepth * floorPerspective,
-      height: worldHeight
-    };
+    state.body.style.setProperty("--cast-x", `${localOffsetX.toFixed(2)}px`);
+    state.body.style.setProperty("--cast-y", `${localOffsetY.toFixed(2)}px`);
+    state.body.style.setProperty("--cast-soft-x", `${(localOffsetX + cosine * 1.5 + sine * 1.5).toFixed(2)}px`);
+    state.body.style.setProperty("--cast-soft-y", `${(localOffsetY - sine * 1.5 + cosine * 1.5).toFixed(2)}px`);
+    state.body.style.setProperty("--cast-hard-alpha", hardAlpha.toFixed(3));
+    state.body.style.setProperty("--cast-soft-alpha", softAlpha.toFixed(3));
+    state.body.style.setProperty("--cast-hard-blur", `${hardBlur.toFixed(2)}px`);
+    state.body.style.setProperty("--cast-soft-blur", `${softBlur.toFixed(2)}px`);
   };
 
-  const solveHomography = points => {
-    const rows = [];
-    points.forEach(({x,y,u,v}) => {
-      rows.push([x,y,1,0,0,0,-u*x,-u*y,u]);
-      rows.push([0,0,0,x,y,1,-v*x,-v*y,v]);
-    });
-
-    for (let column = 0; column < 8; column++) {
-      let pivot = column;
-      for (let row = column + 1; row < 8; row++) {
-        if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column])) pivot = row;
-      }
-      if (Math.abs(rows[pivot][column]) < 1e-10) return null;
-      [rows[column],rows[pivot]] = [rows[pivot],rows[column]];
-
-      const divisor = rows[column][column];
-      for (let k = column; k < 9; k++) rows[column][k] /= divisor;
-
-      for (let row = 0; row < 8; row++) {
-        if (row === column) continue;
-        const factor = rows[row][column];
-        for (let k = column; k < 9; k++) rows[row][k] -= factor * rows[column][k];
-      }
-    }
-    const solution = rows.map(row => row[8]);
-    return solution.every(Number.isFinite) ? solution : null;
-  };
-
-  const projectShadowLayer = (state, element, source) => {
-    const corners = [
-      [0,0],
-      [state.width,0],
-      [state.width,state.height],
-      [0,state.height]
-    ];
-    const points = corners.map(([x,y]) => {
-      const projected = projectToFloor(state,x,y,source);
-      return {x,y,u:projected.x,v:projected.y,height:projected.height};
-    });
-    const matrix = solveHomography(points);
-
-    if (!matrix) {
-      element.style.opacity = "0";
-      return 0;
-    }
-
-    element.style.transform =
-      `matrix3d(${matrix[0]},${matrix[3]},0,${matrix[6]},${matrix[1]},${matrix[4]},0,${matrix[7]},0,0,1,0,${matrix[2]},${matrix[5]},0,1)`;
-    return Math.max(...points.map(point => point.height));
-  };
-
-  const updateShadow = state => {
-    const impact = clamp(state.impact,0,1);
-    const hardHeight = projectShadowLayer(state,state.hardShadow,light);
-    const altitude = clamp(hardHeight / light.height,0,0.95);
-
-    state.hardShadow.style.opacity = (0.54 - altitude * 0.10 + impact * 0.12).toFixed(3);
-    state.hardShadow.style.filter = `blur(${(0.05 + altitude * 0.10).toFixed(2)}px)`;
-
-    const penumbraRatio = hardHeight / Math.max(1,light.height - hardHeight);
-    const penumbra = (lightRadiusX + lightRadiusDepth) * penumbraRatio;
-    state.softShadows.forEach((shadow,index) => {
-      projectShadowLayer(state,shadow,{
-        x:light.x + lightSamples[index].x,
-        depth:light.depth + lightSamples[index].depth
-      });
-      shadow.style.opacity = ((0.13 + altitude * 0.07 + impact * 0.025) / 4).toFixed(3);
-      shadow.style.filter = `blur(${(0.45 + Math.min(7,penumbra * 0.11)).toFixed(2)}px)`;
-    });
-  };
-
-  // Use the midpoint of the lower edge when both bottom corners touch.
   const supportPoint = state => {
     const cosine = Math.cos(state.angle);
     const sine = Math.sin(state.angle);
     const leftBottom = {
-      x: cosine * -state.width / 2,
-      y: sine * -state.width / 2
+      x:cosine * -state.width / 2,
+      y:sine * -state.width / 2
     };
     const rightBottom = {
-      x: cosine * state.width / 2,
-      y: sine * state.width / 2
+      x:cosine * state.width / 2,
+      y:sine * state.width / 2
     };
 
     if (Math.abs(leftBottom.y - rightBottom.y) < 2) {
       return {
-        x: (leftBottom.x + rightBottom.x) / 2,
-        y: (leftBottom.y + rightBottom.y) / 2
+        x:(leftBottom.x + rightBottom.x) / 2,
+        y:(leftBottom.y + rightBottom.y) / 2
       };
     }
 
     const corners = [
       [-state.width / 2,-state.height],
-      [ state.width / 2,-state.height],
+      [state.width / 2,-state.height],
       [-state.width / 2,0],
-      [ state.width / 2,0]
+      [state.width / 2,0]
     ];
     let support = null;
 
     for (const [localX,localY] of corners) {
       const point = {
-        x: cosine * localX - sine * localY,
-        y: sine * localX + cosine * localY
+        x:cosine * localX - sine * localY,
+        y:sine * localX + cosine * localY
       };
       if (!support || point.y > support.y) support = point;
     }
@@ -1458,14 +1328,15 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
     const tick = time => {
       if (!previousTime) previousTime = time;
-      const dt = Math.min((time - previousTime) / 1000,0.016);
+      const dt = Math.min((time - previousTime) / 1000, 0.016);
       previousTime = time;
       let moving = false;
 
       for (const state of states) {
         if (state.settled) continue;
+
         if (state.delay > 0) {
-          state.delay = Math.max(0,state.delay - dt);
+          state.delay = Math.max(0, state.delay - dt);
           moving = true;
           continue;
         }
@@ -1515,7 +1386,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
               );
               state.vx += tangentImpulse / state.mass;
               state.angularVelocity -= contactY * tangentImpulse / state.inertia;
-              state.impact = clamp(normalImpulse / (state.mass * 900),0,1);
+              state.impact = clamp(normalImpulse / (state.mass * 900), 0, 1);
             }
             state.grounded = true;
           }
@@ -1559,7 +1430,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     if (loader && loader.dataset.loaderFinished !== "true") return;
     window.setTimeout(() => {
       requestAnimationFrame(() => requestAnimationFrame(startFall));
-    },260);
+    }, 260);
   };
 
   if (!loader || loader.dataset.loaderFinished === "true") {
