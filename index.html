@@ -1354,7 +1354,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     };
   };
 
-  const drawMappedTriangle=(target,mask,width,height,source,destination,alpha)=>{
+  const drawMappedTriangle=(target,mask,dpr,source,destination,alpha)=>{
     const sx1=source[1].x-source[0].x;
     const sy1=source[1].y-source[0].y;
     const sx2=source[2].x-source[0].x;
@@ -1373,6 +1373,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const e=destination[0].x-a*source[0].x-c*source[0].y;
     const f=destination[0].y-b*source[0].x-d*source[0].y;
 
+    const left=Math.min(source[0].x,source[1].x,source[2].x);
+    const top=Math.min(source[0].y,source[1].y,source[2].y);
+    const right=Math.max(source[0].x,source[1].x,source[2].x);
+    const bottom=Math.max(source[0].y,source[1].y,source[2].y);
+
     target.save();
     target.globalAlpha=alpha;
     target.beginPath();
@@ -1382,7 +1387,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     target.closePath();
     target.clip();
     target.transform(a,b,c,d,e,f);
-    target.drawImage(mask,0,0,mask.width,mask.height,0,0,width,height);
+    target.drawImage(
+      mask,
+      Math.floor(left*dpr),Math.floor(top*dpr),
+      Math.ceil((right-left)*dpr),Math.ceil((bottom-top)*dpr),
+      left,top,right-left,bottom-top
+    );
     target.restore();
   };
 
@@ -1413,9 +1423,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         const d11=projected[row+1][col+1];
         if(!d00||!d10||!d01||!d11) continue;
 
-        drawMappedTriangle(target,state.mask,state.width,state.height,
+        drawMappedTriangle(target,state.mask,dpr,
           [s00,s10,s11],[d00,d10,d11],alpha);
-        drawMappedTriangle(target,state.mask,state.width,state.height,
+        drawMappedTriangle(target,state.mask,dpr,
           [s00,s11,s01],[d00,d11,d01],alpha);
       }
     }
@@ -1424,7 +1434,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const drawShadows=()=>{
     ctx.clearRect(0,0,heroWidth,heroHeight);
     softCtx.clearRect(0,0,heroWidth,heroHeight);
-    const mesh=window.innerWidth<600?3:4;
+    const mesh=window.innerWidth<600?8:12;
     let meanRelativeHeight=0;
 
     for(const state of states){
