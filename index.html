@@ -1094,16 +1094,19 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   transform:translateY(110%);
 }
 .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card{
-  opacity:0;
+  opacity:1;
 }
 .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-blue{
+  opacity:1;
   transform:translate3d(-115%,0,0);
 }
 .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange{
-  transform:translate3d(calc(-100% - 14px),0,0);
+  opacity:1;
+  transform:translate3d(calc(-100% + 42px),0,0);
 }
 .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
-  transform:translate3d(calc(-100% - 14px),0,0);
+  opacity:1;
+  transform:translate3d(calc(-100% + 42px),0,0);
 }
 .home-focus .tile-stack{
   transition:transform 220ms ease;
@@ -1111,7 +1114,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 @media(max-width:760px){
   .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange,
   .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
-    transform:translate3d(0,calc(-100% - 14px),0);
+    transform:translate3d(0,calc(-100% + 42px),0);
   }
 }
 @media(hover:hover) and (pointer:fine){
@@ -1701,11 +1704,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const cardStarts = [
       "translate3d(-115%,0,0)",
       isStackedLayout
-        ? "translate3d(0,calc(-100% - 14px),0)"
-        : "translate3d(calc(-100% - 14px),0,0)",
+        ? "translate3d(0,calc(-100% + 42px),0)"
+        : "translate3d(calc(-100% + 42px),0,0)",
       isStackedLayout
-        ? "translate3d(0,calc(-100% - 14px),0)"
-        : "translate3d(calc(-100% - 14px),0,0)"
+        ? "translate3d(0,calc(-100% + 42px),0)"
+        : "translate3d(calc(-100% + 42px),0,0)"
     ];
 
     // Play each card only after the previous one has reached its position.
@@ -1713,7 +1716,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     for (let index = 0; index < cards.length; index++) {
       await animateElement(
         cards[index],
-        { opacity: 0, transform: cardStarts[index] },
+        { opacity: 1, transform: cardStarts[index] },
         { opacity: 1, transform: "translate3d(0,0,0)" },
         720,
         easing
