@@ -1480,8 +1480,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         active=true;
       }
 
-      drawShadows();
-
       for(const state of states){
         if(state.settled) continue;
         const horizontalSpeed=Math.hypot(state.v[0],state.v[1]);
@@ -1492,7 +1490,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           Math.abs(state.angularVelocity)<0.02&&
           Math.abs(state.angle)<0.045&&
           Math.abs(state.p[0])<1.2&&
-          Math.abs(state.p[1])<5
+          Math.abs(state.p[1])<12
         ){
           state.p=[0,0,thickness/2];
           state.v=[0,0,0];
@@ -1503,6 +1501,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
         }
         if(!state.settled) active=true;
       }
+
+      drawShadows();
 
       if(active) requestAnimationFrame(tick);
       else states.forEach(state=>{state.body.style.willChange="auto";});
