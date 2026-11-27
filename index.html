@@ -1264,14 +1264,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     });
 
     // Projected ground shadow is independent of glyph position and remains on the floor.
-    const softness = 2.2 + altitude * 11;
-    const reachX = 4 + altitude * 24;
-    const reachY = 2 + altitude * 8;
-    const widthScale = 0.92 + altitude * 0.95;
-    const depthScale = 0.78 + altitude * 0.34;
-    const diffuseOpacity = Math.max(0.06, 0.48 - altitude * 0.34 + speed * 0.035);
-    const contactOpacity = Math.min(0.92, 0.64 * Math.pow(1 - altitude, 1.8) + impact * 0.3);
-    const projectedAngle = state.angle * altitude * 0.28;
+    const heightPx = Math.max(0, -state.y);
+    const lightAngle = 7 * Math.PI / 180;
+    const softness = 1.4 + heightPx * 0.016;
+    const reachX = 3 + heightPx * Math.tan(lightAngle);
+    const reachY = 2 + heightPx * 0.022;
+    const widthScale = 0.94 + altitude * 0.7;
+    const depthScale = 0.78 + altitude * 0.26;
+    const diffuseOpacity = Math.max(0.07, 0.48 - altitude * 0.36 + speed * 0.025);
+    const contactOpacity = Math.min(0.94, 0.68 * Math.pow(1 - altitude, 1.9) + impact * 0.32);
+    const projectedAngle = state.angle * altitude * 0.3;
 
     state.groundShadow.style.setProperty("--ground-shadow-x", `${reachX.toFixed(2)}px`);
     state.groundShadow.style.setProperty("--ground-shadow-y", `${reachY.toFixed(2)}px`);
