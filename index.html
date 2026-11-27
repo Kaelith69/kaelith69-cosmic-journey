@@ -1414,10 +1414,27 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
     target.save();
     target.globalAlpha=alpha;
+    // Expand each mesh clip slightly so antialiasing cannot leave hairline
+    // gaps between adjacent projected triangles.
+    const clipCenter={
+      x:(destination[0].x+destination[1].x+destination[2].x)/3,
+      y:(destination[0].y+destination[1].y+destination[2].y)/3
+    };
+    const clipPoints=destination.map(point=>{
+      const dx=point.x-clipCenter.x;
+      const dy=point.y-clipCenter.y;
+      const length=Math.hypot(dx,dy)||1;
+      const overlap=0.9;
+      return {
+        x:point.x+dx/length*overlap,
+        y:point.y+dy/length*overlap
+      };
+    });
+
     target.beginPath();
-    target.moveTo(destination[0].x,destination[0].y);
-    target.lineTo(destination[1].x,destination[1].y);
-    target.lineTo(destination[2].x,destination[2].y);
+    target.moveTo(clipPoints[0].x,clipPoints[0].y);
+    target.lineTo(clipPoints[1].x,clipPoints[1].y);
+    target.lineTo(clipPoints[2].x,clipPoints[2].y);
     target.closePath();
     target.clip();
     target.transform(a,b,c,d,e,f);
