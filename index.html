@@ -1291,7 +1291,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const height = Math.max(1, body.offsetHeight);
     const mass = Math.max(0.35, width * height / 15000);
     const inertia = mass * (width * width + height * height) / 12;
-    const unitRect = unit.getBoundingClientRect();
+    const baseX = unit.getBoundingClientRect().left;
 
     [...softShadows, hardShadow].forEach(shadow => {
       shadow.style.width = `${width}px`;
@@ -1299,9 +1299,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     });
 
     const state = {
-      unit, body, hardShadow, softShadows,
+      body, hardShadow, softShadows,
       width, height, mass, inertia,
-      baseX: unitRect.left,
+      baseX,
       x: 0,
       y: -(fallDistance + 90 + index * 22),
       vx: 0,
@@ -1395,10 +1395,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   };
 
   const updateShadow = state => {
-    const maximumHeight = Math.max(0,-state.y + state.height);
-    const altitude = clamp(maximumHeight / light.height,0,0.95);
     const impact = clamp(state.impact,0,1);
     const hardHeight = projectShadowLayer(state,state.hardShadow,light);
+    const altitude = clamp(hardHeight / light.height,0,0.95);
 
     state.hardShadow.style.opacity = (0.54 - altitude * 0.10 + impact * 0.12).toFixed(3);
     state.hardShadow.style.filter = `blur(${(0.05 + altitude * 0.10).toFixed(2)}px)`;
