@@ -1020,12 +1020,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:54px}
 .home-focus-head p{max-width:360px;line-height:1.7;font-size:14px}
 .focus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.focus-tile{min-height:300px;padding:26px;background:var(--blue);color:var(--white);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.focus-tile:nth-child(2){background:var(--cyan);color:var(--navy)}
-.focus-tile:nth-child(3){background:var(--lime);color:var(--navy)}
-.focus-tile .tile-index{font:800 11px var(--body);letter-spacing:.1em}
-.focus-tile h3{font:900 clamp(32px,4vw,54px)/.86 var(--display);text-transform:uppercase;margin:30px 0 12px}
-.focus-tile p{font-size:13px;line-height:1.65;max-width:330px;margin:0}
+.focus-card{min-height:300px;padding:26px;background:var(--blue);color:var(--white);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.focus-card:nth-child(2){background:var(--cyan);color:var(--navy)}
+.focus-card:nth-child(3){background:var(--lime);color:var(--navy)}
+.focus-card .tile-index{font:800 11px var(--body);letter-spacing:.1em}
+.focus-card h3{font:900 clamp(32px,4vw,54px)/.86 var(--display);text-transform:uppercase;margin:30px 0 12px}
+.focus-card p{font-size:13px;line-height:1.65;max-width:330px;margin:0}
 .home-outro{background:var(--magenta);color:var(--navy);display:flex;justify-content:space-between;align-items:end;gap:32px}
 .home-outro h2{max-width:760px}
 .home-outro .hero-link{flex:none}
@@ -1033,7 +1033,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
  .home-intro{grid-template-columns:1fr;gap:38px}
  .home-focus-head,.home-outro{align-items:flex-start;flex-direction:column}
  .focus-grid{grid-template-columns:1fr}
- .focus-tile{min-height:230px}
+ .focus-card{min-height:230px}
 }
 
 
@@ -1069,12 +1069,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus{padding-top:clamp(72px,8vw,110px);padding-bottom:clamp(72px,8vw,110px)}
 .home-focus-head{margin-bottom:34px}
 .home-focus-head h2{font:900 clamp(48px,7vw,90px)/.84 var(--display);text-transform:uppercase;margin:0}
-.focus-tile{min-height:230px}
-.focus-tile h3{font-size:clamp(26px,3vw,38px)}
-.focus-tile p{max-width:280px}
-@media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-tile{min-height:190px}}
+.focus-card{min-height:230px}
+.focus-card h3{font-size:clamp(26px,3vw,38px)}
+.focus-card p{max-width:280px}
+@media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-card{min-height:190px}}
 
-/* Scroll reveal for the home focus section */
+/* Rebuilt focus card deck and scroll entrance */
 .home-focus .focus-heading-line{
   display:block;
   overflow:hidden;
@@ -1082,81 +1082,50 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus .focus-heading-line>span{
   display:block;
 }
-.home-focus .focus-tile{
-  --focus-start-transform:translate3d(-110%,0,0);
+.home-focus .focus-card{
   position:relative;
   transform-origin:50% 50%;
-  translate:none;
+  transition:translate 220ms ease,box-shadow 220ms ease;
 }
-.home-focus .focus-tile:nth-child(1){
-  --focus-start-transform:translate3d(-110%,0,0);
-  z-index:3;
-}
-.home-focus .focus-tile:nth-child(2){
-  --focus-start-transform:translate3d(calc(-100% - 14px),0,0);
-  z-index:2;
-}
-.home-focus .focus-tile:nth-child(3){
-  --focus-start-transform:translate3d(calc(-100% - 14px),0,0);
-  z-index:1;
-}
-.home-focus.focus-reveal-ready:not(.is-visible) .focus-heading-line>span{
+.home-focus .focus-card-blue{z-index:3}
+.home-focus .focus-card-orange{z-index:2}
+.home-focus .focus-card-lime{z-index:1}
+.home-focus.focus-motion-ready:not(.focus-revealed) .focus-heading-line>span{
   transform:translateY(110%);
 }
-.home-focus.focus-reveal-ready:not(.is-visible) .focus-tile{
+.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card{
   opacity:0;
-  transform:var(--focus-start-transform);
 }
-.home-focus.is-visible .focus-heading-line>span{
-  animation:focusHeadingReveal 650ms cubic-bezier(.16,1,.3,1) both;
+.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-blue{
+  transform:translate3d(-115%,0,0);
 }
-.home-focus.is-visible .focus-heading-line:nth-child(2)>span{
-  animation-delay:90ms;
+.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange{
+  transform:translate3d(calc(-100% - 14px),0,0);
 }
-.home-focus.is-visible .focus-tile{
-  animation:focusCardSlideIn 820ms cubic-bezier(.22,1,.36,1) both;
-}
-.home-focus.is-visible .focus-tile:nth-child(1){animation-delay:0ms}
-.home-focus.is-visible .focus-tile:nth-child(2){animation-delay:190ms}
-.home-focus.is-visible .focus-tile:nth-child(3){animation-delay:380ms}
-@keyframes focusHeadingReveal{
-  from{transform:translateY(110%)}
-  to{transform:translateY(0)}
-}
-@keyframes focusCardSlideIn{
-  from{
-    opacity:0;
-    transform:var(--focus-start-transform);
-  }
-  to{
-    opacity:1;
-    transform:translate3d(0,0,0);
-  }
-}
-.home-focus .focus-tile{
-  transition:translate 220ms ease,box-shadow 220ms ease;
+.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
+  transform:translate3d(calc(-100% - 14px),0,0);
 }
 .home-focus .tile-stack{
   transition:transform 220ms ease;
 }
 @media(max-width:760px){
-  .home-focus .focus-tile:nth-child(2),
-  .home-focus .focus-tile:nth-child(3){
-    --focus-start-transform:translate3d(0,calc(-100% - 14px),0);
+  .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange,
+  .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
+    transform:translate3d(0,calc(-100% - 14px),0);
   }
 }
 @media(hover:hover) and (pointer:fine){
-  .home-focus.is-visible .focus-tile:hover{
+  .home-focus.focus-interactive .focus-card:hover{
     translate:0 -5px;
     box-shadow:0 10px 22px rgba(23,23,23,.14);
   }
-  .home-focus.is-visible .focus-tile:hover .tile-stack{
+  .home-focus.focus-interactive .focus-card:hover .tile-stack{
     transform:translateY(-2px);
   }
 }
 @media(prefers-reduced-motion:reduce){
   .home-focus .focus-heading-line>span,
-  .home-focus .focus-tile,
+  .home-focus .focus-card,
   .home-focus .tile-stack{
     animation:none!important;
     transition:none!important;
@@ -1207,10 +1176,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 </section>
 <section class="home-focus" aria-labelledby="home-focus-title">
 <div class="home-focus-head"><h2 id="home-focus-title"><span class="focus-heading-line"><span>What I</span></span><span class="focus-heading-line"><span>work with.</span></span></h2></div>
-<div class="focus-grid">
-<article class="focus-tile"><div><h3>Web development</h3><p>Responsive interfaces and frontend applications.</p><div class="tile-stack">HTML / CSS / JAVASCRIPT / REACT</div></div></article>
-<article class="focus-tile"><div><h3>Application development</h3><p>Mobile apps and connected application experiences.</p><div class="tile-stack">FLUTTER / DART / FIREBASE</div></div></article>
-<article class="focus-tile"><div><h3>Programming</h3><p>Software fundamentals and problem solving.</p><div class="tile-stack">PYTHON / JAVA / C</div></div></article>
+<div class="focus-grid focus-card-stage">
+<article class="focus-card focus-card-blue" data-focus-card="blue"><div class="focus-card-content"><h3>Web development</h3><p>Responsive interfaces and frontend applications.</p><div class="tile-stack">HTML / CSS / JAVASCRIPT / REACT</div></div></article>
+<article class="focus-card focus-card-orange" data-focus-card="orange"><div class="focus-card-content"><h3>Application development</h3><p>Mobile apps and connected application experiences.</p><div class="tile-stack">FLUTTER / DART / FIREBASE</div></div></article>
+<article class="focus-card focus-card-lime" data-focus-card="lime"><div class="focus-card-content"><h3>Programming</h3><p>Software fundamentals and problem solving.</p><div class="tile-stack">PYTHON / JAVA / C</div></div></article>
 </div>
 </section>
 </main>
@@ -1671,59 +1640,162 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const section = document.querySelector(".home-focus");
   if (!section) return;
 
-  const target = section.querySelector(".focus-grid");
+  const grid = section.querySelector(".focus-card-stage");
+  const headingLines = [...section.querySelectorAll(".focus-heading-line > span")];
+  const cards = [...section.querySelectorAll("[data-focus-card]")];
   const loader = document.getElementById("page-transition");
-  const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
-  if (prefersReducedMotion || !target || !("IntersectionObserver" in window)) {
-    section.classList.add("is-visible");
+  if (!grid || cards.length !== 3) return;
+
+  const showWithoutMotion = () => {
+    section.classList.remove("focus-motion-ready");
+    section.classList.add("focus-revealed", "focus-interactive");
+    cards.forEach(card => {
+      card.style.opacity = "1";
+      card.style.transform = "none";
+    });
+    headingLines.forEach(line => line.style.transform = "none");
+  };
+
+  if (reducedMotion || typeof Element.prototype.animate !== "function") {
+    showWithoutMotion();
     return;
   }
 
   let armed = false;
-  let revealObserver = null;
+  let revealed = false;
 
-  const armReveal = () => {
+  const animateElement = (element, from, to, duration, easing) => {
+    const animation = element.animate([from, to], {
+      duration,
+      easing,
+      fill: "both"
+    });
+
+    return animation.finished.then(() => {
+      if (to.opacity !== undefined) element.style.opacity = String(to.opacity);
+      if (to.transform !== undefined) element.style.transform = to.transform;
+      animation.cancel();
+    });
+  };
+
+  const playReveal = async () => {
+    if (revealed) return;
+    revealed = true;
+    section.classList.add("focus-revealed");
+
+    const easing = "cubic-bezier(.22,1,.36,1)";
+    const headingPromises = headingLines.map((line, index) =>
+      animateElement(
+        line,
+        { transform: "translateY(110%)" },
+        { transform: "translateY(0)" },
+        650,
+        easing
+      ).then(() => new Promise(resolve => window.setTimeout(resolve, index === 0 ? 90 : 0)))
+    );
+    await Promise.all(headingPromises);
+
+    const isStackedLayout = window.matchMedia("(max-width:760px)").matches;
+    const cardStarts = [
+      "translate3d(-115%,0,0)",
+      isStackedLayout
+        ? "translate3d(0,calc(-100% - 14px),0)"
+        : "translate3d(calc(-100% - 14px),0,0)",
+      isStackedLayout
+        ? "translate3d(0,calc(-100% - 14px),0)"
+        : "translate3d(calc(-100% - 14px),0,0)"
+    ];
+
+    for (let index = 0; index < cards.length; index++) {
+      const card = cards[index];
+      await animateElement(
+        card,
+        { opacity: 0, transform: cardStarts[index] },
+        { opacity: 1, transform: "translate3d(0,0,0)" },
+        720,
+        easing
+      );
+
+      if (index < cards.length - 1) {
+        await new Promise(resolve => window.setTimeout(resolve, 100));
+      }
+    }
+
+    section.classList.remove("focus-motion-ready");
+    section.classList.add("focus-interactive");
+  };
+
+  const observeGrid = () => {
     if (armed) return;
     armed = true;
 
-    // Wait until the page transition overlay is fully dismissed.
     requestAnimationFrame(() => {
-      section.classList.add("focus-reveal-ready");
+      section.classList.add("focus-motion-ready");
 
       requestAnimationFrame(() => {
-        revealObserver = new IntersectionObserver(entries => {
+        if (!("IntersectionObserver" in window)) {
+          playReveal();
+          return;
+        }
+
+        const observer = new IntersectionObserver(entries => {
           if (!entries.some(entry => entry.isIntersecting)) return;
-          section.classList.add("is-visible");
-          revealObserver.disconnect();
+          observer.disconnect();
+          playReveal();
         }, {
           root: null,
           rootMargin: "0px 0px -80px 0px",
           threshold: 0.05
         });
 
-        revealObserver.observe(target);
+        observer.observe(grid);
       });
     });
   };
 
-  if (!loader || (loader.dataset.loaderFinished === "true" && !loader.classList.contains("is-active"))) {
-    armReveal();
+  const armAfterLoader = () => {
+    if (armed) return;
+    if (!loader || (
+      loader.dataset.loaderFinished === "true" &&
+      !loader.classList.contains("is-active")
+    )) {
+      observeGrid();
+      return;
+    }
+
+    const loaderObserver = new MutationObserver(() => {
+      if (
+        loader.dataset.loaderFinished !== "true" ||
+        loader.classList.contains("is-active")
+      ) return;
+
+      loaderObserver.disconnect();
+
+      const finishAfterFade = event => {
+        if (event && (event.target !== loader || event.propertyName !== "opacity")) return;
+        loader.removeEventListener("transitionend", finishAfterFade);
+        window.clearTimeout(fallbackTimer);
+        observeGrid();
+      };
+
+      loader.addEventListener("transitionend", finishAfterFade);
+      const fallbackTimer = window.setTimeout(() => finishAfterFade(), 350);
+    });
+
+    loaderObserver.observe(loader, {
+      attributes: true,
+      attributeFilter: ["class", "data-loader-finished"]
+    });
+  };
+
+  if (reducedMotion) {
+    showWithoutMotion();
     return;
   }
 
-  // The site loader initially covers the page. Do not let the section reveal
-  // run invisibly underneath it before the visitor can see the animation.
-  const loaderObserver = new MutationObserver(() => {
-    if (loader.dataset.loaderFinished !== "true" || loader.classList.contains("is-active")) return;
-    loaderObserver.disconnect();
-    armReveal();
-  });
-
-  loaderObserver.observe(loader, {
-    attributes: true,
-    attributeFilter: ["class", "data-loader-finished"]
-  });
+  armAfterLoader();
 })();
 </script>
 </body></html>
