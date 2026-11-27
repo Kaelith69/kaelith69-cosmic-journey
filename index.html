@@ -1662,7 +1662,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     card.style.willChange = "auto";
   };
 
-  const playCard = async (card, fromTransform, duration) => {
+  const playCard = async (card, fromTransform, duration, fromOpacity) => {
     if (typeof card.animate !== "function") {
       finishCard(card);
       return;
@@ -1671,7 +1671,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     card.style.willChange = "transform, opacity";
     const animation = card.animate(
       [
-        {opacity:0,transform:fromTransform},
+        {opacity:fromOpacity,transform:fromTransform},
         {opacity:1,transform:"translate3d(0,0,0) scale(1)"}
       ],
       {
@@ -1723,11 +1723,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       return;
     }
 
-    await playCard(cards[0],blueStart,720);
-    await playCard(cards[1],underBlue,700);
+    await playCard(cards[0],blueStart,720,0);
+    await playCard(cards[1],underBlue,700,1);
 
     cards[2].style.opacity = "0";
-    await playCard(cards[2],underOrange,700);
+    await playCard(cards[2],underOrange,700,1);
   };
 
   if (!("IntersectionObserver" in window)) {
