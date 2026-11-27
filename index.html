@@ -1224,8 +1224,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   const gravity=2700;
   const restitution=0.20;
-  const airAngularDamping=1.25;
-  const contactAngularDamping=9.5;
   const groundScale=0.73;
   const groundSkew=0.02;
   const fallHeight=clamp(hero.clientHeight*0.64,380,620);
@@ -1291,7 +1289,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     return mask;
   };
 
-  const heroOrigin=hero.getBoundingClientRect();
   const states=glyphs.map(({body,face,character},index)=>{
     const rect=face.getBoundingClientRect();
     const width=Math.max(1,rect.width);
@@ -1303,8 +1300,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       width,
       height,
       mask:makeGlyphMask(face,character,width,height),
-      centerX:rect.left-heroOrigin.left+width/2,
-      baselineY:rect.bottom-heroOrigin.top,
+      centerX:rect.left-heroRect.left+width/2,
+      baselineY:rect.bottom-heroRect.top,
       altitude:fallHeight,
       verticalVelocity:0,
       angle:sign*(0.035+(index%3)*0.012),
@@ -1491,7 +1488,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
         // Angular damping in flight and stronger torsional damping at contact.
         const angularStiffness=inContact?34:2.2;
-        const angularDamping=inContact?10:1.35;
+        const angularDamping=inContact?9.5:1.25;
         state.angularVelocity+=
           (-angularStiffness*state.angle-angularDamping*state.angularVelocity)*dt;
         state.angle+=state.angularVelocity*dt;
