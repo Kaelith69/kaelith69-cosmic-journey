@@ -1455,124 +1455,134 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 <script>
 (() => {
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const hero = document.querySelector(".hero");
-  const title = document.querySelector(".hero h1");
-  const introTitle = document.querySelector(".home-intro h2");
-  const introCopy = document.querySelector(".home-intro-copy p");
-  const focusTitle = document.querySelector(".home-focus-head h2");
-  const tiles = Array.from(document.querySelectorAll(".focus-tile"));
+  const start = () => {
+    const root = document.documentElement;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const hero = document.querySelector(".hero");
+    const title = document.querySelector(".hero h1");
+    const tiles = [...document.querySelectorAll(".focus-tile")];
+    const introTitle = document.querySelector(".home-intro h2");
+    const introCopy = document.querySelector(".home-intro-copy p");
+    const focusTitle = document.querySelector(".home-focus-head h2");
 
-  if (title && !title.dataset.motionBuilt) {
-    const number = title.querySelector("span");
-    const wordNode = Array.from(title.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (wordNode) {
-      const fragment = document.createDocumentFragment();
-      Array.from(wordNode.textContent.trim()).forEach((letter,index) => {
-        const character = document.createElement("span");
-        character.className = "hero-char";
-        character.textContent = letter;
-        character.style.setProperty("--char-delay",(100 + index * 58) + "ms");
-        character.setAttribute("aria-hidden","true");
-        fragment.appendChild(character);
-      });
-      wordNode.replaceWith(fragment);
-    }
-    if (number) {
-      const digits = Array.from(number.textContent.trim()).map(digit => {
-        const character = document.createElement("span");
-        character.className = "hero-digit";
-        character.textContent = digit;
-        character.setAttribute("aria-hidden","true");
-        return character;
-      });
-      const inner = document.createElement("span");
-      inner.className = "hero-number-inner";
-      digits.forEach((digit,index) => {
-        digit.style.setProperty("--digit-index",index);
-        inner.appendChild(digit);
-      });
-      number.replaceChildren(inner);
-      number.classList.add("hero-number");
-      number.setAttribute("aria-hidden","true");
-    }
-    title.setAttribute("aria-label","KAELITH 69");
-    title.dataset.motionBuilt = "true";
-  }
-
-  if (!reduceMotion && "IntersectionObserver" in window) {
-    document.documentElement.classList.add("motion-ready");
-    const revealTargets = [introTitle,introCopy,focusTitle,...tiles].filter(Boolean);
-    revealTargets.forEach((element,index) => {
-      element.classList.add("reveal-on-scroll");
-      if (element.classList.contains("focus-tile")) {
-        element.style.setProperty("--reveal-delay",(tiles.indexOf(element) * 115) + "ms");
+    try {
+      if (title && !title.dataset.motionBuilt) {
+        const number = title.querySelector(":scope > span");
+        const word = [...title.childNodes].find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+        if (word) {
+          const fragment = document.createDocumentFragment();
+          [...word.textContent.trim()].forEach((letter, i) => {
+            const span = document.createElement("span");
+            span.className = "hero-char";
+            span.textContent = letter;
+            span.style.setProperty("--char-delay", (90 + i * 55) + "ms");
+            span.setAttribute("aria-hidden", "true");
+            fragment.appendChild(span);
+          });
+          word.replaceWith(fragment);
+        }
+        if (number) {
+          const inner = document.createElement("span");
+          inner.className = "hero-number-inner";
+          [...number.textContent.trim()].forEach(digit => {
+            const span = document.createElement("span");
+            span.className = "hero-digit";
+            span.textContent = digit;
+            span.setAttribute("aria-hidden", "true");
+            inner.appendChild(span);
+          });
+          number.replaceChildren(inner);
+          number.classList.add("hero-number");
+          number.setAttribute("aria-hidden", "true");
+        }
+        title.setAttribute("aria-label", "KAELITH 69");
+        title.dataset.motionBuilt = "true";
       }
-    });
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      });
-    },{threshold:.14,rootMargin:"0px 0px -6% 0px"});
-    revealTargets.forEach(element => observer.observe(element));
-  }
 
-  if (!reduceMotion && finePointer && hero) {
-    let frame = 0;
-    let pointerX = 0;
-    let pointerY = 0;
-    const resetParallax = () => {
-      ["--hero-bg-x","--hero-bg-y","--hero-ring-x","--hero-ring-y","--hero-disc-x","--hero-disc-y"].forEach(property => hero.style.setProperty(property,"0px"));
-      const inner = title && title.querySelector(".hero-number-inner");
-      if (inner) {inner.style.setProperty("--number-tilt-x","0deg");inner.style.setProperty("--number-tilt-y","0deg");}
-    };
-    const updateParallax = () => {
-      frame = 0;
-      const rect = hero.getBoundingClientRect();
-      const x = Math.max(-.5,Math.min(.5,(pointerX - rect.left) / rect.width - .5));
-      const y = Math.max(-.5,Math.min(.5,(pointerY - rect.top) / rect.height - .5));
-      hero.style.setProperty("--hero-bg-x",(x * -13) + "px");
-      hero.style.setProperty("--hero-bg-y",(y * -10) + "px");
-      hero.style.setProperty("--hero-ring-x",(x * 18) + "px");
-      hero.style.setProperty("--hero-ring-y",(y * 13) + "px");
-      hero.style.setProperty("--hero-disc-x",(x * 22) + "px");
-      hero.style.setProperty("--hero-disc-y",(y * 17) + "px");
-      const inner = title && title.querySelector(".hero-number-inner");
-      if (inner) {
-        inner.style.setProperty("--number-tilt-x",(y * -3.5) + "deg");
-        inner.style.setProperty("--number-tilt-y",(x * 4.5) + "deg");
+      if (!reduced) {
+        const targets = [introTitle, introCopy, focusTitle, ...tiles].filter(Boolean);
+        if ("IntersectionObserver" in window) {
+          targets.forEach((el, i) => {
+            el.classList.add("reveal-on-scroll");
+            if (el.classList.contains("focus-tile")) el.style.setProperty("--reveal-delay", (tiles.indexOf(el) * 110) + "ms");
+          });
+          root.classList.add("motion-ready");
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.08, rootMargin: "0px 0px -4% 0px" });
+          targets.forEach(el => observer.observe(el));
+          window.setTimeout(() => targets.forEach(el => el.classList.add("is-visible")), 2400);
+        } else {
+          targets.forEach(el => el.classList.add("is-visible"));
+        }
       }
-    };
-    hero.addEventListener("pointermove",event => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      if (!frame) frame = requestAnimationFrame(updateParallax);
-    },{passive:true});
-    hero.addEventListener("pointerleave",resetParallax,{passive:true});
-  }
 
-  if (!reduceMotion && finePointer) {
-    tiles.forEach(tile => {
-      tile.addEventListener("pointermove",event => {
-        const rect = tile.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - .5;
-        const y = (event.clientY - rect.top) / rect.height - .5;
-        tile.style.setProperty("--tile-rotate-y",(x * 3.5) + "deg");
-        tile.style.setProperty("--tile-rotate-x",(y * -3.5) + "deg");
-        tile.style.setProperty("--tile-pattern-x",(x * -12) + "px");
-        tile.style.setProperty("--tile-pattern-y",(y * -12) + "px");
-      },{passive:true});
-      tile.addEventListener("pointerleave",() => {
-        tile.style.setProperty("--tile-rotate-x","0deg");
-        tile.style.setProperty("--tile-rotate-y","0deg");
-        tile.style.setProperty("--tile-pattern-x","0px");
-        tile.style.setProperty("--tile-pattern-y","0px");
-      },{passive:true});
-    });
-  }
+      if (!reduced && finePointer && hero) {
+        let frame = 0, px = 0, py = 0;
+        const inner = title && title.querySelector(".hero-number-inner");
+        const reset = () => {
+          ["--hero-bg-x","--hero-bg-y","--hero-ring-x","--hero-ring-y","--hero-disc-x","--hero-disc-y"].forEach(p => hero.style.setProperty(p, "0px"));
+          if (inner) {
+            inner.style.setProperty("--number-tilt-x", "0deg");
+            inner.style.setProperty("--number-tilt-y", "0deg");
+          }
+        };
+        hero.addEventListener("pointermove", e => {
+          px = e.clientX; py = e.clientY;
+          if (frame) return;
+          frame = requestAnimationFrame(() => {
+            frame = 0;
+            const rect = hero.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            const x = Math.max(-.5, Math.min(.5, (px - rect.left) / rect.width - .5));
+            const y = Math.max(-.5, Math.min(.5, (py - rect.top) / rect.height - .5));
+            hero.style.setProperty("--hero-bg-x", (x * -12) + "px");
+            hero.style.setProperty("--hero-bg-y", (y * -9) + "px");
+            hero.style.setProperty("--hero-ring-x", (x * 15) + "px");
+            hero.style.setProperty("--hero-ring-y", (y * 11) + "px");
+            hero.style.setProperty("--hero-disc-x", (x * 18) + "px");
+            hero.style.setProperty("--hero-disc-y", (y * 14) + "px");
+            if (inner) {
+              inner.style.setProperty("--number-tilt-x", (y * -3) + "deg");
+              inner.style.setProperty("--number-tilt-y", (x * 4) + "deg");
+            }
+          });
+        }, { passive: true });
+        hero.addEventListener("pointerleave", reset, { passive: true });
+      }
+
+      if (!reduced && finePointer) {
+        tiles.forEach(tile => {
+          tile.addEventListener("pointermove", e => {
+            const r = tile.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            const x = (e.clientX - r.left) / r.width - .5;
+            const y = (e.clientY - r.top) / r.height - .5;
+            tile.style.setProperty("--tile-rotate-y", (x * 3) + "deg");
+            tile.style.setProperty("--tile-rotate-x", (y * -3) + "deg");
+            tile.style.setProperty("--tile-pattern-x", (x * -10) + "px");
+            tile.style.setProperty("--tile-pattern-y", (y * -10) + "px");
+          }, { passive: true });
+          tile.addEventListener("pointerleave", () => {
+            ["--tile-rotate-x","--tile-rotate-y","--tile-pattern-x","--tile-pattern-y"].forEach(p => tile.style.setProperty(p, "0"));
+          }, { passive: true });
+        });
+      }
+    } catch (error) {
+      root.classList.remove("motion-ready");
+      document.querySelectorAll(".reveal-on-scroll").forEach(el => el.classList.add("is-visible"));
+      console.error("Homepage motion enhancement stopped safely:", error);
+    }
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
 })();
 </script>
 
