@@ -1582,4 +1582,17 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 })();
 </script>
 
+<script>
+(() => {
+  const restoreHorizontalOrigin = () => {
+    if (window.scrollX !== 0) {
+      window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
+    }
+  };
+  window.addEventListener("pageshow",restoreHorizontalOrigin);
+  window.addEventListener("resize",restoreHorizontalOrigin,{passive:true});
+  restoreHorizontalOrigin();
+})();
+</script>
+
 </body></html>
