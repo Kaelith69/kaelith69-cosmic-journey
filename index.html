@@ -1074,7 +1074,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .focus-card p{max-width:280px}
 @media(max-width:760px){.home-intro{grid-template-columns:1fr;gap:28px}.home-focus-head{margin-bottom:26px}.focus-card{min-height:190px}}
 
-/* Rebuilt focus card deck and scroll entrance */
+/* Home focus card entrance */
 .home-focus .focus-heading-line{
   display:block;
   overflow:hidden;
@@ -1094,28 +1094,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   transform:translateY(110%);
 }
 .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card{
-  opacity:1;
-}
-.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-blue{
-  opacity:1;
-  transform:translate3d(-115%,0,0);
-}
-.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange{
-  opacity:1;
-  transform:translate3d(calc(-100% + 42px),0,0);
-}
-.home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
-  opacity:1;
-  transform:translate3d(calc(-100% + 42px),0,0);
+  opacity:0;
 }
 .home-focus .tile-stack{
   transition:transform 220ms ease;
-}
-@media(max-width:760px){
-  .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-orange,
-  .home-focus.focus-motion-ready:not(.focus-revealed) .focus-card-lime{
-    transform:translate3d(0,calc(-100% + 42px),0);
-  }
 }
 @media(hover:hover) and (pointer:fine){
   .home-focus.focus-interactive .focus-card:hover{
@@ -1137,7 +1119,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     opacity:1!important;
   }
 }
-
 </style>
 </head><body>
 <div class="transition-screen is-active" id="page-transition" role="status" aria-live="polite" aria-label="Loading" aria-hidden="false">
@@ -1657,6 +1638,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     cards.forEach(card => {
       card.style.opacity = "1";
       card.style.transform = "none";
+      card.style.willChange = "auto";
     });
     headingLines.forEach(line => line.style.transform = "none");
   };
@@ -1684,11 +1666,39 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     });
   };
 
+  const getStackStarts = () => {
+    const rects = cards.map(card => card.getBoundingClientRect());
+    const first = rects[0];
+    const isStackedLayout = window.matchMedia("(max-width:760px)").matches;
+    const offset = Math.min(48, Math.max(30, first.width * 0.12));
+
+    return rects.map((rect, index) => {
+      if (index === 0) {
+        return `translate3d(${-first.width - 28}px,0,0)`;
+      }
+
+      const stackLeft = isStackedLayout ? first.left : first.left + offset * index;
+      const stackTop = isStackedLayout ? first.top + offset * index : first.top;
+      const x = stackLeft - rect.left;
+      const y = stackTop - rect.top;
+
+      return `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+    });
+  };
+
   const playReveal = async () => {
     if (revealed) return;
     revealed = true;
 
     const easing = "cubic-bezier(.22,1,.36,1)";
+    const starts = getStackStarts();
+
+    cards.forEach((card, index) => {
+      card.style.opacity = "0";
+      card.style.transform = starts[index];
+      card.style.willChange = "transform,opacity";
+    });
+
     await Promise.all(headingLines.map((line, index) =>
       animateElement(
         line,
@@ -1700,32 +1710,41 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       )
     ));
 
-    const isStackedLayout = window.matchMedia("(max-width:760px)").matches;
-    const cardStarts = [
-      "translate3d(-115%,0,0)",
-      isStackedLayout
-        ? "translate3d(0,calc(-100% + 42px),0)"
-        : "translate3d(calc(-100% + 42px),0,0)",
-      isStackedLayout
-        ? "translate3d(0,calc(-100% + 42px),0)"
-        : "translate3d(calc(-100% + 42px),0,0)"
-    ];
+    await animateElement(
+      cards[0],
+      { opacity: 0, transform: starts[0] },
+      { opacity: 1, transform: "none" },
+      760,
+      easing
+    );
 
-    // Play each card only after the previous one has reached its position.
-    // This makes orange emerge from beneath blue and lime from beneath orange.
-    for (let index = 0; index < cards.length; index++) {
-      await animateElement(
-        cards[index],
-        { opacity: 1, transform: cardStarts[index] },
-        { opacity: 1, transform: "translate3d(0,0,0)" },
-        720,
-        easing
-      );
+    // Reveal the two cards already layered behind blue before moving orange.
+    cards[1].style.opacity = "1";
+    cards[2].style.opacity = "1";
 
-      if (index < cards.length - 1) {
-        await new Promise(resolve => window.setTimeout(resolve, 100));
-      }
-    }
+    await animateElement(
+      cards[1],
+      { opacity: 1, transform: starts[1] },
+      { opacity: 1, transform: "none" },
+      760,
+      easing
+    );
+
+    await new Promise(resolve => window.setTimeout(resolve, 100));
+
+    await animateElement(
+      cards[2],
+      { opacity: 1, transform: starts[2] },
+      { opacity: 1, transform: "none" },
+      760,
+      easing
+    );
+
+    cards.forEach(card => {
+      card.style.transform = "none";
+      card.style.willChange = "auto";
+    });
+    headingLines.forEach(line => line.style.transform = "none");
 
     section.classList.remove("focus-motion-ready");
     section.classList.add("focus-revealed", "focus-interactive");
