@@ -1074,8 +1074,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   letter-spacing:-.025em;text-transform:uppercase;
 }
 .home-focus-grid{
+  --card-overlap-gap:clamp(14px,1vw,18px);
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
-  gap:clamp(14px,1vw,18px);position:relative;isolation:isolate;
+  gap:var(--card-overlap-gap);position:relative;isolation:isolate;
 }
 .home-focus-card{
   --card-bg:var(--blue);--card-fg:var(--white);
@@ -1088,9 +1089,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s cubic-bezier(.2,.75,.25,1);
   backface-visibility:hidden;
 }
-.home-focus-card:nth-child(1){--card-bg:var(--blue);--card-fg:var(--white);z-index:3}
-.home-focus-card:nth-child(2){--card-bg:var(--cyan);--card-fg:var(--navy);z-index:2}
-.home-focus-card:nth-child(3){--card-bg:var(--lime);--card-fg:var(--navy);z-index:1}
+.home-focus-card:nth-child(1){
+  --card-bg:var(--blue);--card-fg:var(--white);z-index:3;
+  --card-enter-transform:translate3d(-88px,26px,0) scale(.985);
+}
+.home-focus-card:nth-child(2){
+  --card-bg:var(--cyan);--card-fg:var(--navy);z-index:2;
+  --card-enter-transform:translate3d(calc(-100% - var(--card-overlap-gap) + 14px),14px,0) scale(.985);
+}
+.home-focus-card:nth-child(3){
+  --card-bg:var(--lime);--card-fg:var(--navy);z-index:1;
+  --card-enter-transform:translate3d(calc(-100% - var(--card-overlap-gap) + 14px),14px,0) scale(.985);
+}
 .home-focus-card h3{
   position:relative;z-index:1;margin:clamp(24px,2vw,36px) 0 14px;max-width:100%;
   font:900 clamp(32px,3vw,48px)/.88 var(--display);
@@ -1108,13 +1118,27 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus.is-pending .home-focus-card{
   visibility:hidden;opacity:0;pointer-events:none;
 }
+.home-focus.is-revealed .home-focus-card{
+  visibility:visible;pointer-events:auto;
+  animation:home-focus-card-enter 720ms cubic-bezier(.2,.78,.22,1) both;
+}
+.home-focus.is-revealed .home-focus-card:nth-child(2){animation-delay:720ms}
+.home-focus.is-revealed .home-focus-card:nth-child(3){animation-delay:1440ms}
+@keyframes home-focus-card-enter{
+  from{opacity:0;transform:var(--card-enter-transform)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
 .home-focus-card:focus-visible{outline:4px solid var(--magenta);outline-offset:7px}
 @media(hover:hover) and (pointer:fine){
   .home-focus-card:hover{translate:-5px -5px;box-shadow:14px 14px 0 var(--navy)}
 }
 @media(max-width:900px){
   .home-focus-title{font-size:clamp(72px,12vw,112px)}
-  .home-focus-grid{grid-template-columns:1fr;gap:18px}
+  .home-focus-grid{--card-overlap-gap:18px;grid-template-columns:1fr;gap:var(--card-overlap-gap)}
+  .home-focus-card:nth-child(1){--card-enter-transform:translate3d(0,26px,0) scale(.985)}
+  .home-focus-card:nth-child(2),.home-focus-card:nth-child(3){
+    --card-enter-transform:translate3d(0,calc(-100% - var(--card-overlap-gap) + 14px),0) scale(.985);
+  }
   .home-focus-card{min-height:300px;padding:clamp(26px,5vw,38px)}
   .home-focus-card h3{font-size:clamp(38px,7vw,54px);margin-top:20px}
 }
@@ -1122,6 +1146,9 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .home-focus{padding-top:82px;padding-bottom:92px}
   .home-focus-title{font-size:clamp(68px,14vw,92px);margin-bottom:38px}
   .home-focus-card{min-height:280px;box-shadow:7px 7px 0 var(--navy)}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-focus.is-revealed .home-focus-card{animation:none!important;opacity:1;transform:none}
 }
 
 </style>
@@ -1647,136 +1674,53 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!section) return;
 
   const grid = section.querySelector(".home-focus-grid");
-  const cards = Array.from(grid ? grid.querySelectorAll(".home-focus-card") : []);
-  if (!grid || cards.length !== 3) return;
+  if (!grid || grid.querySelectorAll(".home-focus-card").length !== 3) return;
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let revealed = false;
-  let frame = 0;
-  let previousScrollY = window.scrollY;
-  let previousGridTop = grid.getBoundingClientRect().top;
+  let observer = null;
 
-  const finishCard = card => {
-    card.style.opacity = "1";
-    card.style.transform = "none";
-    card.style.willChange = "auto";
-  };
-
-  const showAllCards = () => {
-    section.classList.remove("is-pending");
-    cards.forEach(finishCard);
-  };
-
-  const animateCard = async (card, startTransform, duration, startOpacity) => {
-    if (typeof card.animate !== "function") {
-      finishCard(card);
-      return;
-    }
-
-    let animation = null;
-    try {
-      card.style.willChange = "transform, opacity";
-      animation = card.animate(
-        [
-          { opacity:startOpacity, transform:startTransform },
-          { opacity:1, transform:"translate3d(0,0,0) scale(1)" }
-        ],
-        {
-          duration,
-          easing:"cubic-bezier(.2,.78,.22,1)",
-          fill:"both"
-        }
-      );
-      await animation.finished;
-    } catch (_) {
-      // The final state is applied below even if an animation is interrupted.
-    }
-
-    finishCard(card);
-    if (animation) animation.cancel();
-  };
-
-  const revealCards = async () => {
+  const revealCards = () => {
     if (revealed) return;
     revealed = true;
-    window.removeEventListener("scroll", onScroll);
 
-    try {
-      const positions = cards.map(card => card.getBoundingClientRect());
-      const overlap = 14;
-      const orangeStart =
-        "translate3d(" +
-        (positions[0].left - positions[1].left + overlap) + "px," +
-        (positions[0].top - positions[1].top + overlap) + "px,0) scale(.985)";
-      const limeStart =
-        "translate3d(" +
-        (positions[1].left - positions[2].left + overlap) + "px," +
-        (positions[1].top - positions[2].top + overlap) + "px,0) scale(.985)";
-      const blueStart = "translate3d(-88px,26px,0) scale(.985)";
+    if (observer) observer.disconnect();
+    window.removeEventListener("scroll", checkPosition);
+    document.removeEventListener("scroll", checkPosition);
+    window.removeEventListener("resize", checkPosition);
 
-      cards[0].style.opacity = "0";
-      cards[0].style.transform = blueStart;
-      cards[1].style.opacity = "0";
-      cards[1].style.transform = orangeStart;
-      cards[2].style.opacity = "0";
-      cards[2].style.transform = limeStart;
-
-      section.classList.remove("is-pending");
-
-      if (reducedMotion.matches) {
-        cards.forEach(finishCard);
-        return;
-      }
-
-      await animateCard(cards[0],blueStart,720,0);
-
-      cards[1].style.opacity = "1";
-      await animateCard(cards[1],orangeStart,700,1);
-
-      cards[2].style.opacity = "1";
-      await animateCard(cards[2],limeStart,700,1);
-    } catch (_) {
-      showAllCards();
-    } finally {
-      cards.forEach(card => {
-        if (getComputedStyle(card).visibility !== "visible") finishCard(card);
-      });
-    }
+    section.classList.remove("is-pending");
+    section.classList.add("is-revealed");
   };
 
-  const checkScrollPosition = () => {
-    frame = 0;
+  const checkPosition = () => {
     if (revealed) return;
-
-    const currentScrollY = window.scrollY;
     const gridRect = grid.getBoundingClientRect();
-    const triggerLine = window.innerHeight * 0.88;
-    const movedDown = currentScrollY > previousScrollY + 0.01;
-    const crossedTriggerLine = previousGridTop > triggerLine && gridRect.top <= triggerLine;
-    const gridInTriggerZone = gridRect.top <= triggerLine && gridRect.bottom > 0;
 
-    previousScrollY = currentScrollY;
-    previousGridTop = gridRect.top;
-
-    if (movedDown && (crossedTriggerLine || gridInTriggerZone)) revealCards();
-  };
-
-  const onScroll = () => {
-    if (frame || revealed) return;
-    frame = window.requestAnimationFrame(checkScrollPosition);
+    if (gridRect.top <= window.innerHeight * 0.88 && gridRect.bottom > 0) {
+      revealCards();
+    }
   };
 
   try {
-    window.addEventListener("scroll",onScroll,{passive:true});
     section.classList.add("is-pending");
+    window.addEventListener("scroll", checkPosition, { passive:true });
+    document.addEventListener("scroll", checkPosition, { passive:true });
+    window.addEventListener("resize", checkPosition, { passive:true });
 
-    const initialRect = grid.getBoundingClientRect();
-    if (initialRect.top <= window.innerHeight * 0.88 && initialRect.bottom > 0) {
-      revealCards();
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) revealCards();
+      }, {
+        root:null,
+        rootMargin:"0px 0px -12% 0px",
+        threshold:0.01
+      });
+      observer.observe(grid);
     }
+
+    checkPosition();
   } catch (_) {
-    window.removeEventListener("scroll",onScroll);
-    showAllCards();
+    revealCards();
   }
 })();
 </script>
