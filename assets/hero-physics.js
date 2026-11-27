@@ -396,8 +396,52 @@
     target.restore();
   };
 
+  const computeShadowBounds = state => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const sample of LIGHT_SAMPLES) {
+      if (
+        !projectPointToFloor(state, 0, 0, sample, DEST_QUAD[0]) ||
+        !projectPointToFloor(state, state.width, 0, sample, DEST_QUAD[1]) ||
+        !projectPointToFloor(state, state.width, state.height, sample, DEST_QUAD[2]) ||
+        !projectPointToFloor(state, 0, state.height, sample, DEST_QUAD[3])
+      ) continue;
+
+      for (const point of DEST_QUAD) {
+        if (point.x < minX) minX = point.x;
+        if (point.y < minY) minY = point.y;
+        if (point.x > maxX) maxX = point.x;
+        if (point.y > maxY) maxY = point.y;
+      }
+    }
+
+    if (!Number.isFinite(minX)) return null;
+
+    const left = clamp(Math.floor(minX - 3), 0, sceneWidth);
+    const top = clamp(Math.floor(minY - 3), 0, sceneHeight);
+    const right = clamp(Math.ceil(maxX + 3), 0, sceneWidth);
+    const bottom = clamp(Math.ceil(maxY + 3), 0, sceneHeight);
+
+    if (right <= left || bottom <= top) return null;
+
+    return {
+      left,
+      top,
+      width: right - left,
+      height: bottom - top
+    };
+  };
+
   const drawGlyphShadow = (state, target) => {
-    scratchCtx.clearRect(0, 0, sceneWidth, sceneHeight);
+    const bounds = computeShadowBounds(state);
+    if (!bounds) return;
+
+    // Reuse one scratch surface and clear only the current glyph's projected
+    // bounds. This avoids a full hero-sized clear for every glyph on every frame.
+    scratchCtx.clearRect(bounds.left, bounds.top, bounds.width, bounds.height);
     scratchCtx.globalCompositeOperation = "lighter";
 
     SOURCE_QUAD[0].x = 0;
@@ -434,7 +478,18 @@
     }
 
     scratchCtx.globalCompositeOperation = "source-over";
-    target.drawImage(scratchCanvas, 0, 0, sceneWidth, sceneHeight);
+    target.drawImage(
+      scratchCanvas,
+      bounds.left * dpr,
+      bounds.top * dpr,
+      bounds.width * dpr,
+      bounds.height * dpr,
+      bounds.left,
+      bounds.top,
+      bounds.width,
+      bounds.height
+    );
+    scratchCtx.clearRect(bounds.left, bounds.top, bounds.width, bounds.height);
   };
 
   const computeSupport = state => {
