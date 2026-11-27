@@ -11,6 +11,7 @@
   color-scheme:light;
   --cobalt:#F1EBDD;
   --blue:#244BFF;
+  --midnight-blue:#191970;
   --navy:#171717;
   --cyan:#FF4D00;
   --lime:#D9F04A;
@@ -57,6 +58,18 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   width:max-content;
   white-space:nowrap;
 }
+.hero h1 .fall-object{
+  isolation:isolate;
+}
+.hero h1 .fall-object::before{
+  content:attr(data-glyph);
+  position:absolute;
+  z-index:-1;
+  inset:0 auto auto 7px;
+  color:#080808;
+  pointer-events:none;
+  white-space:pre;
+}
 .hero h1>span:not(.hero-word){
   display:block;
   position:relative;
@@ -88,7 +101,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:inline-block;
   margin:0;
   padding:0;
-  color:inherit;
+  color:var(--midnight-blue);
   -webkit-text-stroke:0;
   text-shadow:none;
 }
@@ -1205,6 +1218,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
     const body=document.createElement("span");
     body.className="fall-object";
+    body.dataset.glyph=character;
 
     const face=document.createElement("span");
     face.className="fall-letter";
