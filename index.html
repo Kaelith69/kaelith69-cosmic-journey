@@ -1463,7 +1463,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           }
         }
 
-        if(state.grounded&&Math.abs(state.v[2])<5){
+        if(state.grounded&&state.v[2]<25){
           state.v[2]=0;
           const horizontal=reduceVector([state.v[0],state.v[1]],friction*gravity*dt);
           state.v[0]=horizontal[0];
