@@ -1656,70 +1656,85 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   let revealed = false;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const revealCards = () => {
+  const finishCard = card => {
+    card.style.opacity = "1";
+    card.style.transform = "none";
+    card.style.willChange = "auto";
+  };
+
+  const playCard = async (card, fromTransform, duration) => {
+    if (typeof card.animate !== "function") {
+      finishCard(card);
+      return;
+    }
+
+    card.style.willChange = "transform, opacity";
+    const animation = card.animate(
+      [
+        {opacity:0,transform:fromTransform},
+        {opacity:1,transform:"translate3d(0,0,0) scale(1)"}
+      ],
+      {
+        duration,
+        easing:"cubic-bezier(.2,.78,.22,1)",
+        fill:"both"
+      }
+    );
+
+    try {
+      await animation.finished;
+    } catch (_) {
+      // A cancelled animation should not leave the card hidden.
+    }
+
+    finishCard(card);
+    animation.cancel();
+  };
+
+  const revealCards = async () => {
     if (revealed) return;
     revealed = true;
     observer.disconnect();
 
+    const rects = cards.map(card => card.getBoundingClientRect());
+    const peek = 14;
+    const underBlue = "translate3d(" +
+      (rects[0].left - rects[1].left + peek) + "px," +
+      (rects[0].top - rects[1].top + peek) + "px,0) scale(.985)";
+    const underOrange = "translate3d(" +
+      (rects[1].left - rects[2].left + peek) + "px," +
+      (rects[1].top - rects[2].top + peek) + "px,0) scale(.985)";
+    const blueStart = "translate3d(-88px,26px,0) scale(.985)";
+
+    cards[0].style.opacity = "0";
+    cards[0].style.transform = blueStart;
+
+    cards[1].style.opacity = "1";
+    cards[1].style.transform = underBlue;
+
+    cards[2].style.opacity = "0";
+    cards[2].style.transform = underOrange;
+
     section.classList.remove("is-pending");
     section.classList.add("is-revealed");
 
-    const normalOffsets = [
-      {x:-84,y:24},
-      {x:0,y:64},
-      {x:84,y:24}
-    ];
-    const reducedOffsets = [
-      {x:-28,y:10},
-      {x:0,y:18},
-      {x:28,y:10}
-    ];
-    const offsets = reducedMotion.matches ? reducedOffsets : normalOffsets;
-    const duration = reducedMotion.matches ? 460 : 780;
-    const stagger = reducedMotion.matches ? 90 : 140;
+    if (reducedMotion.matches) {
+      cards.forEach(finishCard);
+      return;
+    }
 
-    cards.forEach((card,index) => {
-      const offset = offsets[index];
-      if (typeof card.animate !== "function") {
-        card.style.opacity = "1";
-        card.style.transform = "none";
-        return;
-      }
+    await playCard(cards[0],blueStart,720);
+    await playCard(cards[1],underBlue,700);
 
-      card.style.willChange = "opacity, transform";
-      const animation = card.animate(
-        [
-          {
-            opacity:0,
-            transform:"translate3d(" + offset.x + "px," + offset.y + "px,0) scale(.985)"
-          },
-          {
-            opacity:1,
-            transform:"translate3d(0,0,0) scale(1)"
-          }
-        ],
-        {
-          duration,
-          delay:index * stagger,
-          easing:"cubic-bezier(.2,.78,.22,1)",
-          fill:"both"
-        }
-      );
-
-      animation.onfinish = () => {
-        card.style.opacity = "1";
-        card.style.transform = "none";
-        card.style.willChange = "auto";
-        animation.cancel();
-      };
-    });
+    cards[2].style.opacity = "0";
+    await playCard(cards[2],underOrange,700);
   };
 
   if (!("IntersectionObserver" in window)) {
     const checkPosition = () => {
       const rect = cardGrid.getBoundingClientRect();
       if (rect.top <= window.innerHeight * .88 && rect.bottom > 0) {
-        window.removeEventListener("scroll", checkPosition);
+        window.removeEventListener("scroll",checkPosition);
         revealCards();
       }
     };
