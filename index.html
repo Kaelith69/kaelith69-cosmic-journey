@@ -1226,7 +1226,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const restitution=0.20;
   const airAngularDamping=1.25;
   const contactAngularDamping=9.5;
-  const groundScale=0.68;
+  const groundScale=0.73;
   const groundSkew=0.02;
   const fallHeight=clamp(hero.clientHeight*0.64,380,620);
 
@@ -1257,7 +1257,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   // and Z is height above the horizontal floor at Z = 0.
   const light={
     x:wordRect.left-heroRect.left+wordRect.width/2,
-    y:-1200,
+    y:-1550,
     z:Math.max(3600,fallHeight+maxGlyphHeight+3000)
   };
   const areaRadiusX=42;
