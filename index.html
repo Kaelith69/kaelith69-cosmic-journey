@@ -1108,9 +1108,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .home-focus.is-pending .home-focus-card{
   visibility:hidden;opacity:0;pointer-events:none;
 }
-.home-focus.is-revealed .home-focus-card{
-  visibility:visible;pointer-events:auto;
-}
 .home-focus-card:focus-visible{outline:4px solid var(--magenta);outline-offset:7px}
 @media(hover:hover) and (pointer:fine){
   .home-focus-card:hover{translate:-5px -5px;box-shadow:14px 14px 0 var(--navy)}
@@ -1654,9 +1651,10 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if (!grid || cards.length !== 3) return;
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  let observer = null;
   let revealed = false;
-  let running = false;
+  let frame = 0;
+  let previousScrollY = window.scrollY;
+  let previousGridTop = grid.getBoundingClientRect().top;
 
   const finishCard = card => {
     card.style.opacity = "1";
@@ -1666,7 +1664,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
   const showAllCards = () => {
     section.classList.remove("is-pending");
-    section.classList.add("is-revealed");
     cards.forEach(finishCard);
   };
 
@@ -1677,8 +1674,8 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     }
 
     let animation = null;
-    card.style.willChange = "transform, opacity";
     try {
+      card.style.willChange = "transform, opacity";
       animation = card.animate(
         [
           { opacity:startOpacity, transform:startTransform },
@@ -1692,7 +1689,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
       );
       await animation.finished;
     } catch (_) {
-      // Keep the card visible if the browser cancels or rejects an animation.
+      // The final state is applied below even if an animation is interrupted.
     }
 
     finishCard(card);
@@ -1700,85 +1697,85 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   };
 
   const revealCards = async () => {
-    if (revealed || running) return;
-    running = true;
+    if (revealed) return;
     revealed = true;
-    if (observer) observer.disconnect();
+    window.removeEventListener("scroll", onScroll);
 
     try {
       const positions = cards.map(card => card.getBoundingClientRect());
-      const peek = 14;
-      const orangeUnderBlue =
+      const overlap = 14;
+      const orangeStart =
         "translate3d(" +
-        (positions[0].left - positions[1].left + peek) + "px," +
-        (positions[0].top - positions[1].top + peek) + "px,0) scale(.985)";
-      const limeUnderOrange =
+        (positions[0].left - positions[1].left + overlap) + "px," +
+        (positions[0].top - positions[1].top + overlap) + "px,0) scale(.985)";
+      const limeStart =
         "translate3d(" +
-        (positions[1].left - positions[2].left + peek) + "px," +
-        (positions[1].top - positions[2].top + peek) + "px,0) scale(.985)";
+        (positions[1].left - positions[2].left + overlap) + "px," +
+        (positions[1].top - positions[2].top + overlap) + "px,0) scale(.985)";
       const blueStart = "translate3d(-88px,26px,0) scale(.985)";
 
       cards[0].style.opacity = "0";
       cards[0].style.transform = blueStart;
       cards[1].style.opacity = "0";
-      cards[1].style.transform = orangeUnderBlue;
+      cards[1].style.transform = orangeStart;
       cards[2].style.opacity = "0";
-      cards[2].style.transform = limeUnderOrange;
+      cards[2].style.transform = limeStart;
 
       section.classList.remove("is-pending");
-      section.classList.add("is-revealed");
 
       if (reducedMotion.matches) {
-        showAllCards();
+        cards.forEach(finishCard);
         return;
       }
 
       await animateCard(cards[0],blueStart,720,0);
 
       cards[1].style.opacity = "1";
-      await animateCard(cards[1],orangeUnderBlue,700,1);
+      await animateCard(cards[1],orangeStart,700,1);
 
       cards[2].style.opacity = "1";
-      await animateCard(cards[2],limeUnderOrange,700,1);
+      await animateCard(cards[2],limeStart,700,1);
     } catch (_) {
-      // A geometry or animation error must never leave the section empty.
       showAllCards();
     } finally {
-      running = false;
       cards.forEach(card => {
         if (getComputedStyle(card).visibility !== "visible") finishCard(card);
       });
     }
   };
 
+  const checkScrollPosition = () => {
+    frame = 0;
+    if (revealed) return;
+
+    const currentScrollY = window.scrollY;
+    const gridRect = grid.getBoundingClientRect();
+    const triggerLine = window.innerHeight * 0.88;
+    const movedDown = currentScrollY > previousScrollY + 0.01;
+    const crossedTriggerLine = previousGridTop > triggerLine && gridRect.top <= triggerLine;
+    const gridInTriggerZone = gridRect.top <= triggerLine && gridRect.bottom > 0;
+
+    previousScrollY = currentScrollY;
+    previousGridTop = gridRect.top;
+
+    if (movedDown && (crossedTriggerLine || gridInTriggerZone)) revealCards();
+  };
+
+  const onScroll = () => {
+    if (frame || revealed) return;
+    frame = window.requestAnimationFrame(checkScrollPosition);
+  };
+
   try {
-    if ("IntersectionObserver" in window) {
-      observer = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) revealCards();
-      },{
-        root:null,
-        rootMargin:"0px 0px -8% 0px",
-        threshold:0.01
-      });
-
-      section.classList.add("is-pending");
-      observer.observe(grid);
-      return;
-    }
-
-    const checkPosition = () => {
-      const rect = grid.getBoundingClientRect();
-      if (rect.top <= window.innerHeight * 0.88 && rect.bottom > 0) {
-        window.removeEventListener("scroll",checkPosition);
-        revealCards();
-      }
-    };
-
+    window.addEventListener("scroll",onScroll,{passive:true});
     section.classList.add("is-pending");
-    window.addEventListener("scroll",checkPosition,{passive:true});
-    checkPosition();
+
+    const initialRect = grid.getBoundingClientRect();
+    if (initialRect.top <= window.innerHeight * 0.88 && initialRect.bottom > 0) {
+      revealCards();
+    }
   } catch (_) {
-    if (observer) observer.disconnect();
+    window.removeEventListener("scroll",onScroll);
     showAllCards();
   }
 })();
