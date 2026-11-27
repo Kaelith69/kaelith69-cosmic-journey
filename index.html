@@ -68,38 +68,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   display:inline-block;
   margin:0;
   padding:0;
-  transform-origin:50% 88%;
+  transform-origin:50% 100%;
   will-change:transform;
 }
 .hero h1 .fall-letter{
-  position:relative;
-  z-index:1;
   display:inline-block;
   margin:0;
   padding:0;
   color:inherit;
   -webkit-text-stroke:0;
   text-shadow:none;
-}
-.hero h1 .fall-depth-stack{
-  position:absolute;
-  z-index:0;
-  inset:0;
-  pointer-events:none;
-}
-.hero h1 .fall-depth-layer{
-  position:absolute;
-  inset:0;
-  display:block;
-  color:var(--depth-color,#171717);
-  font:inherit;
-  line-height:inherit;
-  letter-spacing:inherit;
-  text-transform:inherit;
-  white-space:pre;
-  text-shadow:none;
-  -webkit-text-stroke:0;
-  transform:translate3d(var(--depth-x,0px),var(--depth-y,0px),0);
 }
 .hero h1 .fall-ground-shadow{
   position:absolute;
@@ -110,31 +88,34 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 }
 .hero h1 .fall-cast-shape{
   position:absolute;
-  inset:0;
+  left:0;
+  top:0;
   display:block;
-  color:#171717;
+  width:max-content;
+  height:auto;
+  margin:0;
+  padding:0;
+  white-space:pre;
   font:inherit;
   line-height:inherit;
   letter-spacing:inherit;
   text-transform:inherit;
-  white-space:pre;
   text-shadow:none;
   -webkit-text-stroke:0;
-  transform-origin:50% 100%;
+  transform-origin:0 0;
+  pointer-events:none;
 }
 .hero h1 .fall-cast-hard{
-  opacity:var(--cast-hard-opacity,.5);
-  filter:blur(var(--cast-hard-blur,.2px));
-  transform:translate3d(var(--cast-x,0px),var(--cast-y,0px),0)
-    skewX(var(--cast-skew,0deg))
-    scale(var(--cast-scale-x,1),var(--cast-scale-y,.16));
+  z-index:1;
+  color:#171717;
+  opacity:var(--cast-hard-opacity,.62);
+  filter:blur(var(--cast-hard-blur,.08px));
 }
 .hero h1 .fall-cast-soft{
-  opacity:var(--cast-soft-opacity,.2);
-  filter:blur(var(--cast-soft-blur,2px));
-  transform:translate3d(var(--cast-x,0px),var(--cast-y,0px),0)
-    skewX(var(--cast-skew,0deg))
-    scale(var(--cast-scale-x,1),var(--cast-scale-y,.16));
+  z-index:0;
+  color:#171717;
+  opacity:var(--cast-soft-opacity,.18);
+  filter:blur(var(--cast-soft-blur,1.2px));
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1232,145 +1213,159 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   const loader = document.getElementById("page-transition");
   if (!heading || heading.dataset.physicsFallReady) return;
 
-  const textNode = [...heading.childNodes].find(node =>
+  const sourceText = [...heading.childNodes].find(node =>
     node.nodeType === Node.TEXT_NODE && node.textContent.trim()
   );
-  if (!textNode) return;
+  if (!sourceText) return;
 
   const word = document.createElement("span");
   word.className = "hero-word";
   word.setAttribute("aria-hidden", "true");
 
-  const glyphs = [...textNode.textContent.trim()].map(character => {
+  const glyphs = [...sourceText.textContent.trim()].map(character => {
     const unit = document.createElement("span");
     unit.className = "fall-unit";
 
-    const ground = document.createElement("span");
-    ground.className = "fall-ground-shadow";
-    ground.setAttribute("aria-hidden", "true");
+    const shadowPlane = document.createElement("span");
+    shadowPlane.className = "fall-ground-shadow";
+    shadowPlane.setAttribute("aria-hidden", "true");
 
-    const castSoft = document.createElement("span");
-    castSoft.className = "fall-cast-shape fall-cast-soft";
-    castSoft.textContent = character;
+    const softShadow = document.createElement("span");
+    softShadow.className = "fall-cast-shape fall-cast-soft";
+    softShadow.textContent = character;
 
-    const castHard = document.createElement("span");
-    castHard.className = "fall-cast-shape fall-cast-hard";
-    castHard.textContent = character;
+    const hardShadow = document.createElement("span");
+    hardShadow.className = "fall-cast-shape fall-cast-hard";
+    hardShadow.textContent = character;
 
-    ground.append(castSoft, castHard);
+    shadowPlane.append(softShadow, hardShadow);
 
-    const object = document.createElement("span");
-    object.className = "fall-object";
-
-    const depthStack = document.createElement("span");
-    depthStack.className = "fall-depth-stack";
-    depthStack.setAttribute("aria-hidden", "true");
-
-    const depthLayers = [];
-    const depthPalette = ["#171717", "#171717", "#171717", "#244BFF", "#244BFF", "#E83F78"];
-    for (let layer = 6; layer >= 1; layer--) {
-      const copy = document.createElement("span");
-      copy.className = "fall-depth-layer";
-      copy.textContent = character;
-      copy.style.setProperty("--depth-color", depthPalette[layer - 1]);
-      copy.dataset.depth = String(layer);
-      depthStack.appendChild(copy);
-      depthLayers.push(copy);
-    }
+    const body = document.createElement("span");
+    body.className = "fall-object";
 
     const face = document.createElement("span");
     face.className = "fall-letter";
     face.textContent = character;
 
-    object.append(depthStack, face);
-    unit.append(ground, object);
+    body.appendChild(face);
+    unit.append(shadowPlane, body);
     word.appendChild(unit);
 
-    return { unit, object, face, ground, castSoft, castHard, depthLayers };
+    return { body, softShadow, hardShadow };
   });
 
-  textNode.replaceWith(word);
+  sourceText.replaceWith(word);
   heading.setAttribute("aria-label", "KAELITH 69");
   heading.dataset.physicsFallReady = "true";
 
-  const travel = Math.max(window.innerHeight * 0.9, 720);
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const states = glyphs.map(({unit, object, face, ground, castSoft, castHard, depthLayers}, index) => {
-    const bounds = object.getBoundingClientRect();
-    const glyphWidth = Math.max(1, bounds.width);
-    const glyphHeight = Math.max(1, bounds.height);
-    const extrusionDepth = clamp(5 + glyphWidth * 0.035 + glyphHeight * 0.012, 7, 15);
+  const gravity = 2800;
+  const restitution = 0.24;
+  const friction = 0.52;
+
+  // One fixed directional light projects every glyph onto the same floor plane.
+  const lightX = 0.32;
+  const lightDepth = 0.74;
+  const groundPerspective = 0.16;
+  const fallDistance = Math.max(window.innerHeight * 0.9, 720);
+
+  const states = glyphs.map(({body, softShadow, hardShadow}, index) => {
+    const width = Math.max(1, body.offsetWidth);
+    const height = Math.max(1, body.offsetHeight);
+    const mass = Math.max(0.35, width * height / 15000);
+    const inertia = mass * (width * width + height * height) / 12;
+
     const state = {
-      unit, object, face, ground, castSoft, castHard, depthLayers,
-      glyphWidth, glyphHeight, extrusionDepth,
-      y: -(travel + 100 + index * 18),
-      velocity: 0,
-      angle: (index % 2 ? 1 : -1) * (7 + (index % 3) * 2),
-      angularVelocity: (index % 2 ? -1 : 1) * (24 + index * 3),
-      delay: index * 0.045,
+      body, softShadow, hardShadow,
+      width, height, mass, inertia,
+      x: 0,
+      y: -(fallDistance + 90 + index * 22),
+      vx: 0,
+      vy: 0,
+      angle: (index % 2 ? -1 : 1) * (0.07 + (index % 3) * 0.018),
+      angularVelocity: (index % 2 ? 1 : -1) * (0.42 + (index % 4) * 0.09),
+      delay: index * 0.055,
       impact: 0,
+      grounded: false,
       settled: false
     };
-    object.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}deg)`;
+
+    body.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}rad)`;
     return state;
   });
 
-  const updateShadows = state => {
-    const height = Math.max(0, -state.y);
-    const altitude = clamp(height / travel, 0, 1);
-    const speed = clamp(Math.abs(state.velocity) / 1800, 0, 1);
-    const angle = state.angle * Math.PI / 180;
+  // Map any point of the real glyph silhouette onto the floor along the light rays.
+  const projectToGround = (state, x, y) => {
+    const dx = x - state.width / 2;
+    const dy = y - state.height;
+    const c = Math.cos(state.angle);
+    const sn = Math.sin(state.angle);
 
-    // Real glyph shaped extrusion: each letter has its own measured thickness.
-    const depth = state.extrusionDepth * (1 + speed * 0.08);
-    const stepX = depth / 6;
-    const stepY = depth * 0.76 / 6;
-    state.depthLayers.forEach((layer, index) => {
-      const level = 6 - index;
-      const localX = stepX * level;
-      const localY = stepY * level;
-      layer.style.transform = `translate3d(${localX.toFixed(2)}px,${localY.toFixed(2)}px,0)`;
-    });
+    const objectX = state.width / 2 + c * dx - sn * dy + state.x;
+    const objectY = state.height + sn * dx + c * dy + state.y;
+    const heightAboveGround = Math.max(0, state.height - objectY);
 
-    // Cast the actual glyph silhouette along one fixed upper left light direction.
-    const lightAngle = 7 * Math.PI / 180;
-    const tiltProjection = Math.sin(angle) * state.glyphHeight * 0.28;
-    const castX = height * Math.tan(lightAngle) + tiltProjection;
-    const castY = height * 0.035 + Math.abs(Math.sin(angle)) * 3;
-    const castShear = state.angle * 0.42;
-    const castScaleX = 1 + altitude * 0.10 + Math.abs(state.angle) * 0.0015;
-    const castScaleY = 0.12 + altitude * 0.10;
-    const hardOpacity = clamp(0.58 - altitude * 0.19 + state.impact * 0.20, 0.25, 0.82);
-    const softOpacity = clamp(0.20 + altitude * 0.10 + state.impact * 0.08, 0.12, 0.34);
-    const hardBlur = 0.18 + altitude * 0.72;
-    const softBlur = 1.2 + altitude * 3.4;
-
-    state.ground.style.setProperty("--cast-x", `${castX.toFixed(2)}px`);
-    state.ground.style.setProperty("--cast-y", `${castY.toFixed(2)}px`);
-    state.ground.style.setProperty("--cast-skew", `${castShear.toFixed(2)}deg`);
-    state.ground.style.setProperty("--cast-scale-x", castScaleX.toFixed(3));
-    state.ground.style.setProperty("--cast-scale-y", castScaleY.toFixed(3));
-    state.ground.style.setProperty("--cast-hard-opacity", hardOpacity.toFixed(3));
-    state.ground.style.setProperty("--cast-soft-opacity", softOpacity.toFixed(3));
-    state.ground.style.setProperty("--cast-hard-blur", `${hardBlur.toFixed(2)}px`);
-    state.ground.style.setProperty("--cast-soft-blur", `${softBlur.toFixed(2)}px`);
+    return {
+      x: objectX + heightAboveGround * lightX,
+      y: state.height + heightAboveGround * lightDepth * groundPerspective
+    };
   };
 
-  states.forEach(updateShadows);
+  const updateShadow = state => {
+    const origin = projectToGround(state, 0, 0);
+    const alongX = projectToGround(state, 1, 0);
+    const alongY = projectToGround(state, 0, 1);
+    const a = alongX.x - origin.x;
+    const b = alongX.y - origin.y;
+    const c = alongY.x - origin.x;
+    const d = alongY.y - origin.y;
+    const matrix = `matrix(${a},${b},${c},${d},${origin.x},${origin.y})`;
 
-  let hasStarted = false;
+    state.hardShadow.style.transform = matrix;
+    state.softShadow.style.transform = matrix;
+
+    const altitude = clamp(-state.y / fallDistance, 0, 1);
+    const speed = clamp(Math.abs(state.vy) / 1500, 0, 1);
+    const impact = clamp(state.impact, 0, 1);
+
+    // The hard core stays sharp. Only the penumbra grows with light distance.
+    state.hardShadow.style.opacity = (0.68 - altitude * 0.20 + impact * 0.12).toFixed(3);
+    state.hardShadow.style.filter = `blur(${(0.06 + altitude * 0.36).toFixed(2)}px)`;
+    state.softShadow.style.opacity = (0.08 + altitude * 0.16 + impact * 0.06).toFixed(3);
+    state.softShadow.style.filter = `blur(${(0.7 + altitude * 0.0032 + speed * 0.45).toFixed(2)}px)`;
+  };
+
+  // The bounding rectangle supplies each glyph's support corners, mass and inertia.
+  const supportPoint = state => {
+    const c = Math.cos(state.angle);
+    const sn = Math.sin(state.angle);
+    const corners = [
+      [-state.width / 2, -state.height],
+      [ state.width / 2, -state.height],
+      [-state.width / 2, 0],
+      [ state.width / 2, 0]
+    ];
+
+    let support = null;
+    for (const [localX, localY] of corners) {
+      const point = {
+        x: c * localX - sn * localY,
+        y: sn * localX + c * localY
+      };
+      if (!support || point.y > support.y) support = point;
+    }
+    return support;
+  };
+
+  let started = false;
   const startFall = () => {
-    if (hasStarted) return;
-    hasStarted = true;
-
-    const gravity = 2800;
-    const restitution = 0.28;
-    const rotationalDamping = 0.68;
+    if (started) return;
+    started = true;
     let previousTime = 0;
 
     const tick = time => {
       if (!previousTime) previousTime = time;
-      const dt = Math.min((time - previousTime) / 1000, 0.025);
+      const dt = Math.min((time - previousTime) / 1000, 0.02);
       previousTime = time;
       let moving = false;
 
@@ -1382,40 +1377,79 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           continue;
         }
 
-        state.velocity += gravity * dt;
-        state.y += state.velocity * dt;
+        state.vy += gravity * dt;
+        state.vx += (-state.x * 24 - state.vx * 7) * dt;
+
+        const stiffness = state.grounded ? 48 : 1.4;
+        const angularDamping = state.grounded ? 12 : 1.1;
+        state.angularVelocity += (-state.angle * stiffness - state.angularVelocity * angularDamping) * dt;
+
+        state.y += state.vy * dt;
+        state.x += state.vx * dt;
         state.angle += state.angularVelocity * dt;
 
-        if (state.y >= 0) {
-          state.y = 0;
-          if (state.velocity > 105) {
-            state.impact = clamp(state.velocity / 1800, 0, 1);
-            state.velocity = -state.velocity * restitution;
-            state.angularVelocity *= rotationalDamping;
-            state.angle *= 0.42;
-          } else {
-            state.velocity = 0;
-            state.angularVelocity = 0;
-            state.angle = 0;
-            state.settled = true;
+        state.grounded = false;
+        const support = supportPoint(state);
+        const penetration = state.y + support.y;
+
+        if (penetration > 0) {
+          state.y -= penetration;
+
+          const contactX = support.x;
+          const contactY = support.y;
+          let contactVX = state.vx - state.angularVelocity * contactY;
+          const contactVY = state.vy + state.angularVelocity * contactX;
+
+          if (contactVY > 0) {
+            const normalDenominator = 1 / state.mass + contactX * contactX / state.inertia;
+            const normalImpulse = (1 + restitution) * contactVY / normalDenominator;
+            state.vy -= normalImpulse / state.mass;
+            state.angularVelocity -= contactX * normalImpulse / state.inertia;
+
+            contactVX = state.vx - state.angularVelocity * contactY;
+            const tangentDenominator = 1 / state.mass + contactY * contactY / state.inertia;
+            const tangentImpulse = clamp(
+              -contactVX / tangentDenominator,
+              -friction * normalImpulse,
+              friction * normalImpulse
+            );
+            state.vx += tangentImpulse / state.mass;
+            state.angularVelocity -= contactY * tangentImpulse / state.inertia;
+            state.impact = clamp(normalImpulse / (state.mass * 900), 0, 1);
           }
+
+          state.grounded = true;
         }
 
-        state.impact *= Math.exp(-4.8 * dt);
-        state.object.style.transform =
-          `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
-        updateShadows(state);
+        state.impact *= Math.exp(-5.5 * dt);
+        state.body.style.transform =
+          `translate3d(${state.x.toFixed(2)}px,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(4)}rad)`;
+        updateShadow(state);
+
+        if (
+          state.grounded &&
+          Math.abs(state.vy) < 10 &&
+          Math.abs(state.vx) < 1.5 &&
+          Math.abs(state.angularVelocity) < 0.035 &&
+          Math.abs(state.angle) < 0.012 &&
+          Math.abs(state.x) < 0.5
+        ) {
+          state.x = 0;
+          state.y = 0;
+          state.vx = 0;
+          state.vy = 0;
+          state.angle = 0;
+          state.angularVelocity = 0;
+          state.settled = true;
+          state.body.style.transform = "none";
+          updateShadow(state);
+        }
+
         if (!state.settled) moving = true;
       }
 
-      if (moving) {
-        requestAnimationFrame(tick);
-      } else {
-        states.forEach(state => {
-          state.object.style.transform = "none";
-          state.object.style.willChange = "auto";
-        });
-      }
+      if (moving) requestAnimationFrame(tick);
+      else states.forEach(state => { state.body.style.willChange = "auto"; });
     };
 
     requestAnimationFrame(tick);
