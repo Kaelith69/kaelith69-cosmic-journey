@@ -1589,7 +1589,29 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   if(!loader||loader.dataset.loaderFinished==="true") window.startKaelithFall();
 })();
 </script>
+<script>
+(() => {
+  const artwork = document.querySelector(".hero-orbit-art");
+  if (!artwork) return;
 
+  let frame = 0;
+  const updateRotation = () => {
+    frame = 0;
+    const rotation = window.scrollY * 0.12;
+    artwork.style.transform = `rotate(${rotation}deg)`;
+  };
+
+  const requestRotationUpdate = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(updateRotation);
+  };
+
+  window.addEventListener("scroll", requestRotationUpdate, { passive: true });
+  window.addEventListener("pageshow", requestRotationUpdate);
+  window.addEventListener("resize", requestRotationUpdate, { passive: true });
+  requestRotationUpdate();
+})();
+</script>
 
 
 </body></html>
