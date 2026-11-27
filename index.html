@@ -38,7 +38,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .hero::after{content:"";position:absolute;z-index:-1;width:min(51vw,680px);aspect-ratio:1;border:2px solid var(--white);border-radius:50%;right:-7%;top:18%;box-shadow:0 0 0 22px transparent,0 0 0 24px rgba(23,23,23,.18);animation:orbit 70s linear infinite;pointer-events:none}
 .hero-content{width:100%;position:relative;isolation:isolate}
 .hero h1{font:900 clamp(92px,18.5vw,270px)/.72 var(--display);letter-spacing:-.02em;margin:0;text-transform:uppercase;position:relative;z-index:1}
-.hero h1 span{
+.hero h1>.hero-word{
+  display:block;
+  width:max-content;
+  white-space:nowrap;
+}
+.hero h1>span:not(.hero-word){
   display:block;
   position:relative;
   width:max-content;
@@ -46,14 +51,22 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   margin-left:clamp(26px,11vw,170px);
   -webkit-text-stroke:2px var(--navy);
   paint-order:stroke fill;
-  text-shadow:
-    5px 5px 0 var(--navy),
-    10px 10px 0 var(--blue),
-    14px 14px 0 var(--magenta);
+  text-shadow:5px 5px 0 var(--navy),10px 10px 0 var(--blue),14px 14px 0 var(--magenta);
   filter:drop-shadow(5px 5px 0 rgba(23,23,23,.12));
 }
+.hero h1 .fall-letter{
+  display:inline-block;
+  margin:0;
+  padding:0;
+  color:inherit;
+  -webkit-text-stroke:0;
+  text-shadow:none;
+  filter:none;
+  transform-origin:50% 88%;
+  will-change:transform;
+}
 @media(max-width:760px){
-  .hero h1 span{
+  .hero h1>span:not(.hero-word){
     -webkit-text-stroke:1.5px var(--navy);
     text-shadow:4px 4px 0 var(--navy),8px 8px 0 var(--blue),11px 11px 0 var(--magenta);
   }
@@ -1074,7 +1087,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     overlay.setAttribute("aria-hidden","true");
     overlay.dataset.loaderFinished = "true";
     if (main) main.removeAttribute("aria-busy");
-    window.dispatchEvent(new Event("kaelith:loader-finished"));
+    if (window.startKaelithFall) window.startKaelithFall();
   };
   const countTo69 = runId => new Promise(resolve => {
     let value = 0;
@@ -1159,108 +1172,120 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 
 <script>
 (() => {
-  const init = () => {
-    const title = document.querySelector(".hero h1");
-    const overlay = document.getElementById("page-transition");
-    if (!title || title.dataset.physicsFallBuilt) return;
+  const heading = document.querySelector(".hero h1");
+  const loader = document.getElementById("page-transition");
+  if (!heading || heading.dataset.physicsFallReady) return;
 
-    const textNode = [...title.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (!textNode) return;
+  const textNode = [...heading.childNodes].find(node =>
+    node.nodeType === Node.TEXT_NODE && node.textContent.trim()
+  );
+  if (!textNode) return;
 
-    const letters = [...textNode.textContent.trim()].map(character => {
-      const letter = document.createElement("span");
-      letter.className = "fall-letter";
-      letter.textContent = character;
-      letter.setAttribute("aria-hidden", "true");
-      return letter;
-    });
-    const fragment = document.createDocumentFragment();
-    letters.forEach(letter => fragment.appendChild(letter));
-    textNode.replaceWith(fragment);
-    title.setAttribute("aria-label", "KAELITH 69");
-    title.dataset.physicsFallBuilt = "true";
+  const word = document.createElement("span");
+  word.className = "hero-word";
+  word.setAttribute("aria-hidden", "true");
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const glyphs = [...textNode.textContent.trim()].map(character => {
+    const glyph = document.createElement("span");
+    glyph.className = "fall-letter";
+    glyph.textContent = character;
+    word.appendChild(glyph);
+    return glyph;
+  });
 
-    const states = letters.map((element, index) => {
-      const state = {
-        element,
-        y: -(window.innerHeight + 320 + index * 16),
-        velocity: 0,
-        angle: (index % 2 ? -1 : 1) * (8 + index % 3 * 2),
-        spin: (index % 2 ? 1 : -1) * (32 + index * 3),
-        delay: index * 0.055,
-        settled: false
-      };
-      element.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}deg)`;
-      return state;
-    });
+  textNode.replaceWith(word);
+  heading.setAttribute("aria-label", "KAELITH 69");
+  heading.dataset.physicsFallReady = "true";
 
-    let started = false;
-    const launch = () => {
-      if (started) return;
-      started = true;
-      const gravity = 3000;
-      const restitution = 0.30;
-      let previous = 0;
+  const travel = Math.max(window.innerHeight * 0.9, 720);
+  const states = glyphs.map((element, index) => {
+    const state = {
+      element,
+      y: -(travel + 100 + index * 18),
+      velocity: 0,
+      angle: (index % 2 ? -1 : 1) * (7 + (index % 3) * 2),
+      angularVelocity: (index % 2 ? 1 : -1) * (24 + index * 3),
+      delay: index * 0.045,
+      settled: false
+    };
+    element.style.transform = `translate3d(0,${state.y}px,0) rotate(${state.angle}deg)`;
+    return state;
+  });
 
-      const frame = time => {
-        if (!previous) previous = time;
-        const dt = Math.min((time - previous) / 1000, 0.025);
-        previous = time;
-        let moving = false;
+  let hasStarted = false;
 
-        states.forEach(state => {
-          if (state.settled) return;
-          if (state.delay > 0) {
-            state.delay = Math.max(0, state.delay - dt);
-            moving = true;
-            return;
+  const startFall = () => {
+    if (hasStarted) return;
+    hasStarted = true;
+
+    const gravity = 2800;
+    const restitution = 0.28;
+    const rotationalDamping = 0.68;
+    let previousTime = 0;
+
+    const tick = time => {
+      if (!previousTime) previousTime = time;
+      const dt = Math.min((time - previousTime) / 1000, 0.025);
+      previousTime = time;
+      let moving = false;
+
+      for (const state of states) {
+        if (state.settled) continue;
+
+        if (state.delay > 0) {
+          state.delay = Math.max(0, state.delay - dt);
+          moving = true;
+          continue;
+        }
+
+        state.velocity += gravity * dt;
+        state.y += state.velocity * dt;
+        state.angle += state.angularVelocity * dt;
+
+        if (state.y >= 0) {
+          state.y = 0;
+          if (state.velocity > 105) {
+            state.velocity = -state.velocity * restitution;
+            state.angularVelocity *= rotationalDamping;
+            state.angle *= 0.42;
+          } else {
+            state.velocity = 0;
+            state.angularVelocity = 0;
+            state.angle = 0;
+            state.settled = true;
           }
+        }
 
-          state.velocity += gravity * dt;
-          state.y += state.velocity * dt;
-          state.angle += state.spin * dt;
+        state.element.style.transform =
+          `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
+        if (!state.settled) moving = true;
+      }
 
-          if (state.y >= 0) {
-            state.y = 0;
-            if (state.velocity > 100) {
-              state.velocity = -state.velocity * restitution;
-              state.spin *= 0.68;
-              state.angle *= 0.42;
-            } else {
-              state.velocity = 0;
-              state.spin = 0;
-              state.angle = 0;
-              state.settled = true;
-            }
-          }
-
-          state.element.style.transform = `translate3d(0,${state.y.toFixed(2)}px,0) rotate(${state.angle.toFixed(2)}deg)`;
-          if (!state.settled) moving = true;
-        });
-
-        if (moving) requestAnimationFrame(frame);
-        else states.forEach(({element}) => {
+      if (moving) {
+        requestAnimationFrame(tick);
+      } else {
+        states.forEach(({element}) => {
           element.style.transform = "none";
           element.style.willChange = "auto";
         });
-      };
-      requestAnimationFrame(frame);
+      }
     };
 
-    const onLoaderFinished = () => {
-      if (overlay && overlay.classList.contains("is-active")) return;
-      requestAnimationFrame(() => requestAnimationFrame(launch));
-    };
-
-    // The explicit flag covers fast navigation where the loader finished before this script ran.
-    if (!overlay || overlay.dataset.loaderFinished === "true") onLoaderFinished();
-    else window.addEventListener("kaelith:loader-finished", onLoaderFinished, { once: true });
+    requestAnimationFrame(tick);
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-  else init();
+  // The loader sets this flag when it begins fading out. Its fade lasts 220 ms.
+  window.startKaelithFall = () => {
+    if (loader && loader.dataset.loaderFinished !== "true") return;
+    window.setTimeout(() => {
+      requestAnimationFrame(() => requestAnimationFrame(startFall));
+    }, 260);
+  };
+
+  // Also handles fast navigation where the loader finished before this script ran.
+  if (!loader || loader.dataset.loaderFinished === "true") {
+    window.startKaelithFall();
+  }
 })();
 </script>
 
