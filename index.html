@@ -91,15 +91,16 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   position:absolute;
   left:0;
   top:0;
-  display:block;
-  width:max-content;
-  height:auto;
+  display:inline-block;
+  width:100%;
+  height:100%;
   margin:0;
   padding:0;
   white-space:pre;
   font:inherit;
   line-height:inherit;
   letter-spacing:inherit;
+  vertical-align:baseline;
   text-transform:inherit;
   text-shadow:none;
   -webkit-text-stroke:0;
@@ -109,14 +110,14 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
 .hero h1 .fall-cast-hard{
   z-index:1;
   color:#171717;
-  opacity:var(--cast-hard-opacity,.31);
-  filter:blur(var(--cast-hard-blur,.1px));
+  opacity:.31;
+  filter:blur(.1px);
 }
 .hero h1 .fall-cast-soft{
   z-index:0;
   color:#171717;
-  opacity:var(--cast-soft-opacity,.11);
-  filter:blur(var(--cast-soft-blur,2.4px));
+  opacity:.11;
+  filter:blur(2.4px);
 }
 @media(max-width:760px){
   .hero h1>span:not(.hero-word){
@@ -1293,11 +1294,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     const inertia = mass * (width * width + height * height) / 12;
     const baseX = unit.getBoundingClientRect().left;
 
-    [...softShadows, hardShadow].forEach(shadow => {
-      shadow.style.width = `${width}px`;
-      shadow.style.height = `${height}px`;
-    });
-
     const state = {
       body, hardShadow, softShadows,
       width, height, mass, inertia,
@@ -1495,7 +1491,6 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
           state.y -= penetration;
           const contactX = support.x;
           const contactY = support.y;
-          const contactVX = state.vx - state.angularVelocity * contactY;
           const contactVY = state.vy + state.angularVelocity * contactX;
 
           if (contactVY > 0) {
