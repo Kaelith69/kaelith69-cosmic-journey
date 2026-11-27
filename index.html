@@ -1709,7 +1709,7 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     cards[0].style.opacity = "0";
     cards[0].style.transform = blueStart;
 
-    cards[1].style.opacity = "1";
+    cards[1].style.opacity = "0";
     cards[1].style.transform = underBlue;
 
     cards[2].style.opacity = "0";
@@ -1724,9 +1724,11 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
     }
 
     await playCard(cards[0],blueStart,720,0);
+
+    cards[1].style.opacity = "1";
     await playCard(cards[1],underBlue,700,1);
 
-    cards[2].style.opacity = "0";
+    cards[2].style.opacity = "1";
     await playCard(cards[2],underOrange,700,1);
   };
 
