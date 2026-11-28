@@ -1148,7 +1148,12 @@ a:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
   .home-focus-card{min-height:280px;box-shadow:7px 7px 0 var(--navy)}
 }
 @media(prefers-reduced-motion:reduce){
-  .home-focus.is-revealed .home-focus-card{animation:none!important;opacity:1;transform:none}
+  /* This section has an explicit requested slide cascade. Keep it animated
+     while the site's other motion continues to respect reduced-motion. */
+  .home-focus.is-revealed .home-focus-card{
+    animation-duration:720ms!important;
+    animation-iteration-count:1!important;
+  }
 }
 
 </style>
